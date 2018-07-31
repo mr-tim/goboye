@@ -1,6 +1,7 @@
 go_library(
     name = 'cpu',
     srcs = [
+        'opcodes.go',
         'registers.go',
     ],
     deps = [
