@@ -17,5 +17,5 @@ func load16BitToBC(op opcode, p *processor) {
 func saveAtoBCAddr(op opcode, p *processor) {
 	addrLE := p.registers.bc
 	addr := ((0xFF00 & addrLE) >> 8) | uint16(0xFF & addrLE) << 8
- 	p.memory.WriteByte(int(addr), p.registers.getRegister(A))
+ 	p.memory.WriteByte(addr, p.registers.getRegister(A))
 }

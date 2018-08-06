@@ -3,8 +3,8 @@ package cpu
 import "goboye/memory"
 
 type processor struct {
-	programCounter int
-	stackPointer int
+	programCounter uint16
+	stackPointer uint16
 
 	registers *registers
 	memory memory.MemoryMap
