@@ -18,6 +18,8 @@ const (
 	BC
 	DE
 	HL
+	SP
+	PC
 )
 
 type registerPair int
@@ -58,8 +60,12 @@ func (r *registers) getRegisterPair(regPair registerPair) uint16 {
 		return r.bc
 	} else if regPair == DE {
 		return r.de
-	} else {
+	} else if regPair == HL {
 		return r.hl
+	} else if regPair == PC {
+		return r.pc
+	} else {
+		return r.sp
 	}
 }
 
@@ -70,8 +76,12 @@ func (r *registers) setRegisterPair(regPair registerPair, value uint16)  {
 		r.bc = value
 	} else if regPair == DE {
 		r.de = value
-	} else {
+	} else if regPair == HL {
 		r.hl = value
+	} else if regPair == PC {
+		r.pc = value
+	} else {
+		r.sp = value
 	}
 }
 
