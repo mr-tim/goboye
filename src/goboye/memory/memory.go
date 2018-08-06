@@ -32,6 +32,8 @@ type memoryMap struct {
 type MemoryMap interface {
 	LoadRomImage(filename string) error
 	ReadByte(addr int) byte
+	WriteByte(addr int, value byte)
+	ReadU16(addr int) uint16
 }
 
 func NewMemoryMapWithBytes(bytes []byte) MemoryMap {
@@ -58,4 +60,12 @@ func (m *memoryMap) initWithBytes(bytes []byte) {
 
 func (m *memoryMap) ReadByte(addr int) byte {
 	return m.mem[addr]
+}
+
+func (m *memoryMap) WriteByte(addr int, value byte) {
+	m.mem[addr] = value
+}
+
+func (m *memoryMap) ReadU16(addr int) uint16 {
+	return (uint16(m.mem[addr+1]) << 8) | uint16(m.mem[addr])
 }

@@ -13,8 +13,8 @@ type opcode struct {
 
 var (
 	OpcodeNop = opcode{0x00, "NOP", "No Operation", 0, 1, nopHandler}
-	OpcodeLdBcnn = opcode{0x01, "LD BC,nn", "Load 16-bit immediate into BC", 0, 1, unimplementedHandler}
-	OpcodeLdBca = opcode{0x02, "LD (BC),A", "Save A to address pointed by BC", 0, 1, unimplementedHandler}
+	OpcodeLdBcnn = opcode{0x01, "LD BC,nn", "Load 16-bit immediate into BC", 0, 1, load16BitToBC}
+	OpcodeLdBca = opcode{0x02, "LD (BC),A", "Save A to address pointed by BC", 0, 1, saveAtoBCAddr}
 	OpcodeIncBc = opcode{0x03, "INC BC", "Increment 16-bit BC", 0, 1, unimplementedHandler}
 	OpcodeIncB = opcode{0x04, "INC B", "Increment B", 0, 1, unimplementedHandler}
 	OpcodeDecB = opcode{0x05, "DEC B", "Decrement B", 0, 1, unimplementedHandler}
