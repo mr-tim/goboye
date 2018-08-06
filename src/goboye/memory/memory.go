@@ -29,7 +29,18 @@ type memoryMap struct {
 	mem []byte
 }
 
-func (m *memoryMap) loadRomImage(filename string) error {
+type MemoryMap interface {
+	LoadRomImage(filename string) error
+	ReadByte(addr int) byte
+}
+
+func NewMemoryMapWithBytes(bytes []byte) MemoryMap {
+	m := memoryMap{make([]byte, MEM_SIZE)}
+	m.initWithBytes(bytes)
+	return &m
+}
+
+func (m *memoryMap) LoadRomImage(filename string) error {
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -37,6 +48,14 @@ func (m *memoryMap) loadRomImage(filename string) error {
 
 	romBytes := make([]byte, ROM_SIZE)
 	io.ReadAtLeast(f, romBytes, ROM_SIZE)
-	m.mem = append(romBytes[:ROM_SIZE], m.mem[ROM_SIZE:]...)
+	m.initWithBytes(romBytes)
 	return nil
+}
+
+func (m *memoryMap) initWithBytes(bytes []byte) {
+	m.mem = append(bytes[:], m.mem[len(bytes):]...)
+}
+
+func (m *memoryMap) ReadByte(addr int) byte {
+	return m.mem[addr]
 }

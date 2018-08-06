@@ -25,7 +25,7 @@ func TestLoadRom(t *testing.T) {
 		mem: make([]byte, MEM_SIZE),
 	}
 
-	m.loadRomImage(f.Name())
+	m.LoadRomImage(f.Name())
 
 	assert.Equal(t, uint8(0x00), m.mem[0x0000])
 	assert.Equal(t, uint8(0x23), m.mem[0x0023])

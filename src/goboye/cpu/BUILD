@@ -2,15 +2,19 @@ go_library(
     name = 'cpu',
     srcs = [
         'opcodes.go',
+        'opcode_handlers.go',
+        'processor.go',
         'registers.go',
     ],
     deps = [
+        '//goboye/memory:memory',
     ],
 )
 
 go_test(
     name = 'cpu_test',
     srcs = [
+        'opcode_handlers_test.go',
         'registers_test.go',
     ],
     deps = [

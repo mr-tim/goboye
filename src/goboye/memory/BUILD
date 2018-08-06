@@ -2,6 +2,9 @@ go_library(
     name = 'memory',
     srcs = [
         'memory.go',
+    ],
+    visibility = [
+        '//goboye/cpu:cpu',
     ]
 )
 
