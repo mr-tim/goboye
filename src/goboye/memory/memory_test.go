@@ -3,13 +3,13 @@ package memory
 import (
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"testing"
 	"os"
-	)
+	"testing"
+)
 
 func TestLoadRom(t *testing.T) {
 	buf := make([]byte, ROM_SIZE)
-	for i:=0; i<ROM_SIZE; i++ {
+	for i := 0; i < ROM_SIZE; i++ {
 		buf[i] = byte(i % 0x100)
 	}
 

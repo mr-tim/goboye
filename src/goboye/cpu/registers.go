@@ -26,7 +26,7 @@ type registerPair int
 
 type registers struct {
 	af, bc, de, hl uint16
-	sp, pc uint16
+	sp, pc         uint16
 }
 
 func (r *registers) getRegister(reg register) uint8 {
@@ -42,7 +42,7 @@ func (r *registers) setRegister(reg register, value uint8) {
 	orig := *ptr
 	x := uint16(value) << shift
 	y := uint8(orig << (8 - shift))
-	*ptr = x | (uint16(y) << (8-shift))
+	*ptr = x | (uint16(y) << (8 - shift))
 }
 
 func (r *registers) getShift(reg register) uint8 {
@@ -69,7 +69,7 @@ func (r *registers) getRegisterPair(regPair registerPair) uint16 {
 	}
 }
 
-func (r *registers) setRegisterPair(regPair registerPair, value uint16)  {
+func (r *registers) setRegisterPair(regPair registerPair, value uint16) {
 	if regPair == AF {
 		r.af = value
 	} else if regPair == BC {
@@ -84,8 +84,6 @@ func (r *registers) setRegisterPair(regPair registerPair, value uint16)  {
 		r.sp = value
 	}
 }
-
-
 
 func (r *registers) getRegisterPointer(reg register) *uint16 {
 	if reg == A || reg == F {

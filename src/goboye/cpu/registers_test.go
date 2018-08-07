@@ -3,7 +3,7 @@ package cpu
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
-	)
+)
 
 func TestSetRegister(t *testing.T) {
 	r := registers{}

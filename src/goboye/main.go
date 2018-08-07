@@ -1,8 +1,8 @@
 package main
 
 import (
-	"goboye/display"
 	"github.com/veandco/go-sdl2/sdl"
+	"goboye/display"
 )
 
 func main() {

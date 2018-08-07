@@ -4,7 +4,7 @@ import "goboye/memory"
 
 type processor struct {
 	registers *registers
-	memory memory.MemoryMap
+	memory    memory.MemoryMap
 }
 
 func (p *processor) readNextInstruction() opcode {

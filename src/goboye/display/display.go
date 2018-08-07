@@ -31,5 +31,5 @@ func NewDisplay() (Display, error) {
 	surface.FillRect(&rect, 0xffff00ff)
 	window.UpdateSurface()
 
-	return SdlDisplay{ window: window }, nil
+	return SdlDisplay{window: window}, nil
 }

@@ -1,22 +1,22 @@
 package cpu
 
 import (
-	"testing"
-	"goboye/memory"
 	"github.com/stretchr/testify/assert"
+	"goboye/memory"
+	"testing"
 )
 
 func setupHandlerTest(bytes []byte) *processor {
 	m := memory.NewMemoryMapWithBytes(bytes)
-	rs := &registers {}
+	rs := &registers{}
 	return &processor{
 		registers: rs,
-		memory: m,
+		memory:    m,
 	}
 }
 
 func TestNopHandler(t *testing.T) {
-	p := setupHandlerTest([]byte { 0x00 })
+	p := setupHandlerTest([]byte{0x00})
 	readAndPerformNextOp(p)
 
 	assert.Equal(t, uint16(1), p.registers.pc)
@@ -40,7 +40,7 @@ func TestLoad16BitToSP(t *testing.T) {
 }
 
 func doTestLoad16BitImmediate(t *testing.T, op byte, rp registerPair) {
-	p := setupHandlerTest([]byte {op, 0x34, 0x12})
+	p := setupHandlerTest([]byte{op, 0x34, 0x12})
 	readAndPerformNextOp(p)
 
 	assert.Equal(t, uint16(3), p.registers.pc)
@@ -66,7 +66,7 @@ func TestSaveAtoHLAddrDec(t *testing.T) {
 }
 
 func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp registerPair) *processor {
-	p := setupHandlerTest([]byte { op, 0x46, 0x27, 0x83, 0x91, 0x27, 0x96})
+	p := setupHandlerTest([]byte{op, 0x46, 0x27, 0x83, 0x91, 0x27, 0x96})
 	p.registers.af = 0x5657
 	assert.Equal(t, uint8(0x56), p.registers.getRegister(r))
 	p.registers.setRegisterPair(rp, 0x0400)
@@ -96,7 +96,7 @@ func TestIncrementSP(t *testing.T) {
 }
 
 func doTestIncrementRegPair(t *testing.T, op byte, rp registerPair) {
-	p := setupHandlerTest([]byte { op })
+	p := setupHandlerTest([]byte{op})
 	p.registers.setRegisterPair(rp, 0x13ff)
 
 	readAndPerformNextOp(p)

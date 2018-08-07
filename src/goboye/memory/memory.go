@@ -1,9 +1,9 @@
 package memory
 
 import (
-	"os"
 	"io"
-	)
+	"os"
+)
 
 /*
 	see p13/14 in programming manual
