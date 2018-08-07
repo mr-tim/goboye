@@ -47,3 +47,23 @@ func saveAToHLAddrDec(op opcode, p *processor) {
 	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(A))
 	p.registers.hl--
 }
+
+func incrementBC(op opcode, p *processor) {
+	incrementRegPair(p, BC)
+}
+
+func incrementDE(op opcode, p *processor) {
+	incrementRegPair(p, DE)
+}
+
+func incrementHL(op opcode, p *processor) {
+	incrementRegPair(p, HL)
+}
+
+func incrementSP(op opcode, p *processor) {
+	incrementRegPair(p, SP)
+}
+
+func incrementRegPair(p *processor, rp registerPair) {
+	p.registers.setRegisterPair(rp, p.registers.getRegisterPair(rp)+1)
+}

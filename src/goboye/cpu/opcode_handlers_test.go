@@ -79,6 +79,32 @@ func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp regis
 	return p
 }
 
+func TestIncrementBC(t *testing.T) {
+	doTestIncrementRegPair(t, 0x03, BC)
+}
+
+func TestIncrementDE(t *testing.T) {
+	doTestIncrementRegPair(t, 0x13, DE)
+}
+
+func TestIncrementHL(t *testing.T) {
+	doTestIncrementRegPair(t, 0x23, HL)
+}
+
+func TestIncrementSP(t *testing.T) {
+	doTestIncrementRegPair(t, 0x33, SP)
+}
+
+func doTestIncrementRegPair(t *testing.T, op byte, rp registerPair) {
+	p := setupHandlerTest([]byte { op })
+	p.registers.setRegisterPair(rp, 0x13ff)
+
+	readAndPerformNextOp(p)
+
+	assert.Equal(t, uint16(1), p.registers.pc)
+	assert.Equal(t, uint16(0x1400), p.registers.getRegisterPair(rp))
+}
+
 func readAndPerformNextOp(p *processor) {
 	o := p.readNextInstruction()
 	o.handler(o, p)
