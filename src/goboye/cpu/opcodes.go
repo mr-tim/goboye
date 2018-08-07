@@ -14,7 +14,7 @@ type opcode struct {
 var (
 	OpcodeNop = opcode{0x00, "NOP", "No Operation", 0, 1, nopHandler}
 	OpcodeLdBcnn = opcode{0x01, "LD BC,nn", "Load 16-bit immediate into BC", 0, 1, load16BitToBC}
-	OpcodeLdBca = opcode{0x02, "LD (BC),A", "Save A to address pointed by BC", 0, 1, saveAtoBCAddr}
+	OpcodeLdBca = opcode{0x02, "LD (BC),A", "Save A to address pointed by BC", 0, 1, saveAToBCAddr}
 	OpcodeIncBc = opcode{0x03, "INC BC", "Increment 16-bit BC", 0, 1, unimplementedHandler}
 	OpcodeIncB = opcode{0x04, "INC B", "Increment B", 0, 1, unimplementedHandler}
 	OpcodeDecB = opcode{0x05, "DEC B", "Decrement B", 0, 1, unimplementedHandler}
@@ -29,8 +29,8 @@ var (
 	OpcodeLdCn = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 0, 1, unimplementedHandler}
 	OpcodeRrcA = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 1, unimplementedHandler}
 	OpcodeStop = opcode{0x10, "STOP", "Stop processor", 0, 1, unimplementedHandler}
-	OpcodeLdDenn = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 0, 1, unimplementedHandler}
-	OpcodeLdDea = opcode{0x12, "LD (DE),A", "Save A to address pointed by DE", 0, 1, unimplementedHandler}
+	OpcodeLdDenn = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 0, 1, load16BitToDE}
+	OpcodeLdDea = opcode{0x12, "LD (DE),A", "Save A to address pointed by DE", 0, 1, saveAToDEAddr}
 	OpcodeIncDe = opcode{0x13, "INC DE", "Increment 16-bit DE", 0, 1, unimplementedHandler}
 	OpcodeIncD = opcode{0x14, "INC D", "Increment D", 0, 1, unimplementedHandler}
 	OpcodeDecD = opcode{0x15, "DEC D", "Decrement D", 0, 1, unimplementedHandler}
@@ -45,8 +45,8 @@ var (
 	OpcodeLdEn = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 0, 1, unimplementedHandler}
 	OpcodeRrA = opcode{0x1F, "RR A", "Rotate A right", 0, 1, unimplementedHandler}
 	OpcodeJrNzn = opcode{0x20, "JR NZ,n", "Relative jump by signed immediate if last result was not zero", 0, 1, unimplementedHandler}
-	OpcodeLdHlnn = opcode{0x21, "LD HL,nn", "Load 16-bit immediate into HL", 0, 1, unimplementedHandler}
-	OpcodeLdiHla = opcode{0x22, "LDI (HL),A", "Save A to address pointed by HL, and increment HL", 0, 1, unimplementedHandler}
+	OpcodeLdHlnn = opcode{0x21, "LD HL,nn", "Load 16-bit immediate into HL", 0, 1, load16BitToHL}
+	OpcodeLdiHla = opcode{0x22, "LDI (HL),A", "Save A to address pointed by HL, and increment HL", 0, 1, saveAToHLAddrInc}
 	OpcodeIncHlx23 = opcode{0x23, "INC HL", "Increment 16-bit HL", 0, 1, unimplementedHandler}
 	OpcodeIncH = opcode{0x24, "INC H", "Increment H", 0, 1, unimplementedHandler}
 	OpcodeDecH = opcode{0x25, "DEC H", "Decrement H", 0, 1, unimplementedHandler}
@@ -61,8 +61,8 @@ var (
 	OpcodeLdLn = opcode{0x2E, "LD L,n", "Load 8-bit immediate into L", 0, 1, unimplementedHandler}
 	OpcodeCpl = opcode{0x2F, "CPL", "Complement (logical NOT) on A", 0, 1, unimplementedHandler}
 	OpcodeJrNcn = opcode{0x30, "JR NC,n", "Relative jump by signed immediate if last result caused no carry", 0, 1, unimplementedHandler}
-	OpcodeLdSpnn = opcode{0x31, "LD SP,nn", "Load 16-bit immediate into SP", 0, 1, unimplementedHandler}
-	OpcodeLddHla = opcode{0x32, "LDD (HL),A", "Save A to address pointed by HL, and decrement HL", 0, 1, unimplementedHandler}
+	OpcodeLdSpnn = opcode{0x31, "LD SP,nn", "Load 16-bit immediate into SP", 0, 1, load16BitToSP}
+	OpcodeLddHla = opcode{0x32, "LDD (HL),A", "Save A to address pointed by HL, and decrement HL", 0, 1, saveAToHLAddrDec}
 	OpcodeIncSp = opcode{0x33, "INC SP", "Increment 16-bit HL", 0, 1, unimplementedHandler}
 	OpcodeIncHlx34 = opcode{0x34, "INC (HL)", "Increment value pointed by HL", 0, 1, unimplementedHandler}
 	OpcodeDecHlx35 = opcode{0x35, "DEC (HL)", "Decrement value pointed by HL", 0, 1, unimplementedHandler}

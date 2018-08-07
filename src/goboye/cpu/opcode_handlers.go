@@ -12,13 +12,38 @@ func load16BitToBC(op opcode, p *processor) {
 	load16BitToRegPair(p, BC)
 }
 
+func load16BitToDE(op opcode, p *processor) {
+	load16BitToRegPair(p, DE)
+}
+
+func load16BitToHL(op opcode, p *processor) {
+	load16BitToRegPair(p, HL)
+}
+
+func load16BitToSP(op opcode, p *processor) {
+	load16BitToRegPair(p, SP)
+}
+
 func load16BitToRegPair(p *processor, pair registerPair) {
 	value := p.memory.ReadU16(p.registers.pc)
 	p.registers.pc += 2
 	p.registers.setRegisterPair(pair, value)
 }
 
-func saveAtoBCAddr(op opcode, p *processor) {
-	addr := p.registers.bc
-	p.memory.WriteByte(addr, p.registers.getRegister(A))
+func saveAToBCAddr(op opcode, p *processor) {
+	p.memory.WriteByte(p.registers.bc, p.registers.getRegister(A))
+}
+
+func saveAToDEAddr(op opcode, p *processor) {
+	p.memory.WriteByte(p.registers.de, p.registers.getRegister(A))
+}
+
+func saveAToHLAddrInc(op opcode, p *processor) {
+	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(A))
+	p.registers.hl++
+}
+
+func saveAToHLAddrDec(op opcode, p *processor) {
+	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(A))
+	p.registers.hl--
 }
