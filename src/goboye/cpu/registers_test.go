@@ -19,6 +19,15 @@ func TestSetRegister(t *testing.T) {
 	}
 }
 
+func TestSetTwoAdjacentRegisters(t *testing.T) {
+	r := registers{}
+	r.setRegister(A, 0xA5)
+	assert.Equal(t, uint8(0xA5), r.getRegister(A))
+	r.setRegister(F, 0x6D)
+	assert.Equal(t, uint8(0x6D), r.getRegister(F))
+	assert.Equal(t, uint8(0xA5), r.getRegister(A))
+}
+
 func TestSetRegisterPair(t *testing.T) {
 	r := registers{}
 	rs := []registerPair{AF, BC, DE, HL, SP}

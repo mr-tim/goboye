@@ -40,9 +40,18 @@ func (r *registers) setRegister(reg register, value uint8) {
 	shift := r.getShift(reg)
 	ptr := r.getRegisterPointer(reg)
 	orig := *ptr
-	x := uint16(value) << shift
-	y := uint8(orig << (8 - shift))
-	*ptr = x | (uint16(y) << (8 - shift))
+	var x, y uint16
+	if shift == 8 {
+		//update high byte
+		x = uint16(value) << shift
+		y = orig & 0x00FF
+	} else {
+		//update low
+		x = orig & 0xFF00
+		y = uint16(value)
+	}
+
+	*ptr = x | y
 }
 
 func (r *registers) getShift(reg register) uint8 {
