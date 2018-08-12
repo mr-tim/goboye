@@ -2,6 +2,7 @@ package cpu
 
 type register int
 
+//TODO: Rename these to Register{} etc
 const (
 	A = iota
 	F
@@ -20,6 +21,15 @@ const (
 	HL
 	SP
 	PC
+)
+
+type opResultFlag uint8
+
+const (
+	FlagZ opResultFlag = 0x80
+	FlagN              = 0x40
+	FlagH              = 0x20
+	FlagC              = 0x10
 )
 
 type registerPair int
@@ -104,4 +114,8 @@ func (r *registers) getRegisterPointer(reg register) *uint16 {
 	} else {
 		return &r.hl
 	}
+}
+
+func (r *registers) getFlagValue(flag opResultFlag) bool {
+	return (uint8(flag) & r.getRegister(F)) != 0
 }
