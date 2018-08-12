@@ -70,6 +70,25 @@ func load8BitToHLAddr(op opcode, p *processor) {
 	p.memory.WriteByte(p.registers.hl, value)
 }
 
+func loadRegToReg(to, from register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		p.registers.setRegister(to, p.registers.getRegister(from))
+	}
+}
+
+func loadHLAddrToReg(to register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		value := p.memory.ReadByte(p.registers.hl)
+		p.registers.setRegister(to, value)
+	}
+}
+
+func loadRegToHLAddr(from register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		p.memory.WriteByte(p.registers.hl, p.registers.getRegister(from))
+	}
+}
+
 func saveAToBCAddr(op opcode, p *processor) {
 	p.memory.WriteByte(p.registers.bc, p.registers.getRegister(RegisterA))
 }
