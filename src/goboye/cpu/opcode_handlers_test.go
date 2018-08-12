@@ -47,6 +47,51 @@ func doTestLoad16BitImmediate(t *testing.T, op byte, rp registerPair) {
 	assert.Equal(t, uint16(0x1234), p.registers.getRegisterPair(rp))
 }
 
+func TestLoad8BitToA(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x3E, RegisterA)
+}
+
+func TestLoad8BitToB(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x06, RegisterB)
+}
+
+func TestLoad8BitToC(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x0E, RegisterC)
+}
+
+func TestLoad8BitToD(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x16, RegisterD)
+}
+
+func TestLoad8BitToE(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x1E, RegisterE)
+}
+
+func TestLoad8BitToH(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x26, RegisterH)
+}
+
+func TestLoad8BitToL(t *testing.T) {
+	doTestLoad8BitImmediate(t, 0x2E, RegisterL)
+}
+
+func doTestLoad8BitImmediate(t *testing.T, op uint8, reg register) {
+	p := setupHandlerTest([]byte{op, 0x49})
+	readAndPerformNextOp(p)
+
+	assert.Equal(t, uint16(2), p.registers.pc)
+	assert.Equal(t, uint8(0x49), p.registers.getRegister(reg))
+}
+
+func TestLoad8BitToHLAddr(t *testing.T) {
+	p := setupHandlerTest([]byte{0x36, 0x37})
+	p.registers.hl = uint16(0x1478)
+	readAndPerformNextOp(p)
+
+	assert.Equal(t, uint16(2), p.registers.pc)
+	assert.Equal(t, uint8(0x37), p.memory.ReadByte(0x1478))
+}
+
 func TestSaveAtoBCAddr(t *testing.T) {
 	doTestSaveRegisterToRegPairAddr(t, 0x02, RegisterA, RegisterPairBC)
 }

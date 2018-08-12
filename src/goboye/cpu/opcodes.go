@@ -18,7 +18,7 @@ var (
 	OpcodeIncBc     = opcode{0x03, "INC BC", "Increment 16-bit BC", 0, 1, incrementBC}
 	OpcodeIncB      = opcode{0x04, "INC B", "Increment B", 0, 1, incrementB}
 	OpcodeDecB      = opcode{0x05, "DEC B", "Decrement B", 0, 1, decrementB}
-	OpcodeLdBn      = opcode{0x06, "LD B,n", "Load 8-bit immediate into B", 0, 1, unimplementedHandler}
+	OpcodeLdBn      = opcode{0x06, "LD B,n", "Load 8-bit immediate into B", 0, 1, load8BitToB}
 	OpcodeRlcA      = opcode{0x07, "RLC A", "Rotate A left with carry", 0, 1, unimplementedHandler}
 	OpcodeLdNnsp    = opcode{0x08, "LD (nn),SP", "Save SP to given address", 0, 1, unimplementedHandler}
 	OpcodeAddHlbc   = opcode{0x09, "ADD HL,BC", "Add 16-bit BC to HL", 0, 1, unimplementedHandler}
@@ -26,7 +26,7 @@ var (
 	OpcodeDecBc     = opcode{0x0B, "DEC BC", "Decrement 16-bit BC", 0, 1, decrementBC}
 	OpcodeIncC      = opcode{0x0C, "INC C", "Increment C", 0, 1, incrementC}
 	OpcodeDecC      = opcode{0x0D, "DEC C", "Decrement C", 0, 1, decrementC}
-	OpcodeLdCn      = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 0, 1, unimplementedHandler}
+	OpcodeLdCn      = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 0, 1, load8BitToC}
 	OpcodeRrcA      = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 1, unimplementedHandler}
 	OpcodeStop      = opcode{0x10, "STOP", "Stop processor", 0, 1, unimplementedHandler}
 	OpcodeLdDenn    = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 0, 1, load16BitToDE}
@@ -34,7 +34,7 @@ var (
 	OpcodeIncDe     = opcode{0x13, "INC DE", "Increment 16-bit DE", 0, 1, incrementDE}
 	OpcodeIncD      = opcode{0x14, "INC D", "Increment D", 0, 1, incrementD}
 	OpcodeDecD      = opcode{0x15, "DEC D", "Decrement D", 0, 1, decrementD}
-	OpcodeLdDn      = opcode{0x16, "LD D,n", "Load 8-bit immediate into D", 0, 1, unimplementedHandler}
+	OpcodeLdDn      = opcode{0x16, "LD D,n", "Load 8-bit immediate into D", 0, 1, load8BitToD}
 	OpcodeRlA       = opcode{0x17, "RL A", "Rotate A left", 0, 1, unimplementedHandler}
 	OpcodeJrN       = opcode{0x18, "JR n", "Relative jump by signed immediate", 0, 1, unimplementedHandler}
 	OpcodeAddHlde   = opcode{0x19, "ADD HL,DE", "Add 16-bit DE to HL", 0, 1, unimplementedHandler}
@@ -42,7 +42,7 @@ var (
 	OpcodeDecDe     = opcode{0x1B, "DEC DE", "Decrement 16-bit DE", 0, 1, decrementDE}
 	OpcodeIncE      = opcode{0x1C, "INC E", "Increment E", 0, 1, incrementE}
 	OpcodeDecE      = opcode{0x1D, "DEC E", "Decrement E", 0, 1, decrementE}
-	OpcodeLdEn      = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 0, 1, unimplementedHandler}
+	OpcodeLdEn      = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 0, 1, load8BitToE}
 	OpcodeRrA       = opcode{0x1F, "RR A", "Rotate A right", 0, 1, unimplementedHandler}
 	OpcodeJrNzn     = opcode{0x20, "JR NZ,n", "Relative jump by signed immediate if last result was not zero", 0, 1, unimplementedHandler}
 	OpcodeLdHlnn    = opcode{0x21, "LD HL,nn", "Load 16-bit immediate into HL", 0, 1, load16BitToHL}
@@ -50,7 +50,7 @@ var (
 	OpcodeIncHl     = opcode{0x23, "INC HL", "Increment 16-bit HL", 0, 1, incrementHL}
 	OpcodeIncH      = opcode{0x24, "INC H", "Increment H", 0, 1, incrementH}
 	OpcodeDecH      = opcode{0x25, "DEC H", "Decrement H", 0, 1, decrementH}
-	OpcodeLdHn      = opcode{0x26, "LD H,n", "Load 8-bit immediate into H", 0, 1, unimplementedHandler}
+	OpcodeLdHn      = opcode{0x26, "LD H,n", "Load 8-bit immediate into H", 0, 1, load8BitToH}
 	OpcodeDaa       = opcode{0x27, "DAA", "Adjust A for BCD addition", 0, 1, unimplementedHandler}
 	OpcodeJrZn      = opcode{0x28, "JR Z,n", "Relative jump by signed immediate if last result was zero", 0, 1, unimplementedHandler}
 	OpcodeAddHlhl   = opcode{0x29, "ADD HL,HL", "Add 16-bit HL to HL", 0, 1, unimplementedHandler}
@@ -58,7 +58,7 @@ var (
 	OpcodeDecHl     = opcode{0x2B, "DEC HL", "Decrement 16-bit HL", 0, 1, decrementHL}
 	OpcodeIncL      = opcode{0x2C, "INC L", "Increment L", 0, 1, incrementL}
 	OpcodeDecL      = opcode{0x2D, "DEC L", "Decrement L", 0, 1, decrementL}
-	OpcodeLdLn      = opcode{0x2E, "LD L,n", "Load 8-bit immediate into L", 0, 1, unimplementedHandler}
+	OpcodeLdLn      = opcode{0x2E, "LD L,n", "Load 8-bit immediate into L", 0, 1, load8BitToL}
 	OpcodeCpl       = opcode{0x2F, "CPL", "Complement (logical NOT) on A", 0, 1, unimplementedHandler}
 	OpcodeJrNcn     = opcode{0x30, "JR NC,n", "Relative jump by signed immediate if last result caused no carry", 0, 1, unimplementedHandler}
 	OpcodeLdSpnn    = opcode{0x31, "LD SP,nn", "Load 16-bit immediate into SP", 0, 1, load16BitToSP}
@@ -66,7 +66,7 @@ var (
 	OpcodeIncSp     = opcode{0x33, "INC SP", "Increment 16-bit SP", 0, 1, incrementSP}
 	OpcodeIncHlAddr = opcode{0x34, "INC (HL)", "Increment value pointed by HL", 0, 1, incrementHLAddr}
 	OpcodeDecHlAddr = opcode{0x35, "DEC (HL)", "Decrement value pointed by HL", 0, 1, decrementHLAddr}
-	OpcodeLdHln     = opcode{0x36, "LD (HL),n", "Load 8-bit immediate into address pointed by HL", 0, 1, unimplementedHandler}
+	OpcodeLdHln     = opcode{0x36, "LD (HL),n", "Load 8-bit immediate into address pointed by HL", 0, 1, load8BitToHLAddr}
 	OpcodeScf       = opcode{0x37, "SCF", "Set carry flag", 0, 1, unimplementedHandler}
 	OpcodeJrCn      = opcode{0x38, "JR C,n", "Relative jump by signed immediate if last result caused carry", 0, 1, unimplementedHandler}
 	OpcodeAddHlsp   = opcode{0x39, "ADD HL,SP", "Add 16-bit SP to HL", 0, 1, unimplementedHandler}
@@ -74,7 +74,7 @@ var (
 	OpcodeDecSp     = opcode{0x3B, "DEC SP", "Decrement 16-bit SP", 0, 1, decrementSP}
 	OpcodeIncA      = opcode{0x3C, "INC A", "Increment A", 0, 1, incrementA}
 	OpcodeDecA      = opcode{0x3D, "DEC A", "Decrement A", 0, 1, decrementA}
-	OpcodeLdAn      = opcode{0x3E, "LD A,n", "Load 8-bit immediate into A", 0, 1, unimplementedHandler}
+	OpcodeLdAn      = opcode{0x3E, "LD A,n", "Load 8-bit immediate into A", 0, 1, load8BitToA}
 	OpcodeCcf       = opcode{0x3F, "CCF", "Clear carry flag", 0, 1, unimplementedHandler}
 	OpcodeLdBb      = opcode{0x40, "LD B,B", "Copy B to B", 0, 1, unimplementedHandler}
 	OpcodeLdBc      = opcode{0x41, "LD B,C", "Copy C to B", 0, 1, unimplementedHandler}

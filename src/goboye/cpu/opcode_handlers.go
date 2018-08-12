@@ -30,6 +30,46 @@ func load16BitToRegPair(p *processor, pair registerPair) {
 	p.registers.setRegisterPair(pair, value)
 }
 
+func load8BitToA(op opcode, p *processor) {
+	load8BitToReg(p, RegisterA)
+}
+
+func load8BitToB(op opcode, p *processor) {
+	load8BitToReg(p, RegisterB)
+}
+
+func load8BitToC(op opcode, p *processor) {
+	load8BitToReg(p, RegisterC)
+}
+
+func load8BitToD(op opcode, p *processor) {
+	load8BitToReg(p, RegisterD)
+}
+
+func load8BitToE(op opcode, p *processor) {
+	load8BitToReg(p, RegisterE)
+}
+
+func load8BitToH(op opcode, p *processor) {
+	load8BitToReg(p, RegisterH)
+}
+
+func load8BitToL(op opcode, p *processor) {
+	load8BitToReg(p, RegisterL)
+}
+
+func load8BitToReg(p *processor, reg register) {
+	value := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc++
+	p.registers.setRegister(reg, value)
+}
+
+func load8BitToHLAddr(op opcode, p *processor) {
+	value := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc++
+	p.memory.WriteByte(p.registers.hl, value)
+}
+
 func saveAToBCAddr(op opcode, p *processor) {
 	p.memory.WriteByte(p.registers.bc, p.registers.getRegister(RegisterA))
 }
