@@ -24,19 +24,19 @@ func TestNopHandler(t *testing.T) {
 }
 
 func TestLoad16BitToBC(t *testing.T) {
-	doTestLoad16BitImmediate(t, 0x01, BC)
+	doTestLoad16BitImmediate(t, 0x01, RegisterPairBC)
 }
 
 func TestLoad16BitToDE(t *testing.T) {
-	doTestLoad16BitImmediate(t, 0x11, DE)
+	doTestLoad16BitImmediate(t, 0x11, RegisterPairDE)
 }
 
 func TestLoad16BitToHL(t *testing.T) {
-	doTestLoad16BitImmediate(t, 0x21, HL)
+	doTestLoad16BitImmediate(t, 0x21, RegisterPairHL)
 }
 
 func TestLoad16BitToSP(t *testing.T) {
-	doTestLoad16BitImmediate(t, 0x31, SP)
+	doTestLoad16BitImmediate(t, 0x31, RegisterPairSP)
 }
 
 func doTestLoad16BitImmediate(t *testing.T, op byte, rp registerPair) {
@@ -48,21 +48,21 @@ func doTestLoad16BitImmediate(t *testing.T, op byte, rp registerPair) {
 }
 
 func TestSaveAtoBCAddr(t *testing.T) {
-	doTestSaveRegisterToRegPairAddr(t, 0x02, A, BC)
+	doTestSaveRegisterToRegPairAddr(t, 0x02, RegisterA, RegisterPairBC)
 }
 
 func TestSaveAtoDEAddr(t *testing.T) {
-	doTestSaveRegisterToRegPairAddr(t, 0x12, A, DE)
+	doTestSaveRegisterToRegPairAddr(t, 0x12, RegisterA, RegisterPairDE)
 }
 
 func TestSaveAtoHLAddrInc(t *testing.T) {
-	p := doTestSaveRegisterToRegPairAddr(t, 0x22, A, HL)
-	assert.Equal(t, uint16(0x0401), p.registers.getRegisterPair(HL))
+	p := doTestSaveRegisterToRegPairAddr(t, 0x22, RegisterA, RegisterPairHL)
+	assert.Equal(t, uint16(0x0401), p.registers.getRegisterPair(RegisterPairHL))
 }
 
 func TestSaveAtoHLAddrDec(t *testing.T) {
-	p := doTestSaveRegisterToRegPairAddr(t, 0x32, A, HL)
-	assert.Equal(t, uint16(0x03ff), p.registers.getRegisterPair(HL))
+	p := doTestSaveRegisterToRegPairAddr(t, 0x32, RegisterA, RegisterPairHL)
+	assert.Equal(t, uint16(0x03ff), p.registers.getRegisterPair(RegisterPairHL))
 }
 
 func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp registerPair) *processor {
@@ -80,35 +80,35 @@ func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp regis
 }
 
 func TestIncrementBC(t *testing.T) {
-	doTestIncrementRegPair(t, 0x03, BC)
+	doTestIncrementRegPair(t, 0x03, RegisterPairBC)
 }
 
 func TestDecrementBC(t *testing.T) {
-	doTestDecrementRegPair(t, 0x0B, BC)
+	doTestDecrementRegPair(t, 0x0B, RegisterPairBC)
 }
 
 func TestIncrementDE(t *testing.T) {
-	doTestIncrementRegPair(t, 0x13, DE)
+	doTestIncrementRegPair(t, 0x13, RegisterPairDE)
 }
 
 func TestDecrementDE(t *testing.T) {
-	doTestDecrementRegPair(t, 0x1B, DE)
+	doTestDecrementRegPair(t, 0x1B, RegisterPairDE)
 }
 
 func TestIncrementHL(t *testing.T) {
-	doTestIncrementRegPair(t, 0x23, HL)
+	doTestIncrementRegPair(t, 0x23, RegisterPairHL)
 }
 
 func TestDecrementHL(t *testing.T) {
-	doTestDecrementRegPair(t, 0x2B, HL)
+	doTestDecrementRegPair(t, 0x2B, RegisterPairHL)
 }
 
 func TestIncrementSP(t *testing.T) {
-	doTestIncrementRegPair(t, 0x33, SP)
+	doTestIncrementRegPair(t, 0x33, RegisterPairSP)
 }
 
 func TestDecrementSP(t *testing.T) {
-	doTestDecrementRegPair(t, 0x3B, SP)
+	doTestDecrementRegPair(t, 0x3B, RegisterPairSP)
 }
 
 func doTestIncrementRegPair(t *testing.T, op byte, rp registerPair) {
@@ -132,59 +132,59 @@ func doTestDecrementRegPair(t *testing.T, op byte, rp registerPair) {
 }
 
 func TestIncrementA(t *testing.T) {
-	doTestIncrementRegister(t, 0x3C, A)
+	doTestIncrementRegister(t, 0x3C, RegisterA)
 }
 
 func TestDecrementA(t *testing.T) {
-	doTestDecrementRegister(t, 0x3D, A)
+	doTestDecrementRegister(t, 0x3D, RegisterA)
 }
 
 func TestIncrementB(t *testing.T) {
-	doTestIncrementRegister(t, 0x04, B)
+	doTestIncrementRegister(t, 0x04, RegisterB)
 }
 
 func TestDecrementB(t *testing.T) {
-	doTestDecrementRegister(t, 0x05, B)
+	doTestDecrementRegister(t, 0x05, RegisterB)
 }
 
 func TestIncrementC(t *testing.T) {
-	doTestIncrementRegister(t, 0x0C, C)
+	doTestIncrementRegister(t, 0x0C, RegisterC)
 }
 
 func TestDecrementC(t *testing.T) {
-	doTestDecrementRegister(t, 0x0D, C)
+	doTestDecrementRegister(t, 0x0D, RegisterC)
 }
 
 func TestIncrementD(t *testing.T) {
-	doTestIncrementRegister(t, 0x14, D)
+	doTestIncrementRegister(t, 0x14, RegisterD)
 }
 
 func TestDecrementD(t *testing.T) {
-	doTestDecrementRegister(t, 0x15, D)
+	doTestDecrementRegister(t, 0x15, RegisterD)
 }
 
 func TestIncrementE(t *testing.T) {
-	doTestIncrementRegister(t, 0x1C, E)
+	doTestIncrementRegister(t, 0x1C, RegisterE)
 }
 
 func TestDecrementE(t *testing.T) {
-	doTestDecrementRegister(t, 0x1D, E)
+	doTestDecrementRegister(t, 0x1D, RegisterE)
 }
 
 func TestIncrementH(t *testing.T) {
-	doTestIncrementRegister(t, 0x24, H)
+	doTestIncrementRegister(t, 0x24, RegisterH)
 }
 
 func TestDecrementH(t *testing.T) {
-	doTestDecrementRegister(t, 0x25, H)
+	doTestDecrementRegister(t, 0x25, RegisterH)
 }
 
 func TestIncrementL(t *testing.T) {
-	doTestIncrementRegister(t, 0x2C, L)
+	doTestIncrementRegister(t, 0x2C, RegisterL)
 }
 
 func TestDecrementL(t *testing.T) {
-	doTestDecrementRegister(t, 0x2D, L)
+	doTestDecrementRegister(t, 0x2D, RegisterL)
 }
 
 func doTestIncrementRegister(t *testing.T, op byte, reg register) {
@@ -211,7 +211,7 @@ func doTestIncrementHalfCarry(op byte, reg register, t *testing.T) {
 		readAndPerformNextOp(p)
 		assert.Equal(t, uint16(1), p.registers.pc)
 		assert.Equal(t, uint8(0x10), p.registers.getRegister(reg))
-		assert.Equal(t, uint8(0x20), p.registers.getRegister(F))
+		assert.Equal(t, uint8(0x20), p.registers.getRegister(RegisterF))
 		checkFlagNotSet(t, p, FlagN)
 	})
 }
@@ -223,7 +223,7 @@ func doTestIncrementZero(op byte, reg register, t *testing.T) {
 		readAndPerformNextOp(p)
 		assert.Equal(t, uint16(1), p.registers.pc)
 		assert.Equal(t, uint8(0x00), p.registers.getRegister(reg))
-		assert.Equal(t, uint8(0xa0), p.registers.getRegister(F))
+		assert.Equal(t, uint8(0xa0), p.registers.getRegister(RegisterF))
 		checkFlagNotSet(t, p, FlagN)
 	})
 }
@@ -281,7 +281,7 @@ func checkFlagNotSet(t *testing.T, p *processor, flag opResultFlag) bool {
 func TestIncrementHLAddr(t *testing.T) {
 	t.Run("Simple increment", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x34})
-		p.registers.setRegisterPair(HL, 0x1234)
+		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
 		p.memory.WriteByte(0x1234, 0x49)
 
 		readAndPerformNextOp(p)
@@ -295,7 +295,7 @@ func TestIncrementHLAddr(t *testing.T) {
 
 	t.Run("Increment Half Carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x34})
-		p.registers.setRegisterPair(HL, 0x1234)
+		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
 		p.memory.WriteByte(0x1234, 0x4F)
 
 		readAndPerformNextOp(p)
@@ -309,7 +309,7 @@ func TestIncrementHLAddr(t *testing.T) {
 
 	t.Run("Increment Zero", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x34})
-		p.registers.setRegisterPair(HL, 0x1234)
+		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
 		p.memory.WriteByte(0x1234, 0xFF)
 
 		readAndPerformNextOp(p)
@@ -325,7 +325,7 @@ func TestIncrementHLAddr(t *testing.T) {
 func TestDecrementHLAddr(t *testing.T) {
 	t.Run("Simple decrement", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x35})
-		p.registers.setRegisterPair(HL, 0x1234)
+		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
 		p.memory.WriteByte(0x1234, 0x49)
 
 		readAndPerformNextOp(p)
@@ -339,7 +339,7 @@ func TestDecrementHLAddr(t *testing.T) {
 
 	t.Run("Decrement Half Carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x35})
-		p.registers.setRegisterPair(HL, 0x1234)
+		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
 		p.memory.WriteByte(0x1234, 0x10)
 
 		readAndPerformNextOp(p)
@@ -353,7 +353,7 @@ func TestDecrementHLAddr(t *testing.T) {
 
 	t.Run("Decrement Zero", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x35})
-		p.registers.setRegisterPair(HL, 0x1234)
+		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
 		p.memory.WriteByte(0x1234, 0x01)
 
 		readAndPerformNextOp(p)

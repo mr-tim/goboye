@@ -8,7 +8,7 @@ import (
 func TestSetRegister(t *testing.T) {
 	r := registers{}
 
-	rs := []register{A, B, C, D, E, F, H, L}
+	rs := []register{RegisterA, RegisterB, RegisterC, RegisterD, RegisterE, RegisterF, RegisterH, RegisterL}
 
 	for _, reg := range rs {
 		for i := 0; i < 255; i++ {
@@ -21,16 +21,16 @@ func TestSetRegister(t *testing.T) {
 
 func TestSetTwoAdjacentRegisters(t *testing.T) {
 	r := registers{}
-	r.setRegister(A, 0xA5)
-	assert.Equal(t, uint8(0xA5), r.getRegister(A))
-	r.setRegister(F, 0x6D)
-	assert.Equal(t, uint8(0x6D), r.getRegister(F))
-	assert.Equal(t, uint8(0xA5), r.getRegister(A))
+	r.setRegister(RegisterA, 0xA5)
+	assert.Equal(t, uint8(0xA5), r.getRegister(RegisterA))
+	r.setRegister(RegisterF, 0x6D)
+	assert.Equal(t, uint8(0x6D), r.getRegister(RegisterF))
+	assert.Equal(t, uint8(0xA5), r.getRegister(RegisterA))
 }
 
 func TestSetRegisterPair(t *testing.T) {
 	r := registers{}
-	rs := []registerPair{AF, BC, DE, HL, SP}
+	rs := []registerPair{RegisterPairAF, RegisterPairBC, RegisterPairDE, RegisterPairHL, RegisterPairSP}
 	vs := []uint16{123, 12345, 65355}
 
 	for _, reg := range rs {
@@ -43,8 +43,8 @@ func TestSetRegisterPair(t *testing.T) {
 
 func TestRegisterPairEndianness(t *testing.T) {
 	r := &registers{}
-	rs := []registerPair{AF, BC, DE, HL}
-	rps := [][]register{{A, F}, {B, C}, {D, E}, {H, L}}
+	rs := []registerPair{RegisterPairAF, RegisterPairBC, RegisterPairDE, RegisterPairHL}
+	rps := [][]register{{RegisterA, RegisterF}, {RegisterB, RegisterC}, {RegisterD, RegisterE}, {RegisterH, RegisterL}}
 	v := uint16(0x4698)
 
 	for i, reg := range rs {

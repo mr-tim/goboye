@@ -9,19 +9,19 @@ func unimplementedHandler(op opcode, p *processor) {
 func nopHandler(op opcode, p *processor) {}
 
 func load16BitToBC(op opcode, p *processor) {
-	load16BitToRegPair(p, BC)
+	load16BitToRegPair(p, RegisterPairBC)
 }
 
 func load16BitToDE(op opcode, p *processor) {
-	load16BitToRegPair(p, DE)
+	load16BitToRegPair(p, RegisterPairDE)
 }
 
 func load16BitToHL(op opcode, p *processor) {
-	load16BitToRegPair(p, HL)
+	load16BitToRegPair(p, RegisterPairHL)
 }
 
 func load16BitToSP(op opcode, p *processor) {
-	load16BitToRegPair(p, SP)
+	load16BitToRegPair(p, RegisterPairSP)
 }
 
 func load16BitToRegPair(p *processor, pair registerPair) {
@@ -31,53 +31,53 @@ func load16BitToRegPair(p *processor, pair registerPair) {
 }
 
 func saveAToBCAddr(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.bc, p.registers.getRegister(A))
+	p.memory.WriteByte(p.registers.bc, p.registers.getRegister(RegisterA))
 }
 
 func saveAToDEAddr(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.de, p.registers.getRegister(A))
+	p.memory.WriteByte(p.registers.de, p.registers.getRegister(RegisterA))
 }
 
 func saveAToHLAddrInc(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(A))
+	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(RegisterA))
 	p.registers.hl++
 }
 
 func saveAToHLAddrDec(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(A))
+	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(RegisterA))
 	p.registers.hl--
 }
 
 func incrementBC(op opcode, p *processor) {
-	incrementRegPair(p, BC)
+	incrementRegPair(p, RegisterPairBC)
 }
 
 func decrementBC(op opcode, p *processor) {
-	decrementRegPair(p, BC)
+	decrementRegPair(p, RegisterPairBC)
 }
 
 func incrementDE(op opcode, p *processor) {
-	incrementRegPair(p, DE)
+	incrementRegPair(p, RegisterPairDE)
 }
 
 func decrementDE(op opcode, p *processor) {
-	decrementRegPair(p, DE)
+	decrementRegPair(p, RegisterPairDE)
 }
 
 func incrementHL(op opcode, p *processor) {
-	incrementRegPair(p, HL)
+	incrementRegPair(p, RegisterPairHL)
 }
 
 func decrementHL(op opcode, p *processor) {
-	decrementRegPair(p, HL)
+	decrementRegPair(p, RegisterPairHL)
 }
 
 func incrementSP(op opcode, p *processor) {
-	incrementRegPair(p, SP)
+	incrementRegPair(p, RegisterPairSP)
 }
 
 func decrementSP(op opcode, p *processor) {
-	decrementRegPair(p, SP)
+	decrementRegPair(p, RegisterPairSP)
 }
 
 func incrementRegPair(p *processor, rp registerPair) {
@@ -93,7 +93,7 @@ func incrementHLAddr(op opcode, p *processor) {
 	newValue := originalValue + 1
 	p.memory.WriteByte(p.registers.hl, newValue)
 
-	flags := uint8(FlagC) & p.registers.getRegister(F)
+	flags := uint8(FlagC) & p.registers.getRegister(RegisterF)
 	if newValue == 0 {
 		flags |= uint8(FlagZ)
 	}
@@ -101,7 +101,7 @@ func incrementHLAddr(op opcode, p *processor) {
 		flags |= uint8(FlagH)
 	}
 
-	p.registers.setRegister(F, flags)
+	p.registers.setRegister(RegisterF, flags)
 }
 
 func decrementHLAddr(op opcode, p *processor) {
@@ -109,7 +109,7 @@ func decrementHLAddr(op opcode, p *processor) {
 	newValue := originalValue - 1
 	p.memory.WriteByte(p.registers.hl, newValue)
 
-	flags := uint8(FlagC)&p.registers.getRegister(F) | uint8(FlagN)
+	flags := uint8(FlagC)&p.registers.getRegister(RegisterF) | uint8(FlagN)
 	if newValue == 0 {
 		flags |= uint8(FlagZ)
 	}
@@ -117,70 +117,70 @@ func decrementHLAddr(op opcode, p *processor) {
 		flags |= uint8(FlagH)
 	}
 
-	p.registers.setRegister(F, flags)
+	p.registers.setRegister(RegisterF, flags)
 }
 
 func incrementA(op opcode, p *processor) {
-	incrementRegister(p, A)
+	incrementRegister(p, RegisterA)
 }
 
 func decrementA(op opcode, p *processor) {
-	decrementRegister(p, A)
+	decrementRegister(p, RegisterA)
 }
 
 func incrementB(op opcode, p *processor) {
-	incrementRegister(p, B)
+	incrementRegister(p, RegisterB)
 }
 
 func decrementB(op opcode, p *processor) {
-	decrementRegister(p, B)
+	decrementRegister(p, RegisterB)
 }
 
 func incrementC(op opcode, p *processor) {
-	incrementRegister(p, C)
+	incrementRegister(p, RegisterC)
 }
 
 func decrementC(op opcode, p *processor) {
-	decrementRegister(p, C)
+	decrementRegister(p, RegisterC)
 }
 
 func incrementD(op opcode, p *processor) {
-	incrementRegister(p, D)
+	incrementRegister(p, RegisterD)
 }
 
 func decrementD(op opcode, p *processor) {
-	decrementRegister(p, D)
+	decrementRegister(p, RegisterD)
 }
 
 func incrementE(op opcode, p *processor) {
-	incrementRegister(p, E)
+	incrementRegister(p, RegisterE)
 }
 
 func decrementE(op opcode, p *processor) {
-	decrementRegister(p, E)
+	decrementRegister(p, RegisterE)
 }
 
 func incrementH(op opcode, p *processor) {
-	incrementRegister(p, H)
+	incrementRegister(p, RegisterH)
 }
 
 func decrementH(op opcode, p *processor) {
-	decrementRegister(p, H)
+	decrementRegister(p, RegisterH)
 }
 
 func incrementL(op opcode, p *processor) {
-	incrementRegister(p, L)
+	incrementRegister(p, RegisterL)
 }
 
 func decrementL(op opcode, p *processor) {
-	decrementRegister(p, L)
+	decrementRegister(p, RegisterL)
 }
 
 func incrementRegister(p *processor, reg register) {
 	oldValue := p.registers.getRegister(reg)
 	newValue := oldValue + 1
 	p.registers.setRegister(reg, newValue)
-	flags := p.registers.getRegister(F)
+	flags := p.registers.getRegister(RegisterF)
 	// zero the n flag
 	flags &= 0xB0
 	if newValue == 0 {
@@ -189,7 +189,7 @@ func incrementRegister(p *processor, reg register) {
 	if isHalfCarryAdd(oldValue, 1) {
 		flags |= 0x20
 	}
-	p.registers.setRegister(F, flags)
+	p.registers.setRegister(RegisterF, flags)
 }
 
 func decrementRegister(p *processor, reg register) {
@@ -197,14 +197,14 @@ func decrementRegister(p *processor, reg register) {
 	newValue := oldValue - 1
 	p.registers.setRegister(reg, newValue)
 	// set the n flag to 1
-	flags := p.registers.getRegister(F) | 0x50
+	flags := p.registers.getRegister(RegisterF) | 0x50
 	if newValue == 0 {
 		flags = flags | 0x80
 	}
 	if isHalfCarrySubtract(oldValue, 1) {
 		flags = flags | 0x20
 	}
-	p.registers.setRegister(F, flags)
+	p.registers.setRegister(RegisterF, flags)
 
 }
 

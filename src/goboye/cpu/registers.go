@@ -2,25 +2,24 @@ package cpu
 
 type register int
 
-//TODO: Rename these to Register{} etc
 const (
-	A = iota
-	F
-	B
-	C
-	D
-	E
-	H
-	L
+	RegisterA = iota
+	RegisterF
+	RegisterB
+	RegisterC
+	RegisterD
+	RegisterE
+	RegisterH
+	RegisterL
 )
 
 const (
-	AF registerPair = iota
-	BC
-	DE
-	HL
-	SP
-	PC
+	RegisterPairAF registerPair = iota
+	RegisterPairBC
+	RegisterPairDE
+	RegisterPairHL
+	RegisterPairSP
+	RegisterPairPC
 )
 
 type opResultFlag uint8
@@ -66,22 +65,22 @@ func (r *registers) setRegister(reg register, value uint8) {
 
 func (r *registers) getShift(reg register) uint8 {
 	shift := uint8(0)
-	if reg == A || reg == B || reg == D || reg == H {
+	if reg == RegisterA || reg == RegisterB || reg == RegisterD || reg == RegisterH {
 		shift = 8
 	}
 	return shift
 }
 
 func (r *registers) getRegisterPair(regPair registerPair) uint16 {
-	if regPair == AF {
+	if regPair == RegisterPairAF {
 		return r.af
-	} else if regPair == BC {
+	} else if regPair == RegisterPairBC {
 		return r.bc
-	} else if regPair == DE {
+	} else if regPair == RegisterPairDE {
 		return r.de
-	} else if regPair == HL {
+	} else if regPair == RegisterPairHL {
 		return r.hl
-	} else if regPair == PC {
+	} else if regPair == RegisterPairPC {
 		return r.pc
 	} else {
 		return r.sp
@@ -89,15 +88,15 @@ func (r *registers) getRegisterPair(regPair registerPair) uint16 {
 }
 
 func (r *registers) setRegisterPair(regPair registerPair, value uint16) {
-	if regPair == AF {
+	if regPair == RegisterPairAF {
 		r.af = value
-	} else if regPair == BC {
+	} else if regPair == RegisterPairBC {
 		r.bc = value
-	} else if regPair == DE {
+	} else if regPair == RegisterPairDE {
 		r.de = value
-	} else if regPair == HL {
+	} else if regPair == RegisterPairHL {
 		r.hl = value
-	} else if regPair == PC {
+	} else if regPair == RegisterPairPC {
 		r.pc = value
 	} else {
 		r.sp = value
@@ -105,11 +104,11 @@ func (r *registers) setRegisterPair(regPair registerPair, value uint16) {
 }
 
 func (r *registers) getRegisterPointer(reg register) *uint16 {
-	if reg == A || reg == F {
+	if reg == RegisterA || reg == RegisterF {
 		return &r.af
-	} else if reg == B || reg == C {
+	} else if reg == RegisterB || reg == RegisterC {
 		return &r.bc
-	} else if reg == D || reg == E {
+	} else if reg == RegisterD || reg == RegisterE {
 		return &r.de
 	} else {
 		return &r.hl
@@ -117,5 +116,5 @@ func (r *registers) getRegisterPointer(reg register) *uint16 {
 }
 
 func (r *registers) getFlagValue(flag opResultFlag) bool {
-	return (uint8(flag) & r.getRegister(F)) != 0
+	return (uint8(flag) & r.getRegister(RegisterF)) != 0
 }
