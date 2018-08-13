@@ -34,6 +34,7 @@ type MemoryMap interface {
 	ReadByte(addr uint16) byte
 	WriteByte(addr uint16, value byte)
 	ReadU16(addr uint16) uint16
+	WriteU16(addr, value uint16)
 }
 
 func NewMemoryMapWithBytes(bytes []byte) MemoryMap {
@@ -68,4 +69,11 @@ func (m *memoryMap) WriteByte(addr uint16, value byte) {
 
 func (m *memoryMap) ReadU16(addr uint16) uint16 {
 	return (uint16(m.mem[addr+1]) << 8) | uint16(m.mem[addr])
+}
+
+func (m *memoryMap) WriteU16(addr, value uint16) {
+	l := uint8(0x00FF & value)
+	h := uint8((0xFF00 & value) >> 8)
+	m.WriteByte(addr, l)
+	m.WriteByte(addr+1, h)
 }

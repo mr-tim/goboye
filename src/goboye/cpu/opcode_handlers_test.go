@@ -411,6 +411,16 @@ func TestDecrementHLAddr(t *testing.T) {
 	})
 }
 
+func TestSaveSPToAddr(t *testing.T) {
+	p := setupHandlerTest([]byte{0x08,0x26,0x39})
+	p.registers.sp = 0x8542
+	readAndPerformNextOp(p)
+	assert.Equal(t, uint16(3), p.registers.pc)
+	assert.Equal(t, uint8(0x42), p.memory.ReadByte(0x3926))
+	assert.Equal(t, uint8(0x85), p.memory.ReadByte(0x3927))
+	assert.Equal(t, uint16(0x8542), p.memory.ReadU16(0x3926))
+}
+
 func readAndPerformNextOp(p *processor) {
 	o := p.readNextInstruction()
 	o.handler(o, p)

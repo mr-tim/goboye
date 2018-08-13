@@ -20,7 +20,7 @@ var (
 	OpcodeDecB      = opcode{0x05, "DEC B", "Decrement B", 0, 1, decrementReg(RegisterB)}
 	OpcodeLdBn      = opcode{0x06, "LD B,n", "Load 8-bit immediate into B", 0, 1, load8BitToReg(RegisterB)}
 	OpcodeRlcA      = opcode{0x07, "RLC A", "Rotate A left with carry", 0, 1, unimplementedHandler}
-	OpcodeLdNnsp    = opcode{0x08, "LD (nn),SP", "Save SP to given address", 0, 1, unimplementedHandler}
+	OpcodeLdNnsp    = opcode{0x08, "LD (nn),SP", "Save SP to given address", 0, 1, saveSPToAddr}
 	OpcodeAddHlbc   = opcode{0x09, "ADD HL,BC", "Add 16-bit BC to HL", 0, 1, unimplementedHandler}
 	OpcodeLdAbc     = opcode{0x0A, "LD A,(BC)", "Load A from address pointed to by BC", 0, 1, unimplementedHandler}
 	OpcodeDecBc     = opcode{0x0B, "DEC BC", "Decrement 16-bit BC", 0, 1, decrementRegPair(RegisterPairBC)}

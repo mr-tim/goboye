@@ -75,6 +75,13 @@ func saveAToHLAddrDec(op opcode, p *processor) {
 	p.registers.hl--
 }
 
+func saveSPToAddr(op opcode, p *processor) {
+	addr := p.memory.ReadU16(p.registers.pc)
+	sp := p.registers.sp
+	p.memory.WriteU16(addr, sp)
+	p.registers.pc += 2
+}
+
 func incrementRegPair(pair registerPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		doIncrementRegPair(p, pair)
