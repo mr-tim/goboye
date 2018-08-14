@@ -201,7 +201,7 @@ func addHLAddrToA(op opcode, p *processor) {
 func addRegAndCarryToA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toAdd := p.registers.getRegister(reg)
-		if p.registers.getRegister(RegisterF) & FlagC > 0 {
+		if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
 			toAdd++
 		}
 		doAddValueToA(p, toAdd)
@@ -210,7 +210,7 @@ func addRegAndCarryToA(reg register) opcodeHandler {
 
 func addHLAddrAndCarryToA(op opcode, p *processor) {
 	toAdd := p.memory.ReadByte(p.registers.hl)
-	if p.registers.getRegister(RegisterF) & FlagC > 0 {
+	if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
 		toAdd++
 	}
 	doAddValueToA(p, toAdd)
@@ -248,7 +248,7 @@ func subtractHLAddrFromA(op opcode, p *processor) {
 func subtractRegAndCarryFromA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toSubtract := p.registers.getRegister(reg)
-		if p.registers.getRegister(RegisterF) & FlagC > 0 {
+		if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
 			toSubtract++
 		}
 		doSubtractValueFromA(p, toSubtract)
@@ -257,7 +257,7 @@ func subtractRegAndCarryFromA(reg register) opcodeHandler {
 
 func subtractHLAddrAndCarryFromA(op opcode, p *processor) {
 	toSubtract := p.memory.ReadByte(p.registers.hl)
-	if p.registers.getRegister(RegisterF) & FlagC > 0 {
+	if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
 		toSubtract++
 	}
 	doSubtractValueFromA(p, toSubtract)
@@ -294,7 +294,7 @@ func logicalAndHLAddrAgainstA(op opcode, p *processor) {
 
 func doLogicalAndAgainstA(p *processor, other uint8) {
 	flags := doLogicalOpAgainstA(p, other, and)
-	flags |= FlagH
+	flags |= uint8(FlagH)
 	p.registers.setRegister(RegisterF, flags)
 }
 
@@ -370,7 +370,7 @@ func compareHLAddrAgainstA(op opcode, p *processor) {
 func doCompareValueAgainstA(p *processor, value uint8) {
 	regAValue := p.registers.getRegister(RegisterA)
 	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
-	flags |= FlagN
+	flags |= uint8(FlagN)
 	if value < regAValue {
 		flags |= uint8(FlagH)
 	} else if value == regAValue {
@@ -396,7 +396,7 @@ func testBitOfHLAddr(bit uint8) opcodeHandler {
 
 func doTestBit(p *processor, bit, value uint8) {
 	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
-	flags |= FlagH
+	flags |= uint8(FlagH)
 	mask := uint8(0x01 << (7-bit))
 	if value & mask == 0 {
 		flags |= uint8(FlagZ)

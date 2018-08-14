@@ -26,9 +26,9 @@ type opResultFlag uint8
 
 const (
 	FlagZ opResultFlag = 0x80
-	FlagN              = 0x40
-	FlagH              = 0x20
-	FlagC              = 0x10
+	FlagN opResultFlag = 0x40
+	FlagH opResultFlag = 0x20
+	FlagC opResultFlag = 0x10
 )
 
 type registerPair int
