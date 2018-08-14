@@ -379,3 +379,26 @@ func doCompareValueAgainstA(p *processor, value uint8) {
 		flags |= uint8(FlagC)
 	}
 }
+
+func testBitOfReg(bit uint8, reg register) opcodeHandler {
+	return func (op opcode, p *processor) {
+		value := p.registers.getRegister(reg)
+		doTestBit(p, bit, value)
+	}
+}
+
+func testBitOfHLAddr(bit uint8) opcodeHandler {
+	return func (op opcode, p *processor) {
+		value := p.memory.ReadByte(p.registers.hl)
+		doTestBit(p, bit, value)
+	}
+}
+
+func doTestBit(p *processor, bit, value uint8) {
+	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags |= FlagH
+	mask := uint8(0x01 << (7-bit))
+	if value & mask == 0 {
+		flags |= uint8(FlagZ)
+	}
+}
