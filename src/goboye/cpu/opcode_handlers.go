@@ -279,3 +279,78 @@ func doSubtractValueFromA(p *processor, toSubtract uint8) {
 	}
 	p.registers.setRegister(RegisterF, flags)
 }
+
+func logicalAndRegAgainstA(reg register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		other := p.registers.getRegister(reg)
+		doLogicalAndAgainstA(p, other)
+	}
+}
+
+func logicalAndHLAddrAgainstA(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.hl)
+	doLogicalAndAgainstA(p, other)
+}
+
+func doLogicalAndAgainstA(p *processor, other uint8) {
+	flags := doLogicalOpAgainstA(p, other, and)
+	flags |= FlagH
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func logicalXorRegAgainstA(reg register) opcodeHandler {
+	return func (op opcode, p *processor) {
+		other := p.registers.getRegister(reg)
+		doLogicalXorAgainstA(p, other)
+	}
+}
+
+func logicalXorHLAddrAgainstA(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.hl)
+	doLogicalXorAgainstA(p, other)
+}
+
+func doLogicalXorAgainstA(p *processor, other uint8) {
+	flags := doLogicalOpAgainstA(p, other, xor)
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func logicalOrRegAgainstA(reg register) opcodeHandler {
+	return func (op opcode, p *processor) {
+		other := p.registers.getRegister(reg)
+		doLogicalOrAgainstA(p, other)
+	}
+}
+
+func logicalOrHLAddrAgainstA(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.hl)
+	doLogicalOrAgainstA(p, other)
+}
+
+func doLogicalOrAgainstA(p *processor, other uint8) {
+	flags := doLogicalOpAgainstA(p, other, or)
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func and(a, b uint8) uint8 {
+	return a & b
+}
+
+func xor(a, b uint8) uint8 {
+	return a ^ b
+}
+
+func or(a, b uint8) uint8 {
+	return a | b
+}
+
+func doLogicalOpAgainstA(p *processor, other uint8, op func(a, b uint8) uint8) uint8 {
+	oldValue := p.registers.getRegister(RegisterA)
+	newValue := oldValue | other
+	p.registers.setRegister(RegisterA, newValue)
+	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	if newValue == 0 {
+		flags |= uint8(FlagZ)
+	}
+	return flags
+}
