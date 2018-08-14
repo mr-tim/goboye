@@ -169,10 +169,10 @@ func doDecrementRegister(p *processor, reg register) {
 	// set the n flag to 1
 	flags := p.registers.getRegister(RegisterF) | 0x50
 	if newValue == 0 {
-		flags = flags | 0x80
+		flags = flags | uint8(FlagZ)
 	}
 	if isHalfCarrySubtract(oldValue, 1) {
-		flags = flags | 0x20
+		flags = flags | uint8(FlagH)
 	}
 	p.registers.setRegister(RegisterF, flags)
 
@@ -184,4 +184,98 @@ func isHalfCarryAdd(old, plusValue uint8) bool {
 
 func isHalfCarrySubtract(old, subtractValue uint8) bool {
 	return ((old&0x0f)-(subtractValue&0x0f))&0x80 == 0x80
+}
+
+func addRegToA(reg register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		toAdd := p.registers.getRegister(reg)
+		doAddValueToA(p, toAdd)
+	}
+}
+
+func addHLAddrToA(op opcode, p *processor) {
+	toAdd := p.memory.ReadByte(p.registers.hl)
+	doAddValueToA(p, toAdd)
+}
+
+func addRegAndCarryToA(reg register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		toAdd := p.registers.getRegister(reg)
+		if p.registers.getRegister(RegisterF) & FlagC > 0 {
+			toAdd++
+		}
+		doAddValueToA(p, toAdd)
+	}
+}
+
+func addHLAddrAndCarryToA(op opcode, p *processor) {
+	toAdd := p.memory.ReadByte(p.registers.hl)
+	if p.registers.getRegister(RegisterF) & FlagC > 0 {
+		toAdd++
+	}
+	doAddValueToA(p, toAdd)
+}
+
+func doAddValueToA(p *processor, toAdd uint8) {
+	oldValue := p.registers.getRegister(RegisterA)
+	newValue := oldValue + toAdd
+	p.registers.setRegister(RegisterA, newValue)
+	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	if newValue == 0 {
+		flags |= uint8(FlagZ)
+	}
+	if isHalfCarryAdd(oldValue, toAdd) {
+		flags |= uint8(FlagH)
+	}
+	if newValue < oldValue {
+		flags |= uint8(FlagC)
+	}
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func subtractRegFromA(reg register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		toSubtract := p.registers.getRegister(reg)
+		doSubtractValueFromA(p, toSubtract)
+	}
+}
+
+func subtractHLAddrFromA(op opcode, p *processor) {
+	toSubtract := p.memory.ReadByte(p.registers.hl)
+	doSubtractValueFromA(p, toSubtract)
+}
+
+func subtractRegAndCarryFromA(reg register) opcodeHandler {
+	return func(op opcode, p *processor) {
+		toSubtract := p.registers.getRegister(reg)
+		if p.registers.getRegister(RegisterF) & FlagC > 0 {
+			toSubtract++
+		}
+		doSubtractValueFromA(p, toSubtract)
+	}
+}
+
+func subtractHLAddrAndCarryFromA(op opcode, p *processor) {
+	toSubtract := p.memory.ReadByte(p.registers.hl)
+	if p.registers.getRegister(RegisterF) & FlagC > 0 {
+		toSubtract++
+	}
+	doSubtractValueFromA(p, toSubtract)
+}
+
+func doSubtractValueFromA(p *processor, toSubtract uint8) {
+	oldValue := p.registers.getRegister(RegisterA)
+	newValue := oldValue - toSubtract
+	p.registers.setRegister(RegisterA, newValue)
+	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	if newValue == 0 {
+		flags |= uint8(FlagZ)
+	}
+	if isHalfCarrySubtract(oldValue, toSubtract) {
+		flags |= uint8(FlagH)
+	}
+	if newValue > oldValue {
+		flags |= uint8(FlagC)
+	}
+	p.registers.setRegister(RegisterF, flags)
 }
