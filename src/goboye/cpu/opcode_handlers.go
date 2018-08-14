@@ -354,3 +354,28 @@ func doLogicalOpAgainstA(p *processor, other uint8, op func(a, b uint8) uint8) u
 	}
 	return flags
 }
+
+func compareRegAgainstA(reg register) opcodeHandler {
+	return func (op opcode, p *processor) {
+		value := p.registers.getRegister(reg)
+		doCompareValueAgainstA(p, value)
+	}
+}
+
+func compareHLAddrAgainstA(op opcode, p *processor) {
+	value := p.memory.ReadByte(p.registers.hl)
+	doCompareValueAgainstA(p, value)
+}
+
+func doCompareValueAgainstA(p *processor, value uint8) {
+	regAValue := p.registers.getRegister(RegisterA)
+	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags |= FlagN
+	if value < regAValue {
+		flags |= uint8(FlagH)
+	} else if value == regAValue {
+		flags |= uint8(FlagZ)
+	} else if value > regAValue {
+		flags |= uint8(FlagC)
+	}
+}
