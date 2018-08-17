@@ -6,6 +6,10 @@ func unimplementedHandler(op opcode, p *processor) {
 	panic(fmt.Sprintf("Unimplemented opcode: %#v\n", op))
 }
 
+func unsupportedHandler(op opcode, p *processor) {
+	panic(fmt.Sprintf("Unsupported opcode: %#v\n", op))
+}
+
 func nopHandler(op opcode, p *processor) {}
 
 func load16BitToRegPair(rp registerPair) opcodeHandler {
@@ -378,4 +382,174 @@ func doCompareValueAgainstA(p *processor, value uint8) {
 	} else if value > regAValue {
 		flags |= uint8(FlagC)
 	}
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func addRegPairToHL(rp registerPair) opcodeHandler {
+	return func (op opcode, p *processor) {
+		p.registers.hl += p.registers.getRegisterPair(rp)
+	}
+}
+
+func loadAFromRegPairAddr(rp registerPair) opcodeHandler {
+	return func (op opcode, p *processor) {
+		p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.getRegisterPair(rp)))
+	}
+}
+
+func loadAFromHLAddrInc(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.hl))
+	p.registers.hl += 1
+}
+
+func loadAFromHLAddrDec(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.hl))
+	p.registers.hl -= 1
+}
+
+func complementOnA(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, ^p.registers.getRegister(RegisterA))
+}
+
+func setCarryFlag(op opcode, p *processor) {
+	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF) | uint8(FlagC))
+}
+
+func clearCarryFlag(op opcode, p *processor) {
+	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF) | ^uint8(FlagC))
+}
+
+func addImmediate(op opcode, p *processor) {
+	original := p.registers.getRegister(RegisterA)
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	result := original + other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	if isHalfCarryAdd(original, other) {
+		flags |= uint8(FlagH)
+	}
+	if result < original {
+		flags |= uint8(FlagC)
+	}
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func subtractImmediate(op opcode, p *processor) {
+	original := p.registers.getRegister(RegisterA)
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	result := original - other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	if isHalfCarrySubtract(original, other) {
+		flags |= uint8(FlagH)
+	}
+	if result > original {
+		flags |= uint8(FlagC)
+	}
+	flags |= uint8(FlagN)
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func logicalAndImmediate(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	result := p.registers.getRegister(RegisterA) & other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	flags |= uint8(FlagH)
+	p.registers.setRegister(RegisterF, flags)
+
+}
+
+func logicalOrImmediate(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	result := p.registers.getRegister(RegisterA) | other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func addCImmediate(op opcode, p *processor) {
+	original := p.registers.getRegister(RegisterA)
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	if p.registers.getFlagValue(FlagC) {
+		other += 1
+	}
+	result := original + other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	if isHalfCarryAdd(original, other) {
+		flags |= uint8(FlagH)
+	}
+	if result < original {
+		flags |= uint8(FlagC)
+	}
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func subCImmediate(op opcode, p *processor) {
+	original := p.registers.getRegister(RegisterA)
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	if p.registers.getFlagValue(FlagC) {
+		other += 1
+	}
+	result := original - other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	if isHalfCarrySubtract(original, other) {
+		flags |= uint8(FlagH)
+	}
+	if result > original {
+		flags |= uint8(FlagC)
+	}
+	flags |= uint8(FlagN)
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func logicalXorImmediate(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	result := p.registers.getRegister(RegisterA) | other
+	p.registers.setRegister(RegisterA, result)
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if result == 0 {
+		flags |= uint8(FlagZ)
+	}
+	p.registers.setRegister(RegisterF, flags)
+}
+
+func compareImmediate(op opcode, p *processor) {
+	other := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+	doCompareValueAgainstA(p, other)
 }

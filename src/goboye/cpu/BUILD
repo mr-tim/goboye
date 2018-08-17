@@ -4,6 +4,7 @@ go_library(
         'opcodes.go',
         'opcode_handlers.go',
         'extended_opcode_handlers.go',
+        'extended_opcodes.go',
         'processor.go',
         'registers.go',
     ],
