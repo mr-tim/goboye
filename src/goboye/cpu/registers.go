@@ -3,7 +3,7 @@ package cpu
 type register int
 
 const (
-	RegisterA = iota
+	RegisterA register = iota
 	RegisterF
 	RegisterB
 	RegisterC
@@ -13,6 +13,10 @@ const (
 	RegisterL
 )
 
+func (r register) String() string {
+	return "Register" + string("AFBCDEHL"[r])
+}
+
 const (
 	RegisterPairAF registerPair = iota
 	RegisterPairBC
@@ -21,6 +25,12 @@ const (
 	RegisterPairSP
 	RegisterPairPC
 )
+
+func (rp registerPair) String() string {
+	return "RegisterPair" + []string {
+		"AF", "BC", "DE", "HL", "SP", "PC",
+	}[rp]
+}
 
 type opResultFlag uint8
 

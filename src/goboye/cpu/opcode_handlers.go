@@ -201,7 +201,7 @@ func addHLAddrToA(op opcode, p *processor) {
 func addRegAndCarryToA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toAdd := p.registers.getRegister(reg)
-		if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
+		if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
 			toAdd++
 		}
 		doAddValueToA(p, toAdd)
@@ -210,7 +210,7 @@ func addRegAndCarryToA(reg register) opcodeHandler {
 
 func addHLAddrAndCarryToA(op opcode, p *processor) {
 	toAdd := p.memory.ReadByte(p.registers.hl)
-	if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
+	if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
 		toAdd++
 	}
 	doAddValueToA(p, toAdd)
@@ -248,7 +248,7 @@ func subtractHLAddrFromA(op opcode, p *processor) {
 func subtractRegAndCarryFromA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toSubtract := p.registers.getRegister(reg)
-		if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
+		if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
 			toSubtract++
 		}
 		doSubtractValueFromA(p, toSubtract)
@@ -257,7 +257,7 @@ func subtractRegAndCarryFromA(reg register) opcodeHandler {
 
 func subtractHLAddrAndCarryFromA(op opcode, p *processor) {
 	toSubtract := p.memory.ReadByte(p.registers.hl)
-	if p.registers.getRegister(RegisterF) & uint8(FlagC) > 0 {
+	if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
 		toSubtract++
 	}
 	doSubtractValueFromA(p, toSubtract)
@@ -299,7 +299,7 @@ func doLogicalAndAgainstA(p *processor, other uint8) {
 }
 
 func logicalXorRegAgainstA(reg register) opcodeHandler {
-	return func (op opcode, p *processor) {
+	return func(op opcode, p *processor) {
 		other := p.registers.getRegister(reg)
 		doLogicalXorAgainstA(p, other)
 	}
@@ -316,7 +316,7 @@ func doLogicalXorAgainstA(p *processor, other uint8) {
 }
 
 func logicalOrRegAgainstA(reg register) opcodeHandler {
-	return func (op opcode, p *processor) {
+	return func(op opcode, p *processor) {
 		other := p.registers.getRegister(reg)
 		doLogicalOrAgainstA(p, other)
 	}
@@ -356,7 +356,7 @@ func doLogicalOpAgainstA(p *processor, other uint8, op func(a, b uint8) uint8) u
 }
 
 func compareRegAgainstA(reg register) opcodeHandler {
-	return func (op opcode, p *processor) {
+	return func(op opcode, p *processor) {
 		value := p.registers.getRegister(reg)
 		doCompareValueAgainstA(p, value)
 	}
@@ -377,56 +377,5 @@ func doCompareValueAgainstA(p *processor, value uint8) {
 		flags |= uint8(FlagZ)
 	} else if value > regAValue {
 		flags |= uint8(FlagC)
-	}
-}
-
-func testBitOfReg(bit uint8, reg register) opcodeHandler {
-	return func (op opcode, p *processor) {
-		value := p.registers.getRegister(reg)
-		doTestBit(p, bit, value)
-	}
-}
-
-func testBitOfHLAddr(bit uint8) opcodeHandler {
-	return func (op opcode, p *processor) {
-		value := p.memory.ReadByte(p.registers.hl)
-		doTestBit(p, bit, value)
-	}
-}
-
-func doTestBit(p *processor, bit, value uint8) {
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
-	flags |= uint8(FlagH)
-	mask := uint8(0x01 << (7-bit))
-	if value & mask == 0 {
-		flags |= uint8(FlagZ)
-	}
-}
-
-func clearBitOfReg(bit uint8, reg register) opcodeHandler {
-	mask := uint8(0xFF) - uint8(0x01 << (7-bit))
-	return func (op opcode, p *processor) {
-		p.registers.setRegister(reg, p.registers.getRegister(reg) & mask)
-	}
-}
-
-func clearBitOfHLAddr(bit uint8) opcodeHandler {
-	mask := uint8(0xFF) - uint8(0x01 << (7-bit))
-	return func (op opcode, p *processor) {
-		p.memory.WriteByte(p.registers.hl, p.memory.ReadByte(p.registers.hl) & mask)
-	}
-}
-
-func setBitOfReg(bit uint8, reg register) opcodeHandler {
-	mask := uint8(0x01 << (7-bit))
-	return func (op opcode, p *processor) {
-		p.registers.setRegister(reg, p.registers.getRegister(reg) | mask)
-	}
-}
-
-func setBitOfHLAddr(bit uint8) opcodeHandler {
-	mask := uint8(0x01 << (7-bit))
-	return func (op opcode, p *processor) {
-		p.memory.WriteByte(p.registers.hl, p.memory.ReadByte(p.registers.hl) | mask)
 	}
 }

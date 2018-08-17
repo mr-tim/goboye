@@ -412,7 +412,7 @@ func TestDecrementHLAddr(t *testing.T) {
 }
 
 func TestSaveSPToAddr(t *testing.T) {
-	p := setupHandlerTest([]byte{0x08,0x26,0x39})
+	p := setupHandlerTest([]byte{0x08, 0x26, 0x39})
 	p.registers.sp = 0x8542
 	readAndPerformNextOp(p)
 	assert.Equal(t, uint16(3), p.registers.pc)
