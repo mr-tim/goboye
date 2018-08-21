@@ -39,7 +39,7 @@ var (
 	OpcodeLdDn      = opcode{0x16, "LD D,n", "Load 8-bit immediate into D", 0, 1, load8BitToReg(RegisterD)}
 	//TODO: should this one also reset FlagZ?
 	OpcodeRlA       = opcode{0x17, "RL A", "Rotate A left", 0, 1, rotateRegLeft(RegisterA)}
-	OpcodeJrN       = opcode{0x18, "JR n", "Relative jump by signed immediate", 0, 1, unimplementedHandler}
+	OpcodeJrN       = opcode{0x18, "JR n", "Relative jump by signed immediate", 0, 1, relativeJumpImmediate}
 	OpcodeAddHlde   = opcode{0x19, "ADD HL,DE", "Add 16-bit DE to HL", 0, 1, addRegPairToHL(RegisterPairDE)}
 	OpcodeLdAde     = opcode{0x1A, "LD A,(DE)", "Load A from address pointed to by DE", 0, 1, loadAFromRegPairAddr(RegisterPairDE)}
 	OpcodeDecDe     = opcode{0x1B, "DEC DE", "Decrement 16-bit DE", 0, 1, decrementRegPair(RegisterPairDE)}
@@ -48,7 +48,7 @@ var (
 	OpcodeLdEn      = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 0, 1, load8BitToReg(RegisterE)}
 	//TODO: should this one also reset FlagZ?
 	OpcodeRrA       = opcode{0x1F, "RR A", "Rotate A right", 0, 1, rotateRegRight(RegisterA)}
-	OpcodeJrNzn     = opcode{0x20, "JR NZ,n", "Relative jump by signed immediate if last result was not zero", 0, 1, unimplementedHandler}
+	OpcodeJrNzn     = opcode{0x20, "JR NZ,n", "Relative jump by signed immediate if last result was not zero", 0, 1, relativeJumpImmediateIfFlag(FlagZ, false)}
 	OpcodeLdHlnn    = opcode{0x21, "LD HL,nn", "Load 16-bit immediate into HL", 0, 1, load16BitToRegPair(RegisterPairHL)}
 	OpcodeLdiHla    = opcode{0x22, "LDI (HL),A", "Save A to address pointed by HL, and increment HL", 0, 1, saveAToHLAddrInc}
 	OpcodeIncHl     = opcode{0x23, "INC HL", "Increment 16-bit HL", 0, 1, incrementRegPair(RegisterPairHL)}
@@ -56,7 +56,7 @@ var (
 	OpcodeDecH      = opcode{0x25, "DEC H", "Decrement H", 0, 1, decrementReg(RegisterH)}
 	OpcodeLdHn      = opcode{0x26, "LD H,n", "Load 8-bit immediate into H", 0, 1, load8BitToReg(RegisterH)}
 	OpcodeDaa       = opcode{0x27, "DAA", "Adjust A for BCD addition", 0, 1, unimplementedHandler}
-	OpcodeJrZn      = opcode{0x28, "JR Z,n", "Relative jump by signed immediate if last result was zero", 0, 1, unimplementedHandler}
+	OpcodeJrZn      = opcode{0x28, "JR Z,n", "Relative jump by signed immediate if last result was zero", 0, 1, relativeJumpImmediateIfFlag(FlagZ, true)}
 	OpcodeAddHlhl   = opcode{0x29, "ADD HL,HL", "Add 16-bit HL to HL", 0, 1, addRegPairToHL(RegisterPairHL)}
 	OpcodeLdiAhl    = opcode{0x2A, "LDI A,(HL)", "Load A from address pointed to by HL, and increment HL", 0, 1, loadAFromHLAddrInc}
 	OpcodeDecHl     = opcode{0x2B, "DEC HL", "Decrement 16-bit HL", 0, 1, decrementRegPair(RegisterPairHL)}
@@ -64,7 +64,7 @@ var (
 	OpcodeDecL      = opcode{0x2D, "DEC L", "Decrement L", 0, 1, decrementReg(RegisterL)}
 	OpcodeLdLn      = opcode{0x2E, "LD L,n", "Load 8-bit immediate into L", 0, 1, load8BitToReg(RegisterL)}
 	OpcodeCpl       = opcode{0x2F, "CPL", "Complement (logical NOT) on A", 0, 1, complementOnA}
-	OpcodeJrNcn     = opcode{0x30, "JR NC,n", "Relative jump by signed immediate if last result caused no carry", 0, 1, unimplementedHandler}
+	OpcodeJrNcn     = opcode{0x30, "JR NC,n", "Relative jump by signed immediate if last result caused no carry", 0, 1, relativeJumpImmediateIfFlag(FlagC, false)}
 	OpcodeLdSpnn    = opcode{0x31, "LD SP,nn", "Load 16-bit immediate into SP", 0, 1, load16BitToRegPair(RegisterPairSP)}
 	OpcodeLddHla    = opcode{0x32, "LDD (HL),A", "Save A to address pointed by HL, and decrement HL", 0, 1, saveAToHLAddrDec}
 	OpcodeIncSp     = opcode{0x33, "INC SP", "Increment 16-bit SP", 0, 1, incrementRegPair(RegisterPairSP)}
@@ -72,7 +72,7 @@ var (
 	OpcodeDecHlAddr = opcode{0x35, "DEC (HL)", "Decrement value pointed by HL", 0, 1, decrementHLAddr}
 	OpcodeLdHln     = opcode{0x36, "LD (HL),n", "Load 8-bit immediate into address pointed by HL", 0, 1, load8BitToHLAddr}
 	OpcodeScf       = opcode{0x37, "SCF", "Set carry flag", 0, 1, setCarryFlag}
-	OpcodeJrCn      = opcode{0x38, "JR C,n", "Relative jump by signed immediate if last result caused carry", 0, 1, unimplementedHandler}
+	OpcodeJrCn      = opcode{0x38, "JR C,n", "Relative jump by signed immediate if last result caused carry", 0, 1, relativeJumpImmediateIfFlag(FlagC, true)}
 	OpcodeAddHlsp   = opcode{0x39, "ADD HL,SP", "Add 16-bit SP to HL", 0, 1, addRegPairToHL(RegisterPairSP)}
 	OpcodeLddAhl    = opcode{0x3A, "LDD A,(HL)", "Load A from address pointed to by HL, and decrement HL", 0, 1, loadAFromHLAddrDec}
 	OpcodeDecSp     = opcode{0x3B, "DEC SP", "Decrement 16-bit SP", 0, 1, decrementRegPair(RegisterPairSP)}
@@ -210,15 +210,15 @@ var (
 	OpcodeCpA       = opcode{0xBF, "CP A", "Compare A against A", 0, 1, compareRegAgainstA(RegisterA)}
 	OpcodeRetNz     = opcode{0xC0, "RET NZ", "Return if last result was not zero", 0, 1, unimplementedHandler}
 	OpcodePopBc     = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 1, unimplementedHandler}
-	OpcodeJpNznn    = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 0, 1, unimplementedHandler}
-	OpcodeJpNn      = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 0, 1, unimplementedHandler}
+	OpcodeJpNznn    = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 0, 1, jumpTo16BitAddressIfFlag(FlagZ, false)}
+	OpcodeJpNn      = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 0, 1, jumpTo16BitAddress}
 	OpcodeCallNznn  = opcode{0xC4, "CALL NZ,nn", "Call routine at 16-bit location if last result was not zero", 0, 1, unimplementedHandler}
 	OpcodePushBc    = opcode{0xC5, "PUSH BC", "Push 16-bit BC onto stack", 0, 1, unimplementedHandler}
 	OpcodeAddAn     = opcode{0xC6, "ADD A,n", "Add 8-bit immediate to A", 0, 1, addImmediate}
 	OpcodeRst0      = opcode{0xC7, "RST 0", "Call routine at address 0000h", 0, 1, unimplementedHandler}
 	OpcodeRetZ      = opcode{0xC8, "RET Z", "Return if last result was zero", 0, 1, unimplementedHandler}
 	OpcodeRet       = opcode{0xC9, "RET", "Return to calling routine", 0, 1, unimplementedHandler}
-	OpcodeJpZnn     = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 0, 1, unimplementedHandler}
+	OpcodeJpZnn     = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 0, 1, jumpTo16BitAddressIfFlag(FlagZ, true)}
 	OpcodeExtOps    = opcode{0xCB, "Ext ops", "Extended operations (two-byte instruction code)", 0, 1, extendedOps}
 	OpcodeCallZnn   = opcode{0xCC, "CALL Z,nn", "Call routine at 16-bit location if last result was zero", 0, 1, unimplementedHandler}
 	OpcodeCallNn    = opcode{0xCD, "CALL nn", "Call routine at 16-bit location", 0, 1, unimplementedHandler}
@@ -226,7 +226,7 @@ var (
 	OpcodeRst8      = opcode{0xCF, "RST 8", "Call routine at address 0008h", 0, 1, unimplementedHandler}
 	OpcodeRetNc     = opcode{0xD0, "RET NC", "Return if last result caused no carry", 0, 1, unimplementedHandler}
 	OpcodePopDe     = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 1, unimplementedHandler}
-	OpcodeJpNcnn    = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 0, 1, unimplementedHandler}
+	OpcodeJpNcnn    = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 0, 1, jumpTo16BitAddressIfFlag(FlagC, false)}
 	OpcodeXxD3      = opcode{0xD3, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
 	OpcodeCallNcnn  = opcode{0xD4, "CALL NC,nn", "Call routine at 16-bit location if last result caused no carry", 0, 1, unimplementedHandler}
 	OpcodePushDe    = opcode{0xD5, "PUSH DE", "Push 16-bit DE onto stack", 0, 1, unimplementedHandler}
@@ -234,7 +234,7 @@ var (
 	OpcodeRst10     = opcode{0xD7, "RST 10", "Call routine at address 0010h", 0, 1, unimplementedHandler}
 	OpcodeRetC      = opcode{0xD8, "RET C", "Return if last result caused carry", 0, 1, unimplementedHandler}
 	OpcodeReti      = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 1, unimplementedHandler}
-	OpcodeJpCnn     = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 0, 1, unimplementedHandler}
+	OpcodeJpCnn     = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 0, 1, jumpTo16BitAddressIfFlag(FlagC, true)}
 	OpcodeXxDB      = opcode{0xDB, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
 	OpcodeCallCnn   = opcode{0xDC, "CALL C,nn", "Call routine at 16-bit location if last result caused carry", 0, 1, unimplementedHandler}
 	OpcodeXxDD      = opcode{0xDD, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
@@ -249,7 +249,7 @@ var (
 	OpcodeAndN      = opcode{0xE6, "AND n", "Logical AND 8-bit immediate against A", 0, 1, logicalAndImmediate}
 	OpcodeRst20     = opcode{0xE7, "RST 20", "Call routine at address 0020h", 0, 1, unimplementedHandler}
 	OpcodeAddSpd    = opcode{0xE8, "ADD SP,d", "Add signed 8-bit immediate to SP", 0, 1, unimplementedHandler}
-	OpcodeJpHl      = opcode{0xE9, "JP (HL)", "Jump to 16-bit value pointed by HL", 0, 1, unimplementedHandler}
+	OpcodeJpHl      = opcode{0xE9, "JP (HL)", "Jump to 16-bit value pointed by HL", 0, 1, jumpToHLAddr}
 	OpcodeLdNna     = opcode{0xEA, "LD (nn),A", "Save A at given 16-bit address", 0, 1, unimplementedHandler}
 	OpcodeXxEB      = opcode{0xEB, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
 	OpcodeXxEC      = opcode{0xEC, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}

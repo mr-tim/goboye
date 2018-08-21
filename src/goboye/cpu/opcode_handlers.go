@@ -553,3 +553,65 @@ func compareImmediate(op opcode, p *processor) {
 	p.registers.pc += 1
 	doCompareValueAgainstA(p, other)
 }
+
+func relativeJumpImmediate(op opcode, p *processor) {
+	jumpValue := p.memory.ReadByte(p.registers.pc)
+	p.registers.pc += 1
+
+	doRelativeJump(jumpValue, p)
+}
+
+func doRelativeJump(unsignedJumpValue uint8, p *processor) {
+	// -128 ... -3, -2, -1, 0, 1, 2, 3, ..., 127
+	// -126 ... -1,  0,  1, 2, 3, 4, 5, ..., 129
+	// -127 ... -2, -1,  1, 2, 3, 4, 5, ..., 129
+	jumpValue := int(unsignedJumpValue)
+	if jumpValue > 127 {
+		jumpValue -= 256
+	}
+	jumpValue += 2
+	if jumpValue < 1 {
+		jumpValue -= 1
+	}
+	if jumpValue > 0 {
+		p.registers.pc += uint16(jumpValue)
+	} else {
+		p.registers.pc -= uint16(-jumpValue)
+	}
+}
+
+func relativeJumpImmediateIfFlag(f opResultFlag, value bool) opcodeHandler {
+	return func(op opcode, p *processor) {
+		jumpValue := p.memory.ReadByte(p.registers.pc)
+		p.registers.pc += 1
+
+		if p.registers.getFlagValue(f) == value {
+			doRelativeJump(jumpValue, p)
+		} else {
+			p.registers.pc += 1
+		}
+	}
+}
+
+func jumpToHLAddr(op opcode, p *processor) {
+	newAddr := p.memory.ReadU16(p.registers.hl)
+	p.registers.pc = newAddr
+}
+
+func jumpTo16BitAddress(op opcode, p *processor) {
+	newAddr := p.memory.ReadU16(p.registers.pc)
+	p.registers.pc = newAddr
+}
+
+func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
+	return func(op opcode, p *processor) {
+		newAddr := p.memory.ReadU16(p.registers.pc)
+		p.registers.pc += 2
+
+		if p.registers.getFlagValue(f) == value {
+			p.registers.pc = newAddr
+		} else {
+			p.registers.pc += 1
+		}
+	}
+}
