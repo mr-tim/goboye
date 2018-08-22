@@ -634,6 +634,10 @@ func popRegisterPair(rp registerPair) opcodeHandler {
 
 func call16BitAddress(op opcode, p *processor) {
 	address := p.memory.ReadU16(p.registers.pc)
+	doCall16BitAddress(p, address)
+}
+
+func doCall16BitAddress(p *processor, address uint16) {
 	p.registers.sp -= 2
 	p.memory.WriteU16(p.registers.sp, p.registers.pc)
 	p.registers.pc = address
@@ -646,5 +650,29 @@ func conditionalCall16BitAddress(f opResultFlag, value bool) opcodeHandler {
 		} else {
 			p.registers.pc++
 		}
+	}
+}
+
+func doReturn(op opcode, p *processor) {
+	returnTo := p.memory.ReadU16(p.registers.sp)
+	p.registers.sp += 2
+	p.registers.pc = returnTo
+}
+
+func doReturnEnablingInterrupts(op opcode, p *processor) {
+	doReturn(op, p)
+}
+
+func conditionalReturn(f opResultFlag, value bool) opcodeHandler {
+	return func(op opcode, p *processor) {
+		if p.registers.getFlagValue(f) == value {
+			doReturn(op, p)
+		}
+	}
+}
+
+func callRoutineAtAddress(address uint16) opcodeHandler {
+	return func(op opcode, p *processor) {
+		doCall16BitAddress(p, address)
 	}
 }
