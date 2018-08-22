@@ -212,7 +212,7 @@ var (
 	OpcodePopBc     = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 1, popRegisterPair(RegisterPairBC)}
 	OpcodeJpNznn    = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 0, 1, jumpTo16BitAddressIfFlag(FlagZ, false)}
 	OpcodeJpNn      = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 0, 1, jumpTo16BitAddress}
-	OpcodeCallNznn  = opcode{0xC4, "CALL NZ,nn", "Call routine at 16-bit location if last result was not zero", 0, 1, unimplementedHandler}
+	OpcodeCallNznn  = opcode{0xC4, "CALL NZ,nn", "Call routine at 16-bit location if last result was not zero", 0, 1, conditionalCall16BitAddress(FlagZ, false)}
 	OpcodePushBc    = opcode{0xC5, "PUSH BC", "Push 16-bit BC onto stack", 0, 1, pushRegisterPair(RegisterPairBC)}
 	OpcodeAddAn     = opcode{0xC6, "ADD A,n", "Add 8-bit immediate to A", 0, 1, addImmediate}
 	OpcodeRst0      = opcode{0xC7, "RST 0", "Call routine at address 0000h", 0, 1, unimplementedHandler}
@@ -220,15 +220,15 @@ var (
 	OpcodeRet       = opcode{0xC9, "RET", "Return to calling routine", 0, 1, unimplementedHandler}
 	OpcodeJpZnn     = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 0, 1, jumpTo16BitAddressIfFlag(FlagZ, true)}
 	OpcodeExtOps    = opcode{0xCB, "Ext ops", "Extended operations (two-byte instruction code)", 0, 1, extendedOps}
-	OpcodeCallZnn   = opcode{0xCC, "CALL Z,nn", "Call routine at 16-bit location if last result was zero", 0, 1, unimplementedHandler}
-	OpcodeCallNn    = opcode{0xCD, "CALL nn", "Call routine at 16-bit location", 0, 1, unimplementedHandler}
+	OpcodeCallZnn   = opcode{0xCC, "CALL Z,nn", "Call routine at 16-bit location if last result was zero", 0, 1, conditionalCall16BitAddress(FlagZ, true)}
+	OpcodeCallNn    = opcode{0xCD, "CALL nn", "Call routine at 16-bit location", 0, 1, call16BitAddress}
 	OpcodeAdcAn     = opcode{0xCE, "ADC A,n", "Add 8-bit immediate and carry to A", 0, 1, addCImmediate}
 	OpcodeRst8      = opcode{0xCF, "RST 8", "Call routine at address 0008h", 0, 1, unimplementedHandler}
 	OpcodeRetNc     = opcode{0xD0, "RET NC", "Return if last result caused no carry", 0, 1, unimplementedHandler}
 	OpcodePopDe     = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 1, popRegisterPair(RegisterPairDE)}
 	OpcodeJpNcnn    = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 0, 1, jumpTo16BitAddressIfFlag(FlagC, false)}
 	OpcodeXxD3      = opcode{0xD3, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
-	OpcodeCallNcnn  = opcode{0xD4, "CALL NC,nn", "Call routine at 16-bit location if last result caused no carry", 0, 1, unimplementedHandler}
+	OpcodeCallNcnn  = opcode{0xD4, "CALL NC,nn", "Call routine at 16-bit location if last result caused no carry", 0, 1, conditionalCall16BitAddress(FlagC, false)}
 	OpcodePushDe    = opcode{0xD5, "PUSH DE", "Push 16-bit DE onto stack", 0, 1, pushRegisterPair(RegisterPairDE)}
 	OpcodeSubAn     = opcode{0xD6, "SUB A,n", "Subtract 8-bit immediate from A", 0, 1, subtractImmediate}
 	OpcodeRst10     = opcode{0xD7, "RST 10", "Call routine at address 0010h", 0, 1, unimplementedHandler}
@@ -236,7 +236,7 @@ var (
 	OpcodeReti      = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 1, unimplementedHandler}
 	OpcodeJpCnn     = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 0, 1, jumpTo16BitAddressIfFlag(FlagC, true)}
 	OpcodeXxDB      = opcode{0xDB, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
-	OpcodeCallCnn   = opcode{0xDC, "CALL C,nn", "Call routine at 16-bit location if last result caused carry", 0, 1, unimplementedHandler}
+	OpcodeCallCnn   = opcode{0xDC, "CALL C,nn", "Call routine at 16-bit location if last result caused carry", 0, 1, conditionalCall16BitAddress(FlagC, true)}
 	OpcodeXxDD      = opcode{0xDD, "XX", "Operation removed in this CPU", 0, 1, unsupportedHandler}
 	OpcodeSbcAn     = opcode{0xDE, "SBC A,n", "Subtract 8-bit immediate and carry from A", 0, 1, subCImmediate}
 	OpcodeRst18     = opcode{0xDF, "RST 18", "Call routine at address 0018h", 0, 1, unimplementedHandler}

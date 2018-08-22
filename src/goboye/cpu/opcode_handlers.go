@@ -619,12 +619,8 @@ func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
 func pushRegisterPair(rp registerPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		value := p.registers.getRegisterPair(rp)
-		high := uint8(value >> 8)
-		low := uint8(value)
-		p.registers.sp--
-		p.memory.WriteByte(p.registers.sp, high)
-		p.registers.sp--
-		p.memory.WriteByte(p.registers.sp, low)
+		p.registers.sp-=2
+		p.memory.WriteU16(p.registers.sp, value)
 	}
 }
 
@@ -633,5 +629,22 @@ func popRegisterPair(rp registerPair) opcodeHandler {
 		value := p.memory.ReadU16(p.registers.sp)
 		p.registers.sp += 2
 		p.registers.setRegisterPair(rp, value)
+	}
+}
+
+func call16BitAddress(op opcode, p *processor) {
+	address := p.memory.ReadU16(p.registers.pc)
+	p.registers.sp -= 2
+	p.memory.WriteU16(p.registers.sp, p.registers.pc)
+	p.registers.pc = address
+}
+
+func conditionalCall16BitAddress(f opResultFlag, value bool) opcodeHandler {
+	return func(op opcode, p *processor) {
+		if p.registers.getFlagValue(f) == value {
+			call16BitAddress(op, p)
+		} else {
+			p.registers.pc++
+		}
 	}
 }
