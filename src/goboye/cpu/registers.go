@@ -27,7 +27,7 @@ const (
 )
 
 func (rp registerPair) String() string {
-	return "RegisterPair" + []string {
+	return "RegisterPair" + []string{
 		"AF", "BC", "DE", "HL", "SP", "PC",
 	}[rp]
 }

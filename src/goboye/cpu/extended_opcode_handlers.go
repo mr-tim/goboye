@@ -170,7 +170,7 @@ func shiftHLAddrRightPreservingSign(op opcode, p *processor) {
 }
 
 func doShiftRightPreservingSign(p *processor, value uint8) uint8 {
-	result := uint8(value & 0x80) | (value >> 1)
+	result := uint8(value&0x80) | (value >> 1)
 	setRightShiftFlags(p, result, value)
 	return result
 }

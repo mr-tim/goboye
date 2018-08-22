@@ -12,40 +12,40 @@ type opcode struct {
 }
 
 var (
-	OpcodeNop       = opcode{0x00, "NOP", "No Operation", 0, 1, nopHandler}
-	OpcodeLdBcnn    = opcode{0x01, "LD BC,nn", "Load 16-bit immediate into BC", 0, 1, load16BitToRegPair(RegisterPairBC)}
-	OpcodeLdBca     = opcode{0x02, "LD (BC),A", "Save A to address pointed by BC", 0, 1, saveAToBCAddr}
-	OpcodeIncBc     = opcode{0x03, "INC BC", "Increment 16-bit BC", 0, 1, incrementRegPair(RegisterPairBC)}
-	OpcodeIncB      = opcode{0x04, "INC B", "Increment B", 0, 1, incrementReg(RegisterB)}
-	OpcodeDecB      = opcode{0x05, "DEC B", "Decrement B", 0, 1, decrementReg(RegisterB)}
-	OpcodeLdBn      = opcode{0x06, "LD B,n", "Load 8-bit immediate into B", 0, 1, load8BitToReg(RegisterB)}
+	OpcodeNop    = opcode{0x00, "NOP", "No Operation", 0, 1, nopHandler}
+	OpcodeLdBcnn = opcode{0x01, "LD BC,nn", "Load 16-bit immediate into BC", 0, 1, load16BitToRegPair(RegisterPairBC)}
+	OpcodeLdBca  = opcode{0x02, "LD (BC),A", "Save A to address pointed by BC", 0, 1, saveAToBCAddr}
+	OpcodeIncBc  = opcode{0x03, "INC BC", "Increment 16-bit BC", 0, 1, incrementRegPair(RegisterPairBC)}
+	OpcodeIncB   = opcode{0x04, "INC B", "Increment B", 0, 1, incrementReg(RegisterB)}
+	OpcodeDecB   = opcode{0x05, "DEC B", "Decrement B", 0, 1, decrementReg(RegisterB)}
+	OpcodeLdBn   = opcode{0x06, "LD B,n", "Load 8-bit immediate into B", 0, 1, load8BitToReg(RegisterB)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRlcA      = opcode{0x07, "RLC A", "Rotate A left with carry", 0, 1, rotateRegLeftWithCarry(RegisterA)}
-	OpcodeLdNnsp    = opcode{0x08, "LD (nn),SP", "Save SP to given address", 0, 1, saveSPToAddr}
-	OpcodeAddHlbc   = opcode{0x09, "ADD HL,BC", "Add 16-bit BC to HL", 0, 1, addRegPairToHL(RegisterPairBC)}
-	OpcodeLdAbc     = opcode{0x0A, "LD A,(BC)", "Load A from address pointed to by BC", 0, 1, loadAFromRegPairAddr(RegisterPairBC)}
-	OpcodeDecBc     = opcode{0x0B, "DEC BC", "Decrement 16-bit BC", 0, 1, decrementRegPair(RegisterPairBC)}
-	OpcodeIncC      = opcode{0x0C, "INC C", "Increment C", 0, 1, incrementReg(RegisterC)}
-	OpcodeDecC      = opcode{0x0D, "DEC C", "Decrement C", 0, 1, decrementReg(RegisterC)}
-	OpcodeLdCn      = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 0, 1, load8BitToReg(RegisterC)}
+	OpcodeRlcA    = opcode{0x07, "RLC A", "Rotate A left with carry", 0, 1, rotateRegLeftWithCarry(RegisterA)}
+	OpcodeLdNnsp  = opcode{0x08, "LD (nn),SP", "Save SP to given address", 0, 1, saveSPToAddr}
+	OpcodeAddHlbc = opcode{0x09, "ADD HL,BC", "Add 16-bit BC to HL", 0, 1, addRegPairToHL(RegisterPairBC)}
+	OpcodeLdAbc   = opcode{0x0A, "LD A,(BC)", "Load A from address pointed to by BC", 0, 1, loadAFromRegPairAddr(RegisterPairBC)}
+	OpcodeDecBc   = opcode{0x0B, "DEC BC", "Decrement 16-bit BC", 0, 1, decrementRegPair(RegisterPairBC)}
+	OpcodeIncC    = opcode{0x0C, "INC C", "Increment C", 0, 1, incrementReg(RegisterC)}
+	OpcodeDecC    = opcode{0x0D, "DEC C", "Decrement C", 0, 1, decrementReg(RegisterC)}
+	OpcodeLdCn    = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 0, 1, load8BitToReg(RegisterC)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRrcA      = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 1, rotateRegRightWithCarry(RegisterA)}
-	OpcodeStop      = opcode{0x10, "STOP", "Stop processor", 0, 1, unimplementedHandler}
-	OpcodeLdDenn    = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 0, 1, load16BitToRegPair(RegisterPairDE)}
-	OpcodeLdDea     = opcode{0x12, "LD (DE),A", "Save A to address pointed by DE", 0, 1, saveAToDEAddr}
-	OpcodeIncDe     = opcode{0x13, "INC DE", "Increment 16-bit DE", 0, 1, incrementRegPair(RegisterPairDE)}
-	OpcodeIncD      = opcode{0x14, "INC D", "Increment D", 0, 1, incrementReg(RegisterD)}
-	OpcodeDecD      = opcode{0x15, "DEC D", "Decrement D", 0, 1, decrementReg(RegisterD)}
-	OpcodeLdDn      = opcode{0x16, "LD D,n", "Load 8-bit immediate into D", 0, 1, load8BitToReg(RegisterD)}
+	OpcodeRrcA   = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 1, rotateRegRightWithCarry(RegisterA)}
+	OpcodeStop   = opcode{0x10, "STOP", "Stop processor", 0, 1, unimplementedHandler}
+	OpcodeLdDenn = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 0, 1, load16BitToRegPair(RegisterPairDE)}
+	OpcodeLdDea  = opcode{0x12, "LD (DE),A", "Save A to address pointed by DE", 0, 1, saveAToDEAddr}
+	OpcodeIncDe  = opcode{0x13, "INC DE", "Increment 16-bit DE", 0, 1, incrementRegPair(RegisterPairDE)}
+	OpcodeIncD   = opcode{0x14, "INC D", "Increment D", 0, 1, incrementReg(RegisterD)}
+	OpcodeDecD   = opcode{0x15, "DEC D", "Decrement D", 0, 1, decrementReg(RegisterD)}
+	OpcodeLdDn   = opcode{0x16, "LD D,n", "Load 8-bit immediate into D", 0, 1, load8BitToReg(RegisterD)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRlA       = opcode{0x17, "RL A", "Rotate A left", 0, 1, rotateRegLeft(RegisterA)}
-	OpcodeJrN       = opcode{0x18, "JR n", "Relative jump by signed immediate", 0, 1, relativeJumpImmediate}
-	OpcodeAddHlde   = opcode{0x19, "ADD HL,DE", "Add 16-bit DE to HL", 0, 1, addRegPairToHL(RegisterPairDE)}
-	OpcodeLdAde     = opcode{0x1A, "LD A,(DE)", "Load A from address pointed to by DE", 0, 1, loadAFromRegPairAddr(RegisterPairDE)}
-	OpcodeDecDe     = opcode{0x1B, "DEC DE", "Decrement 16-bit DE", 0, 1, decrementRegPair(RegisterPairDE)}
-	OpcodeIncE      = opcode{0x1C, "INC E", "Increment E", 0, 1, incrementReg(RegisterE)}
-	OpcodeDecE      = opcode{0x1D, "DEC E", "Decrement E", 0, 1, decrementReg(RegisterE)}
-	OpcodeLdEn      = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 0, 1, load8BitToReg(RegisterE)}
+	OpcodeRlA     = opcode{0x17, "RL A", "Rotate A left", 0, 1, rotateRegLeft(RegisterA)}
+	OpcodeJrN     = opcode{0x18, "JR n", "Relative jump by signed immediate", 0, 1, relativeJumpImmediate}
+	OpcodeAddHlde = opcode{0x19, "ADD HL,DE", "Add 16-bit DE to HL", 0, 1, addRegPairToHL(RegisterPairDE)}
+	OpcodeLdAde   = opcode{0x1A, "LD A,(DE)", "Load A from address pointed to by DE", 0, 1, loadAFromRegPairAddr(RegisterPairDE)}
+	OpcodeDecDe   = opcode{0x1B, "DEC DE", "Decrement 16-bit DE", 0, 1, decrementRegPair(RegisterPairDE)}
+	OpcodeIncE    = opcode{0x1C, "INC E", "Increment E", 0, 1, incrementReg(RegisterE)}
+	OpcodeDecE    = opcode{0x1D, "DEC E", "Decrement E", 0, 1, decrementReg(RegisterE)}
+	OpcodeLdEn    = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 0, 1, load8BitToReg(RegisterE)}
 	//TODO: should this one also reset FlagZ?
 	OpcodeRrA       = opcode{0x1F, "RR A", "Rotate A right", 0, 1, rotateRegRight(RegisterA)}
 	OpcodeJrNzn     = opcode{0x20, "JR NZ,n", "Relative jump by signed immediate if last result was not zero", 0, 1, relativeJumpImmediateIfFlag(FlagZ, false)}

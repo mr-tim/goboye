@@ -386,13 +386,13 @@ func doCompareValueAgainstA(p *processor, value uint8) {
 }
 
 func addRegPairToHL(rp registerPair) opcodeHandler {
-	return func (op opcode, p *processor) {
+	return func(op opcode, p *processor) {
 		p.registers.hl += p.registers.getRegisterPair(rp)
 	}
 }
 
 func loadAFromRegPairAddr(rp registerPair) opcodeHandler {
-	return func (op opcode, p *processor) {
+	return func(op opcode, p *processor) {
 		p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.getRegisterPair(rp)))
 	}
 }
@@ -412,11 +412,11 @@ func complementOnA(op opcode, p *processor) {
 }
 
 func setCarryFlag(op opcode, p *processor) {
-	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF) | uint8(FlagC))
+	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(FlagC))
 }
 
 func clearCarryFlag(op opcode, p *processor) {
-	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF) | ^uint8(FlagC))
+	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|^uint8(FlagC))
 }
 
 func addImmediate(op opcode, p *processor) {

@@ -11,13 +11,13 @@ type byteSetter = func(p *processor, value uint8)
 var hlAddr = uint16(0x6532)
 
 func getRegisterValue(reg register) byteGetter {
-	return func (p *processor) uint8 {
+	return func(p *processor) uint8 {
 		return p.registers.getRegister(reg)
 	}
 }
 
 func setRegisterValue(reg register) byteSetter {
-	return func (p *processor, value uint8) {
+	return func(p *processor, value uint8) {
 		p.registers.setRegister(reg, value)
 	}
 }
@@ -88,7 +88,7 @@ func TestRotateARightWithCarry(t *testing.T) {
 }
 
 func doTestRotateRegRightWithCarry(t *testing.T, opcode uint8, reg register) {
-	t.Run(reg.String(), func (t *testing.T) {
+	t.Run(reg.String(), func(t *testing.T) {
 		doTestRotateRightWithCarry(t, opcode, getRegisterValue(reg), setRegisterValue(reg))
 	})
 }
@@ -134,7 +134,7 @@ func TestRotateLeft(t *testing.T) {
 }
 
 func doTestRotateRegLeft(t *testing.T, opcode uint8, reg register) {
-	t.Run(reg.String(), func (t *testing.T) {
+	t.Run(reg.String(), func(t *testing.T) {
 		doTestRotateLeft(t, opcode, getRegisterValue(reg), setRegisterValue(reg))
 	})
 }
@@ -181,8 +181,8 @@ func TestRotateRight(t *testing.T) {
 }
 
 func doTestRotateRegRight(t *testing.T, opcode uint8, reg register) {
-	t.Run(reg.String(), func (t *testing.T) {
-		doTestRotateRight(t, opcode, getRegisterValue(reg) , setRegisterValue(reg))
+	t.Run(reg.String(), func(t *testing.T) {
+		doTestRotateRight(t, opcode, getRegisterValue(reg), setRegisterValue(reg))
 	})
 }
 
@@ -228,7 +228,7 @@ func TestShiftLeftPreservingSign(t *testing.T) {
 }
 
 func doTestShiftRegLeftPreservingSign(t *testing.T, opcode uint8, reg register) {
-	t.Run(reg.String(), func (t *testing.T) {
+	t.Run(reg.String(), func(t *testing.T) {
 		doTestShiftLeftPreservingSign(t, opcode, getRegisterValue(reg), setRegisterValue(reg))
 	})
 }
@@ -274,7 +274,7 @@ func TestShiftRightPreservingSign(t *testing.T) {
 }
 
 func doTestShiftRegRightPreservingSign(t *testing.T, opcode uint8, reg register) {
-	t.Run(reg.String(), func (t *testing.T) {
+	t.Run(reg.String(), func(t *testing.T) {
 		doTestShiftRightPreservingSign(t, opcode, getRegisterValue(reg), setRegisterValue(reg))
 	})
 }
@@ -320,7 +320,7 @@ func TestShiftRight(t *testing.T) {
 }
 
 func doTestShiftRegRight(t *testing.T, opcode uint8, reg register) {
-	t.Run(reg.String(), func (t *testing.T) {
+	t.Run(reg.String(), func(t *testing.T) {
 		doTestShiftRight(t, opcode, getRegisterValue(reg), setRegisterValue(reg))
 	})
 }
@@ -332,7 +332,7 @@ func TestShiftHLAddrRight(t *testing.T) {
 func doTestShiftRight(t *testing.T, opcode uint8, get byteGetter, set byteSetter) {
 	t.Run("Shift 0x01 Right", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
-		set(p,0x01)
+		set(p, 0x01)
 		readAndPerformNextOp(p)
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
@@ -377,7 +377,7 @@ func TestSwapHLAddrNybbles(t *testing.T) {
 }
 
 func doTestSwapNybbles(t *testing.T, opcode uint8, get byteGetter, set byteSetter) {
-	t.Run("Swap 0x00", func (t *testing.T) {
+	t.Run("Swap 0x00", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x00)
 		readAndPerformNextOp(p)
@@ -389,7 +389,7 @@ func doTestSwapNybbles(t *testing.T, opcode uint8, get byteGetter, set byteSette
 		assert.Equal(t, false, p.registers.getFlagValue(FlagC))
 	})
 
-	t.Run("Swap 0xF0", func (t *testing.T) {
+	t.Run("Swap 0xF0", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0xF0)
 		readAndPerformNextOp(p)
