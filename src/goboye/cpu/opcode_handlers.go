@@ -676,3 +676,66 @@ func callRoutineAtAddress(address uint16) opcodeHandler {
 		doCall16BitAddress(p, address)
 	}
 }
+
+func saveAToFFPlusImmediateAddr(op opcode, p *processor) {
+	address := 0xFF00 + uint16(p.memory.ReadByte(p.registers.pc))
+	p.registers.pc++
+	saveAToAddr(address, p)
+}
+
+func saveAToFFPlusCAddr(op opcode, p *processor) {
+	address := 0xFF00 + uint16(p.registers.getRegister(RegisterC))
+	saveAToAddr(address, p)
+}
+
+func saveATo16BitAddr(op opcode, p *processor) {
+	address := p.memory.ReadU16(p.registers.pc)
+	p.registers.pc += 2
+	saveAToAddr(address, p)
+}
+
+func saveAToAddr(address uint16, p *processor) {
+	p.memory.WriteByte(address, p.registers.getRegister(RegisterA))
+}
+
+func loadAFromFFPlusImmediateAddr(op opcode, p *processor) {
+	address := 0xFF00 + uint16(p.memory.ReadByte(p.registers.pc))
+	p.registers.pc++
+	doLoadAFromAddr(p, address)
+}
+
+func loadAFromAddr(op opcode, p *processor) {
+	address := p.memory.ReadU16(p.registers.pc)
+	p.registers.pc += 2
+	doLoadAFromAddr(p, address)
+}
+
+func doLoadAFromAddr(p *processor, address uint16) {
+	p.registers.setRegister(RegisterA, p.memory.ReadByte(address))
+}
+
+func add8BitSignedImmediateToSP(op opcode, p *processor) {
+	doAdd8BitSignedImmediateToSP(p, RegisterPairSP)
+}
+
+func add8BitImmediateToSPSaveInHL(op opcode, p *processor) {
+	doAdd8BitSignedImmediateToSP(p, RegisterPairHL)
+}
+
+func doAdd8BitSignedImmediateToSP(p *processor, rp registerPair) {
+	v := int(p.Read8BitImmediate())
+	if v > 127 {
+		v -= 256
+	}
+	result := p.registers.sp
+	if v > 0 {
+		result += uint16(v)
+	} else {
+		result -= uint16(-v)
+	}
+	p.registers.setRegisterPair(rp, result)
+}
+
+func copyHLToSP(op opcode, p *processor) {
+	p.registers.sp = p.registers.hl
+}
