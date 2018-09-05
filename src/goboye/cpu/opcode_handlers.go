@@ -19,8 +19,7 @@ func load16BitToRegPair(rp registerPair) opcodeHandler {
 }
 
 func doLoad16BitToRegPair(p *processor, pair registerPair) {
-	value := p.memory.ReadU16(p.registers.pc)
-	p.registers.pc += 2
+	value := p.Read16BitImmediate()
 	p.registers.setRegisterPair(pair, value)
 }
 
@@ -31,14 +30,12 @@ func load8BitToReg(r register) opcodeHandler {
 }
 
 func doLoad8BitToReg(p *processor, reg register) {
-	value := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc++
+	value := p.Read8BitImmediate()
 	p.registers.setRegister(reg, value)
 }
 
 func load8BitToHLAddr(op opcode, p *processor) {
-	value := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc++
+	value := p.Read8BitImmediate()
 	p.memory.WriteByte(p.registers.hl, value)
 }
 
@@ -80,10 +77,9 @@ func saveAToHLAddrDec(op opcode, p *processor) {
 }
 
 func saveSPToAddr(op opcode, p *processor) {
-	addr := p.memory.ReadU16(p.registers.pc)
+	addr := p.Read16BitImmediate()
 	sp := p.registers.sp
 	p.memory.WriteU16(addr, sp)
-	p.registers.pc += 2
 }
 
 func incrementRegPair(pair registerPair) opcodeHandler {
@@ -421,8 +417,7 @@ func clearCarryFlag(op opcode, p *processor) {
 
 func addImmediate(op opcode, p *processor) {
 	original := p.registers.getRegister(RegisterA)
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	result := original + other
 	p.registers.setRegister(RegisterA, result)
 
@@ -441,8 +436,7 @@ func addImmediate(op opcode, p *processor) {
 
 func subtractImmediate(op opcode, p *processor) {
 	original := p.registers.getRegister(RegisterA)
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	result := original - other
 	p.registers.setRegister(RegisterA, result)
 
@@ -461,8 +455,7 @@ func subtractImmediate(op opcode, p *processor) {
 }
 
 func logicalAndImmediate(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	result := p.registers.getRegister(RegisterA) & other
 	p.registers.setRegister(RegisterA, result)
 
@@ -476,8 +469,7 @@ func logicalAndImmediate(op opcode, p *processor) {
 }
 
 func logicalOrImmediate(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	result := p.registers.getRegister(RegisterA) | other
 	p.registers.setRegister(RegisterA, result)
 
@@ -490,8 +482,7 @@ func logicalOrImmediate(op opcode, p *processor) {
 
 func addCImmediate(op opcode, p *processor) {
 	original := p.registers.getRegister(RegisterA)
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	if p.registers.getFlagValue(FlagC) {
 		other += 1
 	}
@@ -513,8 +504,7 @@ func addCImmediate(op opcode, p *processor) {
 
 func subCImmediate(op opcode, p *processor) {
 	original := p.registers.getRegister(RegisterA)
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	if p.registers.getFlagValue(FlagC) {
 		other += 1
 	}
@@ -536,8 +526,7 @@ func subCImmediate(op opcode, p *processor) {
 }
 
 func logicalXorImmediate(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	result := p.registers.getRegister(RegisterA) | other
 	p.registers.setRegister(RegisterA, result)
 
@@ -549,14 +538,12 @@ func logicalXorImmediate(op opcode, p *processor) {
 }
 
 func compareImmediate(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	other := p.Read8BitImmediate()
 	doCompareValueAgainstA(p, other)
 }
 
 func relativeJumpImmediate(op opcode, p *processor) {
-	jumpValue := p.memory.ReadByte(p.registers.pc)
-	p.registers.pc += 1
+	jumpValue := p.Read8BitImmediate()
 
 	doRelativeJump(jumpValue, p)
 }
@@ -582,8 +569,7 @@ func doRelativeJump(unsignedJumpValue uint8, p *processor) {
 
 func relativeJumpImmediateIfFlag(f opResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
-		jumpValue := p.memory.ReadByte(p.registers.pc)
-		p.registers.pc += 1
+		jumpValue := p.Read8BitImmediate()
 
 		if p.registers.getFlagValue(f) == value {
 			doRelativeJump(jumpValue, p)
@@ -605,8 +591,7 @@ func jumpTo16BitAddress(op opcode, p *processor) {
 
 func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
-		newAddr := p.memory.ReadU16(p.registers.pc)
-		p.registers.pc += 2
+		newAddr := p.Read16BitImmediate()
 
 		if p.registers.getFlagValue(f) == value {
 			p.registers.pc = newAddr
@@ -634,6 +619,7 @@ func popRegisterPair(rp registerPair) opcodeHandler {
 
 func call16BitAddress(op opcode, p *processor) {
 	address := p.memory.ReadU16(p.registers.pc)
+	// TODO: check this... should we be advancing PC so we return correctly?
 	doCall16BitAddress(p, address)
 }
 
@@ -678,8 +664,7 @@ func callRoutineAtAddress(address uint16) opcodeHandler {
 }
 
 func saveAToFFPlusImmediateAddr(op opcode, p *processor) {
-	address := 0xFF00 + uint16(p.memory.ReadByte(p.registers.pc))
-	p.registers.pc++
+	address := 0xFF00 + uint16(p.Read8BitImmediate())
 	saveAToAddr(address, p)
 }
 
@@ -689,8 +674,7 @@ func saveAToFFPlusCAddr(op opcode, p *processor) {
 }
 
 func saveATo16BitAddr(op opcode, p *processor) {
-	address := p.memory.ReadU16(p.registers.pc)
-	p.registers.pc += 2
+	address := p.Read16BitImmediate()
 	saveAToAddr(address, p)
 }
 
@@ -699,14 +683,12 @@ func saveAToAddr(address uint16, p *processor) {
 }
 
 func loadAFromFFPlusImmediateAddr(op opcode, p *processor) {
-	address := 0xFF00 + uint16(p.memory.ReadByte(p.registers.pc))
-	p.registers.pc++
+	address := 0xFF00 + uint16(p.Read8BitImmediate())
 	doLoadAFromAddr(p, address)
 }
 
 func loadAFromAddr(op opcode, p *processor) {
-	address := p.memory.ReadU16(p.registers.pc)
-	p.registers.pc += 2
+	address := p.Read16BitImmediate()
 	doLoadAFromAddr(p, address)
 }
 
