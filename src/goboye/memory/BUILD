@@ -5,6 +5,7 @@ go_library(
     ],
     visibility = [
         '//goboye/cpu:cpu',
+        '//goboye/debugger:main',
     ]
 )
 

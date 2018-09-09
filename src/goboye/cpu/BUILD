@@ -11,6 +11,9 @@ go_library(
     deps = [
         '//goboye/memory:memory',
     ],
+    visibility = [
+        '//goboye/debugger/...',
+    ]
 )
 
 go_test(
