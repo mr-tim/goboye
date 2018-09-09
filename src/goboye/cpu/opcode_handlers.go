@@ -552,11 +552,7 @@ func doRelativeJump(unsignedJumpValue uint8, p *processor) {
 	// -127 ... -2, -1,  1, 2, 3, 4, 5, ..., 129
 	jumpValue := int(unsignedJumpValue)
 	if jumpValue > 127 {
-		jumpValue -= 256
-	}
-	jumpValue += 2
-	if jumpValue < 1 {
-		jumpValue -= 1
+		jumpValue = -(^jumpValue & 0xFF) -1
 	}
 	if jumpValue > 0 {
 		p.registers.pc += uint16(jumpValue)
@@ -571,8 +567,6 @@ func relativeJumpImmediateIfFlag(f opResultFlag, value bool) opcodeHandler {
 
 		if p.registers.getFlagValue(f) == value {
 			doRelativeJump(jumpValue, p)
-		} else {
-			p.registers.pc += 1
 		}
 	}
 }
