@@ -22,8 +22,8 @@ import (
 		0xFFFF - Interrupt Enable Register
 */
 
-const ROM_SIZE = 0x8000
-const MEM_SIZE = 0xFFFF
+const ROM_SIZE = 0x08000
+const MEM_SIZE = 0x10000
 
 type memoryMap struct {
 	mem []byte
