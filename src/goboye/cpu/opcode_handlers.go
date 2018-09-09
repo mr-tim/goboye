@@ -150,14 +150,12 @@ func doIncrementRegister(p *processor, reg register) {
 	oldValue := p.registers.getRegister(reg)
 	newValue := oldValue + 1
 	p.registers.setRegister(reg, newValue)
-	flags := p.registers.getRegister(RegisterF)
-	// zero the n flag
-	flags &= 0xB0
+	flags := uint8(0)
 	if newValue == 0 {
-		flags |= 0x80
+		flags |= uint8(FlagZ)
 	}
 	if isHalfCarryAdd(oldValue, 1) {
-		flags |= 0x20
+		flags |= uint8(FlagH)
 	}
 	p.registers.setRegister(RegisterF, flags)
 }
@@ -167,7 +165,7 @@ func doDecrementRegister(p *processor, reg register) {
 	newValue := oldValue - 1
 	p.registers.setRegister(reg, newValue)
 	// set the n flag to 1
-	flags := p.registers.getRegister(RegisterF) | 0x50
+	flags := uint8(FlagN)
 	if newValue == 0 {
 		flags = flags | uint8(FlagZ)
 	}
