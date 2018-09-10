@@ -1,8 +1,8 @@
 package cpu
 
 import (
-	"goboye/memory"
 	"fmt"
+	"goboye/memory"
 )
 
 type Processor interface {
@@ -62,7 +62,7 @@ func (p *processor) GetRegisterPair(regPair registerPair) uint16 {
 func NewProcessor(memory memory.MemoryMap) Processor {
 	p := processor{
 		registers: &registers{},
-		memory: memory,
+		memory:    memory,
 	}
 	p.registers.pc = uint16(0x0000)
 	return &p

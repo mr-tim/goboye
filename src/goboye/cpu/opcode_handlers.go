@@ -552,7 +552,7 @@ func doRelativeJump(unsignedJumpValue uint8, p *processor) {
 	// -127 ... -2, -1,  1, 2, 3, 4, 5, ..., 129
 	jumpValue := int(unsignedJumpValue)
 	if jumpValue > 127 {
-		jumpValue = -(^jumpValue & 0xFF) -1
+		jumpValue = -(^jumpValue & 0xFF) - 1
 	}
 	if jumpValue > 0 {
 		p.registers.pc += uint16(jumpValue)
@@ -596,7 +596,7 @@ func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
 func pushRegisterPair(rp registerPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		value := p.registers.getRegisterPair(rp)
-		p.registers.sp-=2
+		p.registers.sp -= 2
 		p.memory.WriteU16(p.registers.sp, value)
 	}
 }
