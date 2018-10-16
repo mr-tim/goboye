@@ -2,3 +2,4 @@
 *.iml
 src/plz-out
 src/.plz-cache
+.DS_Store

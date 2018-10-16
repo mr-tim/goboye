@@ -2,6 +2,7 @@ go_library(
     name = 'display',
     srcs = [
         'display.go',
+        'display_memory.go',
     ],
     deps = [
         '//third_party:go-sdl2',
