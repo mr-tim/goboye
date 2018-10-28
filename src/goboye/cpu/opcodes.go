@@ -236,38 +236,34 @@ var (
 	OpcodeCpL       = opcode{0xBD, "CP L", "Compare L against A", 0, 4, compareRegAgainstA(RegisterL)}
 	OpcodeCpHl      = opcode{0xBE, "CP (HL)", "Compare value pointed by HL against A", 0, 8, compareHLAddrAgainstA}
 	OpcodeCpA       = opcode{0xBF, "CP A", "Compare A against A", 0, 4, compareRegAgainstA(RegisterA)}
-	//TODO: variable cycles for RET NZ (20/8)
-	OpcodeRetNz  = opcode{0xC0, "RET NZ", "Return if last result was not zero", 0, 8, conditionalReturn(FlagZ, false)}
-	OpcodePopBc  = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 12, popRegisterPair(RegisterPairBC)}
-	OpcodeJpNznn = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, false)}
-	OpcodeJpNn   = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 2, 16, jumpTo16BitAddress}
+	OpcodeRetNz    = opcode{0xC0, "RET NZ", "Return if last result was not zero", 0, 8, conditionalReturn(FlagZ, false)}
+	OpcodePopBc    = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 12, popRegisterPair(RegisterPairBC)}
+	OpcodeJpNznn   = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, false)}
+	OpcodeJpNn     = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 2, 16, jumpTo16BitAddress}
 	OpcodeCallNznn = opcode{0xC4, "CALL NZ,nn", "Call routine at 16-bit location if last result was not zero", 2, 12, conditionalCall16BitAddress(FlagZ, false)}
 	OpcodePushBc   = opcode{0xC5, "PUSH BC", "Push 16-bit BC onto stack", 0, 16, pushRegisterPair(RegisterPairBC)}
 	OpcodeAddAn    = opcode{0xC6, "ADD A,n", "Add 8-bit immediate to A", 1, 8, addImmediate}
 	OpcodeRst0     = opcode{0xC7, "RST 0", "Call routine at address 0000h", 0, 16, callRoutineAtAddress(0x0000)}
-	//TODO: variable cycles for RET Z (20/8)
-	OpcodeRetZ   = opcode{0xC8, "RET Z", "Return if last result was zero", 0, 8, conditionalReturn(FlagZ, true)}
-	OpcodeRet    = opcode{0xC9, "RET", "Return to calling routine", 0, 16, doReturn}
-	OpcodeJpZnn  = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, true)}
-	OpcodeExtOps = opcode{0xCB, "Ext ops", "Extended operations (two-byte instruction code)", 0, 4, extendedOps}
+	OpcodeRetZ    = opcode{0xC8, "RET Z", "Return if last result was zero", 0, 8, conditionalReturn(FlagZ, true)}
+	OpcodeRet     = opcode{0xC9, "RET", "Return to calling routine", 0, 16, doReturn}
+	OpcodeJpZnn   = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, true)}
+	OpcodeExtOps  = opcode{0xCB, "Ext ops", "Extended operations (two-byte instruction code)", 0, 4, extendedOps}
 	OpcodeCallZnn = opcode{0xCC, "CALL Z,nn", "Call routine at 16-bit location if last result was zero", 2, 12, conditionalCall16BitAddress(FlagZ, true)}
 	OpcodeCallNn  = opcode{0xCD, "CALL nn", "Call routine at 16-bit location", 2, 24, call16BitAddress}
 	OpcodeAdcAn   = opcode{0xCE, "ADC A,n", "Add 8-bit immediate and carry to A", 1, 8, addCImmediate}
 	OpcodeRst8    = opcode{0xCF, "RST 8", "Call routine at address 0008h", 0, 16, callRoutineAtAddress(0x0008)}
-	//TODO: variable cycles for RET NC (20/8)
-	OpcodeRetNc  = opcode{0xD0, "RET NC", "Return if last result caused no carry", 0, 8, conditionalReturn(FlagC, false)}
-	OpcodePopDe  = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 12, popRegisterPair(RegisterPairDE)}
-	OpcodeJpNcnn = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, false)}
-	OpcodeXxD3   = opcode{0xD3, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
+	OpcodeRetNc    = opcode{0xD0, "RET NC", "Return if last result caused no carry", 0, 8, conditionalReturn(FlagC, false)}
+	OpcodePopDe    = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 12, popRegisterPair(RegisterPairDE)}
+	OpcodeJpNcnn   = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, false)}
+	OpcodeXxD3     = opcode{0xD3, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	OpcodeCallNcnn = opcode{0xD4, "CALL NC,nn", "Call routine at 16-bit location if last result caused no carry", 2, 12, conditionalCall16BitAddress(FlagC, false)}
 	OpcodePushDe   = opcode{0xD5, "PUSH DE", "Push 16-bit DE onto stack", 0, 16, pushRegisterPair(RegisterPairDE)}
 	OpcodeSubAn    = opcode{0xD6, "SUB A,n", "Subtract 8-bit immediate from A", 1, 8, subtractImmediate}
 	OpcodeRst10    = opcode{0xD7, "RST 10", "Call routine at address 0010h", 0, 16, callRoutineAtAddress(0x0010)}
-	//TODO: variable cycles for RET C (20/8)
-	OpcodeRetC  = opcode{0xD8, "RET C", "Return if last result caused carry", 0, 8, conditionalReturn(FlagC, true)}
-	OpcodeReti  = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 16, doReturnEnablingInterrupts}
-	OpcodeJpCnn = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, true)}
-	OpcodeXxDB  = opcode{0xDB, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
+	OpcodeRetC    = opcode{0xD8, "RET C", "Return if last result caused carry", 0, 8, conditionalReturn(FlagC, true)}
+	OpcodeReti    = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 16, doReturnEnablingInterrupts}
+	OpcodeJpCnn   = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, true)}
+	OpcodeXxDB    = opcode{0xDB, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	OpcodeCallCnn = opcode{0xDC, "CALL C,nn", "Call routine at 16-bit location if last result caused carry", 2, 12, conditionalCall16BitAddress(FlagC, true)}
 	OpcodeXxDD    = opcode{0xDD, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	OpcodeSbcAn   = opcode{0xDE, "SBC A,n", "Subtract 8-bit immediate and carry from A", 1, 8, subCImmediate}

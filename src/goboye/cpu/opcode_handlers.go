@@ -638,11 +638,13 @@ func doReturn(op opcode, p *processor) {
 
 func doReturnEnablingInterrupts(op opcode, p *processor) {
 	doReturn(op, p)
+	//TODO: enable interrupts
 }
 
 func conditionalReturn(f opResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
 		if p.registers.getFlagValue(f) == value {
+			p.cycles += 12
 			doReturn(op, p)
 		}
 	}
