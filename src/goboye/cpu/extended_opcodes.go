@@ -517,3 +517,6 @@ var opcodeMapExt = map[uint8]opcode{
 	0xFE: OpcodeExtSet7hl,
 	0xFF: OpcodeExtSet7a,
 }
+
+func doNothing() {
+}

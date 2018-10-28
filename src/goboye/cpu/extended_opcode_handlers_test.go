@@ -401,3 +401,7 @@ func doTestSwapNybbles(t *testing.T, opcode uint8, get byteGetter, set byteSette
 		assert.Equal(t, false, p.registers.getFlagValue(FlagC))
 	})
 }
+
+func TestCoverageCollection(t *testing.T) {
+	doNothing()
+}
