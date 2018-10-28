@@ -55,7 +55,7 @@ func doTestRotateLeftWithCarry(t *testing.T, opcode uint8, get byteGetter, set b
 	t.Run("Rotate 0x85 left with carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x85)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x0B), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -67,7 +67,7 @@ func doTestRotateLeftWithCarry(t *testing.T, opcode uint8, get byteGetter, set b
 	t.Run("Rotate 0x00 left with carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x00)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -101,7 +101,7 @@ func doTestRotateRightWithCarry(t *testing.T, opcode uint8, get byteGetter, set 
 	t.Run("Rotate 0x01 Right with carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x01)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x80), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -113,7 +113,7 @@ func doTestRotateRightWithCarry(t *testing.T, opcode uint8, get byteGetter, set 
 	t.Run("Rotate 0x00 Right with carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x00)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -148,7 +148,7 @@ func doTestRotateLeft(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 	t.Run("Rotate 0x80 left", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x80)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -160,7 +160,7 @@ func doTestRotateLeft(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 	t.Run("Rotate 0x11 left", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x11)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x22), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -195,7 +195,7 @@ func doTestRotateRight(t *testing.T, opcode uint8, get byteGetter, set byteSette
 	t.Run("Rotate 0x01 Right", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x01)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -207,7 +207,7 @@ func doTestRotateRight(t *testing.T, opcode uint8, get byteGetter, set byteSette
 	t.Run("Rotate 0x8A Right", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x8A)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x45), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -241,7 +241,7 @@ func doTestShiftLeftPreservingSign(t *testing.T, opcode uint8, get byteGetter, s
 	t.Run("Shift 0x80 left preserving sign", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x80)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -253,7 +253,7 @@ func doTestShiftLeftPreservingSign(t *testing.T, opcode uint8, get byteGetter, s
 	t.Run("Shift 0xFF left preserving sign", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0xFF)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0xFE), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -287,7 +287,7 @@ func doTestShiftRightPreservingSign(t *testing.T, opcode uint8, get byteGetter, 
 	t.Run("Shift 0x01 Right preserving sign", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x01)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -299,7 +299,7 @@ func doTestShiftRightPreservingSign(t *testing.T, opcode uint8, get byteGetter, 
 	t.Run("Shift 0x8A Right preserving sign", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x8A)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0xC5), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -333,7 +333,7 @@ func doTestShiftRight(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 	t.Run("Shift 0x01 Right", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x01)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -345,7 +345,7 @@ func doTestShiftRight(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 	t.Run("Shift 0x8A Right", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x8A)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x45), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
@@ -380,7 +380,7 @@ func doTestSwapNybbles(t *testing.T, opcode uint8, get byteGetter, set byteSette
 	t.Run("Swap 0x00", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x00)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x00), get(p))
 		assert.Equal(t, true, p.registers.getFlagValue(FlagZ))
@@ -392,7 +392,7 @@ func doTestSwapNybbles(t *testing.T, opcode uint8, get byteGetter, set byteSette
 	t.Run("Swap 0xF0", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0xF0)
-		readAndPerformNextOp(p)
+		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x0F), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
