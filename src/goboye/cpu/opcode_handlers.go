@@ -610,8 +610,7 @@ func popRegisterPair(rp registerPair) opcodeHandler {
 }
 
 func call16BitAddress(op opcode, p *processor) {
-	address := p.memory.ReadU16(p.registers.pc)
-	// TODO: check this... should we be advancing PC so we return correctly?
+	address := p.Read16BitImmediate()
 	doCall16BitAddress(p, address)
 }
 
@@ -623,10 +622,10 @@ func doCall16BitAddress(p *processor, address uint16) {
 
 func conditionalCall16BitAddress(f opResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
+		address := p.Read16BitImmediate()
 		if p.registers.getFlagValue(f) == value {
-			call16BitAddress(op, p)
-		} else {
-			p.registers.pc++
+			p.cycles += 12
+			doCall16BitAddress(p, address)
 		}
 	}
 }

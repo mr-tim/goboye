@@ -506,3 +506,55 @@ func doTestJFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFla
 		assert.Equal(t, uint16(0xABCD), p.GetRegisterPair(RegisterPairPC))
 	})
 }
+
+func TestCall(t *testing.T) {
+	p := setupHandlerTest([]byte{0xCD, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+	p.registers.setRegisterPair(RegisterPairSP, 10)
+	p.DoNextInstruction()
+
+	assert.Equal(t, uint(24), p.Cycles())
+	assert.Equal(t, uint16(0x1234), p.GetRegisterPair(RegisterPairPC))
+	assert.Equal(t, uint16(8), p.GetRegisterPair(RegisterPairSP))
+	assert.Equal(t, uint16(0x0003), p.memory.ReadU16(uint16(8)))
+}
+
+func TestCallNZ(t *testing.T) {
+	doTestCallFlag(t, 0xC4, FlagZ, FlagNoFlags)
+}
+
+func TestCallZ(t *testing.T) {
+	doTestCallFlag(t, 0xCC, FlagNoFlags, FlagZ)
+}
+
+func TestCallNC(t *testing.T) {
+	doTestCallFlag(t, 0xD4, FlagC, FlagNoFlags)
+}
+
+func TestCallC(t *testing.T) {
+	doTestCallFlag(t, 0xDC, FlagNoFlags, FlagC)
+}
+
+func doTestCallFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+	t.Run("No action taken", func(t *testing.T) {
+		p := setupHandlerTest([]byte{opcode, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		p.registers.setRegisterPair(RegisterPairSP,  uint16(10))
+		p.DoNextInstruction()
+
+		assert.Equal(t, uint(12), p.Cycles())
+		assert.Equal(t, uint16(3), p.GetRegisterPair(RegisterPairPC))
+		assert.Equal(t, uint16(10), p.GetRegisterPair(RegisterPairSP))
+	})
+
+	t.Run("Action taken", func (t *testing.T) {
+		p := setupHandlerTest([]byte{opcode, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		p.registers.setRegisterPair(RegisterPairSP, 10)
+		p.DoNextInstruction()
+
+		assert.Equal(t, uint(24), p.Cycles())
+		assert.Equal(t, uint16(0x1234), p.GetRegisterPair(RegisterPairPC))
+		assert.Equal(t, uint16(8), p.GetRegisterPair(RegisterPairSP))
+		assert.Equal(t, uint16(0x0003), p.memory.ReadU16(uint16(8)))
+	})
+}

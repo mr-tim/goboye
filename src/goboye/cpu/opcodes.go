@@ -241,7 +241,6 @@ var (
 	OpcodePopBc  = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 12, popRegisterPair(RegisterPairBC)}
 	OpcodeJpNznn = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, false)}
 	OpcodeJpNn   = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 2, 16, jumpTo16BitAddress}
-	//TODO: variable cycles for CALL NZ,nn (24/12)
 	OpcodeCallNznn = opcode{0xC4, "CALL NZ,nn", "Call routine at 16-bit location if last result was not zero", 2, 12, conditionalCall16BitAddress(FlagZ, false)}
 	OpcodePushBc   = opcode{0xC5, "PUSH BC", "Push 16-bit BC onto stack", 0, 16, pushRegisterPair(RegisterPairBC)}
 	OpcodeAddAn    = opcode{0xC6, "ADD A,n", "Add 8-bit immediate to A", 1, 8, addImmediate}
@@ -251,7 +250,6 @@ var (
 	OpcodeRet    = opcode{0xC9, "RET", "Return to calling routine", 0, 16, doReturn}
 	OpcodeJpZnn  = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, true)}
 	OpcodeExtOps = opcode{0xCB, "Ext ops", "Extended operations (two-byte instruction code)", 0, 4, extendedOps}
-	//TODO: variable cycles for CALL Z,nn (24/12)
 	OpcodeCallZnn = opcode{0xCC, "CALL Z,nn", "Call routine at 16-bit location if last result was zero", 2, 12, conditionalCall16BitAddress(FlagZ, true)}
 	OpcodeCallNn  = opcode{0xCD, "CALL nn", "Call routine at 16-bit location", 2, 24, call16BitAddress}
 	OpcodeAdcAn   = opcode{0xCE, "ADC A,n", "Add 8-bit immediate and carry to A", 1, 8, addCImmediate}
@@ -261,7 +259,6 @@ var (
 	OpcodePopDe  = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 12, popRegisterPair(RegisterPairDE)}
 	OpcodeJpNcnn = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, false)}
 	OpcodeXxD3   = opcode{0xD3, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
-	//TODO: variable cycles for CALL NC,nn (24/12)
 	OpcodeCallNcnn = opcode{0xD4, "CALL NC,nn", "Call routine at 16-bit location if last result caused no carry", 2, 12, conditionalCall16BitAddress(FlagC, false)}
 	OpcodePushDe   = opcode{0xD5, "PUSH DE", "Push 16-bit DE onto stack", 0, 16, pushRegisterPair(RegisterPairDE)}
 	OpcodeSubAn    = opcode{0xD6, "SUB A,n", "Subtract 8-bit immediate from A", 1, 8, subtractImmediate}
@@ -271,7 +268,6 @@ var (
 	OpcodeReti  = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 16, doReturnEnablingInterrupts}
 	OpcodeJpCnn = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, true)}
 	OpcodeXxDB  = opcode{0xDB, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
-	//TODO: variable cycles for CALL C,nn (24/12)
 	OpcodeCallCnn = opcode{0xDC, "CALL C,nn", "Call routine at 16-bit location if last result caused carry", 2, 12, conditionalCall16BitAddress(FlagC, true)}
 	OpcodeXxDD    = opcode{0xDD, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	OpcodeSbcAn   = opcode{0xDE, "SBC A,n", "Subtract 8-bit immediate and carry from A", 1, 8, subCImmediate}
