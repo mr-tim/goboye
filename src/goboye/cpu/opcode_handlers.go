@@ -638,7 +638,7 @@ func doReturn(op opcode, p *processor) {
 
 func doReturnEnablingInterrupts(op opcode, p *processor) {
 	doReturn(op, p)
-	//TODO: enable interrupts
+	p.interruptsEnabled = true
 }
 
 func conditionalReturn(f opResultFlag, value bool) opcodeHandler {
@@ -713,4 +713,12 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp registerPair) {
 
 func copyHLToSP(op opcode, p *processor) {
 	p.registers.sp = p.registers.hl
+}
+
+func disableInterrupts(op opcode, p *processor) {
+	p.interruptsEnabled = false
+}
+
+func enableInterrupts(op opcode, p *processor) {
+	p.interruptsEnabled = true
 }

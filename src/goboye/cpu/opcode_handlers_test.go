@@ -572,11 +572,13 @@ func TestRet(t *testing.T) {
 func TestRetI(t *testing.T) {
 	p := setupHandlerTest([]byte{0xD9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x83, 0x45, 0x67})
 	p.registers.setRegisterPair(RegisterPairSP, uint16(6))
+	p.interruptsEnabled = false
 	p.DoNextInstruction()
 
 	assert.Equal(t, uint(16), p.Cycles())
 	assert.Equal(t, uint16(0x8359), p.GetRegisterPair(RegisterPairPC))
 	assert.Equal(t, uint16(8), p.GetRegisterPair(RegisterPairSP))
+	assert.Equal(t, true, p.interruptsEnabled)
 }
 
 func TestRetNZ(t *testing.T) {
@@ -617,4 +619,18 @@ func doTestRetFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionF
 		assert.Equal(t, uint16(0x8359), p.GetRegisterPair(RegisterPairPC))
 		assert.Equal(t, uint16(8), p.GetRegisterPair(RegisterPairSP))
 	})
+}
+
+func TestDisableInterrupts(t *testing.T) {
+	p := setupHandlerTest([]byte{0xF3})
+	p.interruptsEnabled = true
+	p.DoNextInstruction()
+	assert.Equal(t, false, p.interruptsEnabled)
+}
+
+func TestEnableInterrupts(t *testing.T) {
+	p := setupHandlerTest([]byte{0xFB})
+	p.interruptsEnabled = false
+	p.DoNextInstruction()
+	assert.Equal(t, true, p.interruptsEnabled)
 }

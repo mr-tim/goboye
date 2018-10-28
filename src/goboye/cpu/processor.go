@@ -15,9 +15,10 @@ type Processor interface {
 }
 
 type processor struct {
-	registers *registers
-	memory    memory.MemoryMap
-	cycles    uint
+	registers         *registers
+	memory            memory.MemoryMap
+	cycles            uint
+	interruptsEnabled bool
 }
 
 func NewProcessor(memory memory.MemoryMap) Processor {
