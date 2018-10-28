@@ -463,3 +463,46 @@ func doTestJRFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFl
 		assert.Equal(t, uint16(7), p.GetRegisterPair(RegisterPairPC))
 	})
 }
+
+func TestJ(t *testing.T) {
+	p := setupHandlerTest([]byte{0xC3, 0xEF, 0xCD})
+	p.DoNextInstruction()
+
+	assert.Equal(t, uint(16), p.Cycles())
+	assert.Equal(t, uint16(0xCDEF), p.GetRegisterPair(RegisterPairPC))
+}
+
+func TestJNZ(t *testing.T) {
+	doTestJFlag(t, 0xC2, FlagZ, FlagNoFlags)
+}
+
+func TestJZ(t *testing.T) {
+	doTestJFlag(t, 0xCA, FlagNoFlags, FlagZ)
+}
+
+func TestJNC(t *testing.T) {
+	doTestJFlag(t, 0xD2, FlagC, FlagNoFlags)
+}
+
+func TestJC(t *testing.T) {
+	doTestJFlag(t, 0xDA, FlagNoFlags, FlagC)
+}
+
+func doTestJFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+	t.Run("No action taken", func(t *testing.T) {
+		p := setupHandlerTest([]byte{opcode, 0xCD, 0xAB})
+		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		p.DoNextInstruction()
+
+		assert.Equal(t, uint(12), p.Cycles())
+		assert.Equal(t, uint16(3), p.GetRegisterPair(RegisterPairPC))
+	})
+	t.Run("Action taken", func(t *testing.T) {
+		p := setupHandlerTest([]byte{opcode, 0xCD, 0xAB})
+		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		p.DoNextInstruction()
+
+		assert.Equal(t, uint(16), p.Cycles())
+		assert.Equal(t, uint16(0xABCD), p.GetRegisterPair(RegisterPairPC))
+	})
+}

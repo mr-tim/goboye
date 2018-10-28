@@ -587,9 +587,8 @@ func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
 		newAddr := p.Read16BitImmediate()
 
 		if p.registers.getFlagValue(f) == value {
+			p.cycles += 4
 			p.registers.pc = newAddr
-		} else {
-			p.registers.pc += 1
 		}
 	}
 }

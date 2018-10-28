@@ -237,9 +237,8 @@ var (
 	OpcodeCpHl      = opcode{0xBE, "CP (HL)", "Compare value pointed by HL against A", 0, 8, compareHLAddrAgainstA}
 	OpcodeCpA       = opcode{0xBF, "CP A", "Compare A against A", 0, 4, compareRegAgainstA(RegisterA)}
 	//TODO: variable cycles for RET NZ (20/8)
-	OpcodeRetNz = opcode{0xC0, "RET NZ", "Return if last result was not zero", 0, 8, conditionalReturn(FlagZ, false)}
-	OpcodePopBc = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 12, popRegisterPair(RegisterPairBC)}
-	//TODO: variable cycles for JP NZ,nn (16/12)
+	OpcodeRetNz  = opcode{0xC0, "RET NZ", "Return if last result was not zero", 0, 8, conditionalReturn(FlagZ, false)}
+	OpcodePopBc  = opcode{0xC1, "POP BC", "Pop 16-bit value from stack into BC", 0, 12, popRegisterPair(RegisterPairBC)}
 	OpcodeJpNznn = opcode{0xC2, "JP NZ,nn", "Absolute jump to 16-bit location if last result was not zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, false)}
 	OpcodeJpNn   = opcode{0xC3, "JP nn", "Absolute jump to 16-bit location", 2, 16, jumpTo16BitAddress}
 	//TODO: variable cycles for CALL NZ,nn (24/12)
@@ -248,9 +247,8 @@ var (
 	OpcodeAddAn    = opcode{0xC6, "ADD A,n", "Add 8-bit immediate to A", 1, 8, addImmediate}
 	OpcodeRst0     = opcode{0xC7, "RST 0", "Call routine at address 0000h", 0, 16, callRoutineAtAddress(0x0000)}
 	//TODO: variable cycles for RET Z (20/8)
-	OpcodeRetZ = opcode{0xC8, "RET Z", "Return if last result was zero", 0, 8, conditionalReturn(FlagZ, true)}
-	OpcodeRet  = opcode{0xC9, "RET", "Return to calling routine", 0, 16, doReturn}
-	//TODO: variable cycles for JP Z,nn (16/12)
+	OpcodeRetZ   = opcode{0xC8, "RET Z", "Return if last result was zero", 0, 8, conditionalReturn(FlagZ, true)}
+	OpcodeRet    = opcode{0xC9, "RET", "Return to calling routine", 0, 16, doReturn}
 	OpcodeJpZnn  = opcode{0xCA, "JP Z,nn", "Absolute jump to 16-bit location if last result was zero", 2, 12, jumpTo16BitAddressIfFlag(FlagZ, true)}
 	OpcodeExtOps = opcode{0xCB, "Ext ops", "Extended operations (two-byte instruction code)", 0, 4, extendedOps}
 	//TODO: variable cycles for CALL Z,nn (24/12)
@@ -259,9 +257,8 @@ var (
 	OpcodeAdcAn   = opcode{0xCE, "ADC A,n", "Add 8-bit immediate and carry to A", 1, 8, addCImmediate}
 	OpcodeRst8    = opcode{0xCF, "RST 8", "Call routine at address 0008h", 0, 16, callRoutineAtAddress(0x0008)}
 	//TODO: variable cycles for RET NC (20/8)
-	OpcodeRetNc = opcode{0xD0, "RET NC", "Return if last result caused no carry", 0, 8, conditionalReturn(FlagC, false)}
-	OpcodePopDe = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 12, popRegisterPair(RegisterPairDE)}
-	//TODO: variable cycles for JP NC,nn (16/12)
+	OpcodeRetNc  = opcode{0xD0, "RET NC", "Return if last result caused no carry", 0, 8, conditionalReturn(FlagC, false)}
+	OpcodePopDe  = opcode{0xD1, "POP DE", "Pop 16-bit value from stack into DE", 0, 12, popRegisterPair(RegisterPairDE)}
 	OpcodeJpNcnn = opcode{0xD2, "JP NC,nn", "Absolute jump to 16-bit location if last result caused no carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, false)}
 	OpcodeXxD3   = opcode{0xD3, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	//TODO: variable cycles for CALL NC,nn (24/12)
@@ -270,9 +267,8 @@ var (
 	OpcodeSubAn    = opcode{0xD6, "SUB A,n", "Subtract 8-bit immediate from A", 1, 8, subtractImmediate}
 	OpcodeRst10    = opcode{0xD7, "RST 10", "Call routine at address 0010h", 0, 16, callRoutineAtAddress(0x0010)}
 	//TODO: variable cycles for RET C (20/8)
-	OpcodeRetC = opcode{0xD8, "RET C", "Return if last result caused carry", 0, 8, conditionalReturn(FlagC, true)}
-	OpcodeReti = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 16, doReturnEnablingInterrupts}
-	//TODO: variable cycles for JP C,nn (16/12)
+	OpcodeRetC  = opcode{0xD8, "RET C", "Return if last result caused carry", 0, 8, conditionalReturn(FlagC, true)}
+	OpcodeReti  = opcode{0xD9, "RETI", "Enable interrupts and return to calling routine", 0, 16, doReturnEnablingInterrupts}
 	OpcodeJpCnn = opcode{0xDA, "JP C,nn", "Absolute jump to 16-bit location if last result caused carry", 2, 12, jumpTo16BitAddressIfFlag(FlagC, true)}
 	OpcodeXxDB  = opcode{0xDB, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	//TODO: variable cycles for CALL C,nn (24/12)
