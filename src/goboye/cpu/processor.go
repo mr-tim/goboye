@@ -11,11 +11,22 @@ type Processor interface {
 	DebugRegisters() string
 	GetRegister(reg register) uint8
 	GetRegisterPair(pair registerPair) uint16
+	Cycles() uint
 }
 
 type processor struct {
 	registers *registers
 	memory    memory.MemoryMap
+	cycles    uint
+}
+
+func NewProcessor(memory memory.MemoryMap) Processor {
+	p := processor{
+		registers: &registers{},
+		memory:    memory,
+	}
+	p.registers.pc = uint16(0x0000)
+	return &p
 }
 
 func (p *processor) readNextInstruction() opcode {
@@ -44,6 +55,7 @@ func (p *processor) Read16BitImmediate() uint16 {
 func (p *processor) DoNextInstruction() {
 	o := p.readNextInstruction()
 	o.handler(o, p)
+	p.cycles += uint(o.Cycles())
 }
 
 func (p *processor) DebugRegisters() string {
@@ -59,11 +71,6 @@ func (p *processor) GetRegisterPair(regPair registerPair) uint16 {
 	return p.registers.getRegisterPair(regPair)
 }
 
-func NewProcessor(memory memory.MemoryMap) Processor {
-	p := processor{
-		registers: &registers{},
-		memory:    memory,
-	}
-	p.registers.pc = uint16(0x0000)
-	return &p
+func (p *processor) Cycles() uint {
+	return p.cycles
 }
