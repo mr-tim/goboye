@@ -98,32 +98,32 @@ package display
 			character bank (1 bit) (cgb)
 			color palette (3 bits) (cgb)
 
- */
+*/
 
- type BgCodeArea byte
+type BgCodeArea byte
 
- const (
- 	BgCodeArea1 BgCodeArea = 1 //0x9800-0x9BFF
- 	BgCodeArea2 BgCodeArea = 2 //0x9C00-0x9FFF
- )
-
- type BgCharDataArea byte
-
- const (
- 	BgCharArea1 BgCharDataArea = 1 // 0x8800-0x97FF
- 	BgCharArea2 BgCharDataArea = 2 // 0x8000-0x8FFF
+const (
+	BgCodeArea1 BgCodeArea = 1 //0x9800-0x9BFF
+	BgCodeArea2 BgCodeArea = 2 //0x9C00-0x9FFF
 )
 
- type WindowCodeArea byte
+type BgCharDataArea byte
 
- const (
- 	WindowCodeArea1 WindowCodeArea = 1 //0x9800-0x9BFF
- 	WindowCodeArea2 WindowCodeArea = 2 //0x9C00-0x9FFF
- )
+const (
+	BgCharArea1 BgCharDataArea = 1 // 0x8800-0x97FF
+	BgCharArea2 BgCharDataArea = 2 // 0x8000-0x8FFF
+)
 
- type LCDCFlags byte
+type WindowCodeArea byte
 
- /*
+const (
+	WindowCodeArea1 WindowCodeArea = 1 //0x9800-0x9BFF
+	WindowCodeArea2 WindowCodeArea = 2 //0x9C00-0x9FFF
+)
+
+type LCDCFlags byte
+
+/*
 	Bits:
 	0: Bg display off (0) or on (1). Always on for CGB
 	1: OBJ flag off (0) or on (1)
@@ -133,7 +133,7 @@ package display
 	5: Windowing flag off (0) or on (1)
 	6: Window code area 0x9800-0x9BFF (0) or 0x9C00-0x9FFF (1)
 	7: LCD controller op stop flag off (0) or on (1)
-  */
+*/
 func (b LCDCFlags) IsBgDisplay() bool {
 	return IsBitSet(byte(b), 0)
 }
@@ -178,8 +178,7 @@ func (b LCDCFlags) IsOpStopped() bool {
 	return IsBitSet(byte(b), 7)
 }
 
-
 func IsBitSet(b byte, index byte) bool {
 	mask := uint8(0x01 << index)
-	return b & mask > 0
+	return b&mask > 0
 }
