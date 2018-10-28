@@ -35,10 +35,11 @@ func (rp registerPair) String() string {
 type opResultFlag uint8
 
 const (
-	FlagZ opResultFlag = 0x80
-	FlagN opResultFlag = 0x40
-	FlagH opResultFlag = 0x20
-	FlagC opResultFlag = 0x10
+	FlagNoFlags opResultFlag = 0x00
+	FlagZ       opResultFlag = 0x80
+	FlagN       opResultFlag = 0x40
+	FlagH       opResultFlag = 0x20
+	FlagC       opResultFlag = 0x10
 )
 
 type registerPair int

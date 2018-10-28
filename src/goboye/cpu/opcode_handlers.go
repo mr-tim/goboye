@@ -566,6 +566,7 @@ func relativeJumpImmediateIfFlag(f opResultFlag, value bool) opcodeHandler {
 		jumpValue := p.Read8BitImmediate()
 
 		if p.registers.getFlagValue(f) == value {
+			p.cycles += 4
 			doRelativeJump(jumpValue, p)
 		}
 	}

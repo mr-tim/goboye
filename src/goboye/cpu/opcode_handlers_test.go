@@ -420,3 +420,46 @@ func TestSaveSPToAddr(t *testing.T) {
 	assert.Equal(t, uint8(0x85), p.memory.ReadByte(0x3927))
 	assert.Equal(t, uint16(0x8542), p.memory.ReadU16(0x3926))
 }
+
+func TestJR(t *testing.T) {
+	p := setupHandlerTest([]byte{0x18, 0x05})
+	p.DoNextInstruction()
+
+	assert.Equal(t, uint(12), p.Cycles())
+	assert.Equal(t, uint16(7), p.GetRegisterPair(RegisterPairPC))
+}
+
+func TestJRNZ(t *testing.T) {
+	doTestJRFlag(t, 0x20, FlagZ, FlagNoFlags)
+}
+
+func TestJRZ(t *testing.T) {
+	doTestJRFlag(t, 0x28, FlagNoFlags, FlagZ)
+}
+
+func TestJRNC(t *testing.T) {
+	doTestJRFlag(t, 0x30, FlagC, FlagNoFlags)
+}
+
+func TestJRC(t *testing.T) {
+	doTestJRFlag(t, 0x38, FlagNoFlags, FlagC)
+}
+
+func doTestJRFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+	t.Run("No action taken", func(t *testing.T) {
+		p := setupHandlerTest([]byte{opcode, 0x05})
+		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		p.DoNextInstruction()
+
+		assert.Equal(t, uint(8), p.Cycles())
+		assert.Equal(t, uint16(2), p.GetRegisterPair(RegisterPairPC))
+	})
+	t.Run("Action taken", func(t *testing.T) {
+		p := setupHandlerTest([]byte{opcode, 0x05})
+		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		p.DoNextInstruction()
+
+		assert.Equal(t, uint(12), p.Cycles())
+		assert.Equal(t, uint16(7), p.GetRegisterPair(RegisterPairPC))
+	})
+}
