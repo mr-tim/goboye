@@ -637,8 +637,9 @@ func doReturn(op opcode, p *processor) {
 }
 
 func doReturnEnablingInterrupts(op opcode, p *processor) {
-	doReturn(op, p)
 	p.interruptsEnabled = true
+	p.registers = p.savedRegisters
+	doReturn(op, p)
 }
 
 func conditionalReturn(f opResultFlag, value bool) opcodeHandler {

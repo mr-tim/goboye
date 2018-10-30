@@ -5,11 +5,13 @@ go_library(
         'opcode_handlers.go',
         'extended_opcode_handlers.go',
         'extended_opcodes.go',
+        'interrupts.go',
         'processor.go',
         'registers.go',
     ],
     deps = [
         '//goboye/memory:memory',
+        '//goboye/utils:utils',
     ],
     visibility = [
         '//goboye/debugger/...',

@@ -16,6 +16,7 @@ type Processor interface {
 
 type processor struct {
 	registers         *registers
+	savedRegisters    *registers
 	memory            memory.MemoryMap
 	cycles            uint
 	interruptsEnabled bool
@@ -74,4 +75,21 @@ func (p *processor) GetRegisterPair(regPair registerPair) uint16 {
 
 func (p *processor) Cycles() uint {
 	return p.cycles
+}
+
+func (p *processor) HandleInterrupts() {
+	if p.interruptsEnabled {
+		eif := interruptRegister(p.memory.ReadByte(interruptsEnabledAddress) & p.memory.ReadByte(interruptFlagsAddress))
+		addr := eif.GetIsrAddress()
+		p.serviceInterrupt(addr)
+	}
+}
+
+func (p *processor) serviceInterrupt(address interruptAddress) {
+	//save registers
+	p.savedRegisters = p.registers
+	//disable interrupts
+	p.interruptsEnabled = false
+	//call isr
+	doCall16BitAddress(p, uint16(address))
 }

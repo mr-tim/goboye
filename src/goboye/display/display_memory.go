@@ -1,5 +1,7 @@
 package display
 
+import "goboye/utils"
+
 /*
 	0x8000-0x9FFF - display memory
 		Dot data - 16 bytes per character
@@ -135,19 +137,19 @@ type LCDCFlags byte
 	7: LCD controller op stop flag off (0) or on (1)
 */
 func (b LCDCFlags) IsBgDisplay() bool {
-	return IsBitSet(byte(b), 0)
+	return utils.IsBitSet(byte(b), 0)
 }
 
 func (b LCDCFlags) IsObjFlag() bool {
-	return IsBitSet(byte(b), 1)
+	return utils.IsBitSet(byte(b), 1)
 }
 
 func (b LCDCFlags) IsDoubleObjTiles() bool {
-	return IsBitSet(byte(b), 2)
+	return utils.IsBitSet(byte(b), 2)
 }
 
 func (b LCDCFlags) GetBgCodeArea() BgCodeArea {
-	if IsBitSet(byte(b), 3) {
+	if utils.IsBitSet(byte(b), 3) {
 		return BgCodeArea2
 	} else {
 		return BgCodeArea1
@@ -155,7 +157,7 @@ func (b LCDCFlags) GetBgCodeArea() BgCodeArea {
 }
 
 func (b LCDCFlags) GetBgCharArea() BgCharDataArea {
-	if IsBitSet(byte(b), 4) {
+	if utils.IsBitSet(byte(b), 4) {
 		return BgCharArea2
 	} else {
 		return BgCharArea1
@@ -163,11 +165,11 @@ func (b LCDCFlags) GetBgCharArea() BgCharDataArea {
 }
 
 func (b LCDCFlags) IsWindowingFlagSet() bool {
-	return IsBitSet(byte(b), 5)
+	return utils.IsBitSet(byte(b), 5)
 }
 
 func (b LCDCFlags) GetWindowCodeArea() WindowCodeArea {
-	if IsBitSet(byte(b), 6) {
+	if utils.IsBitSet(byte(b), 6) {
 		return WindowCodeArea2
 	} else {
 		return WindowCodeArea1
@@ -175,10 +177,5 @@ func (b LCDCFlags) GetWindowCodeArea() WindowCodeArea {
 }
 
 func (b LCDCFlags) IsOpStopped() bool {
-	return IsBitSet(byte(b), 7)
-}
-
-func IsBitSet(b byte, index byte) bool {
-	mask := uint8(0x01 << index)
-	return b&mask > 0
+	return utils.IsBitSet(byte(b), 7)
 }
