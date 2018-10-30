@@ -39,18 +39,16 @@ func (r interruptRegister) JoypadPress() bool {
 	return utils.IsBitSet(byte(r), 4)
 }
 
-func (r interruptRegister) GetIsrAddress() interruptAddress {
-	var addr interruptAddress
+func (r interruptRegister) GetIsrAddress() (interruptAddress, byte) {
 	if r.VBlank() {
-		addr = vBlankInterrupt
+		return vBlankInterrupt, 0
 	} else if r.LcdStatus() {
-		addr = lcdStatusInterrupt
+		return lcdStatusInterrupt, 1
 	} else if r.TimerOverflow() {
-		addr = timerOverflowInterrupt
+		return timerOverflowInterrupt, 2
 	} else if r.SerialLink() {
-		addr = serialLinkInterrupt
+		return serialLinkInterrupt, 3
 	} else if r.JoypadPress() {
-		addr = joypadPressInterrupt
+		return joypadPressInterrupt, 4
 	}
-	return addr
 }

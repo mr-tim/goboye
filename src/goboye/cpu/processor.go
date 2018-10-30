@@ -3,6 +3,7 @@ package cpu
 import (
 	"fmt"
 	"goboye/memory"
+	"goboye/utils"
 )
 
 type Processor interface {
@@ -80,7 +81,8 @@ func (p *processor) Cycles() uint {
 func (p *processor) HandleInterrupts() {
 	if p.interruptsEnabled {
 		eif := interruptRegister(p.memory.ReadByte(interruptsEnabledAddress) & p.memory.ReadByte(interruptFlagsAddress))
-		addr := eif.GetIsrAddress()
+		addr, flagIndex := eif.GetIsrAddress()
+		p.memory.WriteByte(interruptFlagsAddress, utils.UnsetBit(byte(eif), flagIndex))
 		p.serviceInterrupt(addr)
 	}
 }
