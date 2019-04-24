@@ -12,6 +12,12 @@ func main() {
 
 	buf := make([]byte, memory.MEM_SIZE)
 	mm := memory.NewMemoryMapWithBytes(buf)
+
+	if len(os.Args) != 2 {
+		fmt.Printf("Please specify a rom to run.\n")
+		os.Exit(1)
+	}
+
 	e := mm.LoadRomImage(os.Args[1])
 	if e != nil {
 		panic(e)
