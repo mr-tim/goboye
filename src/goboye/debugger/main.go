@@ -18,7 +18,7 @@ func main() {
 	}
 
 	p := cpu.NewProcessor(mm)
-	for i := 0; i < 20000; i++ {
+	for {
 		o := p.NextInstruction()
 		pc := p.GetRegisterPair(cpu.RegisterPairPC)
 		argWidth := o.PayloadLength()
