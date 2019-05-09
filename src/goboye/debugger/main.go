@@ -37,7 +37,12 @@ func main() {
 		} else {
 			fmt.Printf("0x%04x: %s %s ", pc, p.DebugRegisters(), o.Disassembly())
 		}
-		fmt.Println()
+		waitForEnter()
 		p.DoNextInstruction()
 	}
+}
+
+func waitForEnter() {
+	var i string
+	fmt.Scanln(&i)
 }
