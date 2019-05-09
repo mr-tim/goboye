@@ -51,4 +51,5 @@ func (r interruptRegister) GetIsrAddress() (interruptAddress, byte) {
 	} else if r.JoypadPress() {
 		return joypadPressInterrupt, 4
 	}
+	return 0x0000, 255
 }
