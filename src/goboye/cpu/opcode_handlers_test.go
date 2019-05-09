@@ -571,6 +571,7 @@ func TestRet(t *testing.T) {
 
 func TestRetI(t *testing.T) {
 	p := setupHandlerTest([]byte{0xD9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x83, 0x45, 0x67})
+	p.savedRegisters = p.registers
 	p.registers.setRegisterPair(RegisterPairSP, uint16(6))
 	p.interruptsEnabled = false
 	p.DoNextInstruction()
