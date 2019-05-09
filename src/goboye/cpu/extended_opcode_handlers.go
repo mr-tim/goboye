@@ -24,35 +24,36 @@ func testBitOfHLAddr(bit uint8) opcodeHandler {
 func doTestBit(p *processor, bit, value uint8) {
 	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
 	flags |= uint8(FlagH)
-	mask := uint8(0x01 << (7 - bit))
+	mask := uint8(0x01 << bit)
 	if value&mask == 0 {
 		flags |= uint8(FlagZ)
 	}
+	p.registers.setRegister(RegisterF, flags)
 }
 
 func clearBitOfReg(bit uint8, reg register) opcodeHandler {
-	mask := uint8(0xFF) - uint8(0x01<<(7-bit))
+	mask := uint8(0xFF) - uint8(0x01<<bit)
 	return func(op opcode, p *processor) {
 		p.registers.setRegister(reg, p.registers.getRegister(reg)&mask)
 	}
 }
 
 func clearBitOfHLAddr(bit uint8) opcodeHandler {
-	mask := uint8(0xFF) - uint8(0x01<<(7-bit))
+	mask := uint8(0xFF) - uint8(0x01<<bit)
 	return func(op opcode, p *processor) {
 		p.memory.WriteByte(p.registers.hl, p.memory.ReadByte(p.registers.hl)&mask)
 	}
 }
 
 func setBitOfReg(bit uint8, reg register) opcodeHandler {
-	mask := uint8(0x01 << (7 - bit))
+	mask := uint8(0x01 << bit)
 	return func(op opcode, p *processor) {
 		p.registers.setRegister(reg, p.registers.getRegister(reg)|mask)
 	}
 }
 
 func setBitOfHLAddr(bit uint8) opcodeHandler {
-	mask := uint8(0x01 << (7 - bit))
+	mask := uint8(0x01 << bit)
 	return func(op opcode, p *processor) {
 		p.memory.WriteByte(p.registers.hl, p.memory.ReadByte(p.registers.hl)|mask)
 	}

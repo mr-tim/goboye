@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -404,4 +405,30 @@ func doTestSwapNybbles(t *testing.T, opcode uint8, get byteGetter, set byteSette
 
 func TestCoverageCollection(t *testing.T) {
 	doNothing()
+}
+
+func TestTestBitsOfA(t *testing.T) {
+	doTestTestBit(t, 0, RegisterA, OpcodeExtBit0a)
+	doTestTestBit(t, 1, RegisterA, OpcodeExtBit1a)
+	doTestTestBit(t, 2, RegisterA, OpcodeExtBit2a)
+	doTestTestBit(t, 3, RegisterA, OpcodeExtBit3a)
+	doTestTestBit(t, 4, RegisterA, OpcodeExtBit4a)
+	doTestTestBit(t, 5, RegisterA, OpcodeExtBit5a)
+	doTestTestBit(t, 6, RegisterA, OpcodeExtBit6a)
+	doTestTestBit(t, 7, RegisterA, OpcodeExtBit7a)
+}
+
+func doTestTestBit(t *testing.T, bit uint8, reg register, op opcode) {
+	t.Run(fmt.Sprintf("Bit %d of %s set to 0", bit, reg), func (t *testing.T) {
+		p := setupHandlerTest([]byte{0xCB, op.code})
+		setRegisterValue(reg)(p, 0)
+		p.DoNextInstruction()
+		assert.Equal(t, p.registers.getFlagValue(FlagZ), true)
+	})
+	t.Run(fmt.Sprintf("Bit %d of %s set to 1", bit, reg), func (t *testing.T) {
+		p := setupHandlerTest([]byte{0xCB, op.code})
+		setRegisterValue(reg)(p, 1 << bit)
+		p.DoNextInstruction()
+		assert.Equal(t, p.registers.getFlagValue(FlagZ), false)
+	})
 }
