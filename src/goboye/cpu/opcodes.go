@@ -1,10 +1,13 @@
 package cpu
 
+import "strings"
+
 type opcodeHandler func(opcode, *processor)
 
 type Opcode interface {
 	Code() uint8
 	Disassembly() string
+	DisassemblyWithArg(arg string) string
 	Description() string
 	PayloadLength() uint8
 	Cycles() uint8
@@ -25,6 +28,13 @@ func (o *opcode) Code() uint8 {
 
 func (o *opcode) Disassembly() string {
 	return o.disassembly
+}
+
+func (o *opcode) DisassemblyWithArg(arg string) string {
+	d := o.disassembly
+	d = strings.ReplaceAll(d, "nn", arg)
+	d = strings.ReplaceAll(d, "n", arg)
+	return d
 }
 
 func (o *opcode) Description() string {
@@ -561,6 +571,6 @@ var opcodeMap = map[uint8]opcode{
 	0xFF: OpcodeRst38,
 }
 
-func lookupOpcode(opcodeByte byte) opcode {
+func LookupOpcode(opcodeByte byte) opcode {
 	return opcodeMap[opcodeByte]
 }

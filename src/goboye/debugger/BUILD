@@ -6,5 +6,6 @@ go_binary(
     deps = [
         '//goboye/memory',
         '//goboye/cpu',
+        '//third_party:gocui'
     ],
 )

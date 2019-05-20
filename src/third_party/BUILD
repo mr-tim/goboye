@@ -22,3 +22,21 @@ go_get(
     get = 'github.com/pmezard/go-difflib/difflib',
     visibility = ['PUBLIC'],
 )
+
+go_get(
+    name = 'gocui',
+    get = 'github.com/jroimartin/gocui',
+    deps = [':termbox-go'],
+    visibility = ['PUBLIC'],
+)
+
+go_get(
+    name = 'termbox-go',
+    deps = [':go-runewidth'],
+    get = 'github.com/nsf/termbox-go',
+)
+
+go_get(
+    name = 'go-runewidth',
+    get = 'github.com/mattn/go-runewidth',
+)

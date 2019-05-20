@@ -34,12 +34,12 @@ func NewProcessor(memory memory.MemoryMap) Processor {
 
 func (p *processor) readNextInstruction() opcode {
 	opCodeByte := p.Read8BitImmediate()
-	return lookupOpcode(opCodeByte)
+	return LookupOpcode(opCodeByte)
 }
 
 func (p *processor) NextInstruction() Opcode {
 	b := p.memory.ReadByte(p.registers.pc)
-	o := lookupOpcode(b)
+	o := LookupOpcode(b)
 	return &o
 }
 
