@@ -521,3 +521,7 @@ var opcodeMapExt = map[uint8]opcode{
 func LookupExtOpcode(opcodeByte byte) opcode {
 	return opcodeMapExt[opcodeByte]
 }
+
+func doNothing() {
+
+}
