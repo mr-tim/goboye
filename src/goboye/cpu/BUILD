@@ -8,6 +8,7 @@ go_library(
         'interrupts.go',
         'processor.go',
         'registers.go',
+        'disassembler.go',
     ],
     deps = [
         '//goboye/memory:memory',

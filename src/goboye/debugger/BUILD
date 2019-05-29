@@ -6,6 +6,7 @@ go_binary(
     deps = [
         '//goboye/memory',
         '//goboye/cpu',
+        '//goboye/debugger/widgets',
         '//third_party:gocui'
     ],
 )
