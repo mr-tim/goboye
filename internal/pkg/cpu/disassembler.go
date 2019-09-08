@@ -2,11 +2,11 @@ package cpu
 
 import (
 	"fmt"
-	"goboye/memory"
+	"github.com/mr-tim/goboye/internal/pkg/memory"
 )
 
 type Disassembler struct {
-	m memory.MemoryMap
+	m   memory.MemoryMap
 	pos uint16
 }
 
@@ -41,7 +41,7 @@ func (d *Disassembler) GetNextInstruction() (uint16, Opcode, string) {
 
 func NewDisassembler(m memory.MemoryMap) *Disassembler {
 	return &Disassembler{
-		m: m,
+		m:   m,
 		pos: 0,
 	}
 }

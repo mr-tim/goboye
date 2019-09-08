@@ -2,8 +2,8 @@ package cpu
 
 import (
 	"fmt"
-	"goboye/memory"
-	"goboye/utils"
+	"github.com/mr-tim/goboye/internal/pkg/memory"
+	"github.com/mr-tim/goboye/internal/pkg/utils"
 )
 
 type Processor interface {

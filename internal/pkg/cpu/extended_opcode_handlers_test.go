@@ -419,15 +419,15 @@ func TestTestBitsOfA(t *testing.T) {
 }
 
 func doTestTestBit(t *testing.T, bit uint8, reg register, op opcode) {
-	t.Run(fmt.Sprintf("Bit %d of %s set to 0", bit, reg), func (t *testing.T) {
+	t.Run(fmt.Sprintf("Bit %d of %s set to 0", bit, reg), func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, op.code})
 		setRegisterValue(reg)(p, 0)
 		p.DoNextInstruction()
 		assert.Equal(t, p.registers.getFlagValue(FlagZ), true)
 	})
-	t.Run(fmt.Sprintf("Bit %d of %s set to 1", bit, reg), func (t *testing.T) {
+	t.Run(fmt.Sprintf("Bit %d of %s set to 1", bit, reg), func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, op.code})
-		setRegisterValue(reg)(p, 1 << bit)
+		setRegisterValue(reg)(p, 1<<bit)
 		p.DoNextInstruction()
 		assert.Equal(t, p.registers.getFlagValue(FlagZ), false)
 	})

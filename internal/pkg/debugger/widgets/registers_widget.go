@@ -6,10 +6,9 @@ import (
 )
 
 type RegistersWidget struct {
-
 }
 
-func (w *RegistersWidget) Layout(g * gocui.Gui) error {
+func (w *RegistersWidget) Layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	v, err := g.SetView("registers", maxX-30, 0, maxX-1, maxY-1)
 	if err != nil && err != gocui.ErrUnknownView {
@@ -24,7 +23,5 @@ func (w *RegistersWidget) Layout(g * gocui.Gui) error {
 }
 
 func NewRegistersWidget() *RegistersWidget {
-	return &RegistersWidget{
-
-	}
+	return &RegistersWidget{}
 }

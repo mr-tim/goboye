@@ -1,8 +1,8 @@
 package cpu
 
 import (
+	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"github.com/stretchr/testify/assert"
-	"goboye/memory"
 	"testing"
 )
 

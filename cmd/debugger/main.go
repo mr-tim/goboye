@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"goboye/cpu"
-	"goboye/debugger/widgets"
-	"goboye/memory"
 	"log"
 	"os"
 
 	"github.com/jroimartin/gocui"
+
+	"github.com/mr-tim/goboye/internal/pkg/cpu"
+	"github.com/mr-tim/goboye/internal/pkg/debugger/widgets"
+	"github.com/mr-tim/goboye/internal/pkg/memory"
 )
 
 func main() {

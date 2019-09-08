@@ -1,6 +1,6 @@
 package cpu
 
-import "goboye/utils"
+import "github.com/mr-tim/goboye/internal/pkg/utils"
 
 type interruptAddress uint16
 

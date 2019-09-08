@@ -1,6 +1,6 @@
 package display
 
-import "goboye/utils"
+import "github.com/mr-tim/goboye/internal/pkg/utils"
 
 /*
 	0x8000-0x9FFF - display memory

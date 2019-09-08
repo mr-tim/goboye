@@ -3,7 +3,7 @@ package widgets
 import (
 	"fmt"
 	"github.com/jroimartin/gocui"
-	"goboye/cpu"
+	"github.com/mr-tim/goboye/internal/pkg/cpu"
 )
 
 type DisassemblyWidget struct {
@@ -21,7 +21,7 @@ func (d *DisassemblyWidget) Layout(g *gocui.Gui) error {
 	v.Clear()
 	// TODO: Handle scrolling in the disassembly view
 	d.da.SetPos(0)
-	for i := 0; i<maxY-1; i++ {
+	for i := 0; i < maxY-1; i++ {
 		addr, o, payload := d.da.GetNextInstruction()
 		pointer := " "
 		if addr == d.currentPc {
@@ -38,7 +38,7 @@ func (d *DisassemblyWidget) SetPc(newPc uint16) {
 
 func NewDisassemblyWidget(disassembler *cpu.Disassembler, currentPc uint16) *DisassemblyWidget {
 	return &DisassemblyWidget{
-		da: disassembler,
+		da:        disassembler,
 		currentPc: currentPc,
 	}
 }
