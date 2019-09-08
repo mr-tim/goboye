@@ -1,7 +1,8 @@
 go_library(
     name = 'widgets',
     srcs = [
-        'disassembly_widget.go'
+        'disassembly_widget.go',
+        'registers_widget.go',
     ],
     visibility = [
         '//goboye/debugger/...',

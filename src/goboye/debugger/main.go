@@ -36,7 +36,8 @@ func main() {
 
 	da := cpu.NewDisassembler(mm)
 	dw := widgets.NewDisassemblyWidget(da, pc)
-	g.SetManager(dw)
+	rw := widgets.NewRegistersWidget()
+	g.SetManager(dw, rw)
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
