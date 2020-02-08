@@ -60,7 +60,11 @@ func (m *memoryMap) initWithBytes(bytes []byte) {
 }
 
 func (m *memoryMap) ReadByte(addr uint16) byte {
-	return m.mem[addr]
+	if addr < 0xFF && !m.bootRomPageDisabled() {
+		return bootRom[addr]
+	} else {
+		return m.mem[addr]
+	}
 }
 
 func (m *memoryMap) WriteByte(addr uint16, value byte) {
@@ -68,7 +72,7 @@ func (m *memoryMap) WriteByte(addr uint16, value byte) {
 }
 
 func (m *memoryMap) ReadU16(addr uint16) uint16 {
-	return (uint16(m.mem[addr+1]) << 8) | uint16(m.mem[addr])
+	return (uint16(m.ReadByte(addr+1)) << 8) | uint16(m.ReadByte(addr))
 }
 
 func (m *memoryMap) WriteU16(addr, value uint16) {
@@ -76,4 +80,8 @@ func (m *memoryMap) WriteU16(addr, value uint16) {
 	h := uint8((0xFF00 & value) >> 8)
 	m.WriteByte(addr, l)
 	m.WriteByte(addr+1, h)
+}
+
+func (m *memoryMap) bootRomPageDisabled() bool {
+	return m.ReadByte(0xff50) == 0x01
 }
