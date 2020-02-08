@@ -103,7 +103,7 @@ var (
 	OpcodeLdLn      = opcode{0x2E, "LD L,n", "Load 8-bit immediate into L", 1, 8, load8BitToReg(RegisterL)}
 	OpcodeCpl       = opcode{0x2F, "CPL", "Complement (logical NOT) on A", 0, 4, complementOnA}
 	OpcodeJrNcn     = opcode{0x30, "JR NC,n", "Relative jump by signed immediate if last result caused no carry", 1, 8, relativeJumpImmediateIfFlag(FlagC, false)}
-	OpcodeLdSpnn    = opcode{0x31, "LD SP,nn", "Load 16-bit immediate into SP", 0, 12, load16BitToRegPair(RegisterPairSP)}
+	OpcodeLdSpnn    = opcode{0x31, "LD SP,nn", "Load 16-bit immediate into SP", 2, 12, load16BitToRegPair(RegisterPairSP)}
 	OpcodeLddHla    = opcode{0x32, "LDD (HL),A", "Save A to address pointed by HL, and decrement HL", 0, 8, saveAToHLAddrDec}
 	OpcodeIncSp     = opcode{0x33, "INC SP", "Increment 16-bit SP", 0, 8, incrementRegPair(RegisterPairSP)}
 	OpcodeIncHlAddr = opcode{0x34, "INC (HL)", "Increment value pointed by HL", 0, 12, incrementHLAddr}
