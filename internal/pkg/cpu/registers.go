@@ -18,7 +18,7 @@ func (r register) String() string {
 }
 
 const (
-	RegisterPairAF registerPair = iota
+	RegisterPairAF RegisterPair = iota
 	RegisterPairBC
 	RegisterPairDE
 	RegisterPairHL
@@ -26,7 +26,7 @@ const (
 	RegisterPairPC
 )
 
-func (rp registerPair) String() string {
+func (rp RegisterPair) String() string {
 	return "RegisterPair" + []string{
 		"AF", "BC", "DE", "HL", "SP", "PC",
 	}[rp]
@@ -42,7 +42,7 @@ const (
 	FlagC       opResultFlag = 0x10
 )
 
-type registerPair int
+type RegisterPair int
 
 type registers struct {
 	af, bc, de, hl uint16
@@ -82,7 +82,7 @@ func (r *registers) getShift(reg register) uint8 {
 	return shift
 }
 
-func (r *registers) getRegisterPair(regPair registerPair) uint16 {
+func (r *registers) getRegisterPair(regPair RegisterPair) uint16 {
 	if regPair == RegisterPairAF {
 		return r.af
 	} else if regPair == RegisterPairBC {
@@ -98,7 +98,7 @@ func (r *registers) getRegisterPair(regPair registerPair) uint16 {
 	}
 }
 
-func (r *registers) setRegisterPair(regPair registerPair, value uint16) {
+func (r *registers) setRegisterPair(regPair RegisterPair, value uint16) {
 	if regPair == RegisterPairAF {
 		r.af = value
 	} else if regPair == RegisterPairBC {

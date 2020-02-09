@@ -12,13 +12,13 @@ func unsupportedHandler(op opcode, p *processor) {
 
 func nopHandler(op opcode, p *processor) {}
 
-func load16BitToRegPair(rp registerPair) opcodeHandler {
+func load16BitToRegPair(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		doLoad16BitToRegPair(p, rp)
 	}
 }
 
-func doLoad16BitToRegPair(p *processor, pair registerPair) {
+func doLoad16BitToRegPair(p *processor, pair RegisterPair) {
 	value := p.Read16BitImmediate()
 	p.registers.setRegisterPair(pair, value)
 }
@@ -82,23 +82,23 @@ func saveSPToAddr(op opcode, p *processor) {
 	p.memory.WriteU16(addr, sp)
 }
 
-func incrementRegPair(pair registerPair) opcodeHandler {
+func incrementRegPair(pair RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		doIncrementRegPair(p, pair)
 	}
 }
 
-func decrementRegPair(pair registerPair) opcodeHandler {
+func decrementRegPair(pair RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		doDecrementRegPair(p, pair)
 	}
 }
 
-func doIncrementRegPair(p *processor, rp registerPair) {
+func doIncrementRegPair(p *processor, rp RegisterPair) {
 	p.registers.setRegisterPair(rp, p.registers.getRegisterPair(rp)+1)
 }
 
-func doDecrementRegPair(p *processor, rp registerPair) {
+func doDecrementRegPair(p *processor, rp RegisterPair) {
 	p.registers.setRegisterPair(rp, p.registers.getRegisterPair(rp)-1)
 }
 
@@ -379,13 +379,13 @@ func doCompareValueAgainstA(p *processor, value uint8) {
 	p.registers.setRegister(RegisterF, flags)
 }
 
-func addRegPairToHL(rp registerPair) opcodeHandler {
+func addRegPairToHL(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		p.registers.hl += p.registers.getRegisterPair(rp)
 	}
 }
 
-func loadAFromRegPairAddr(rp registerPair) opcodeHandler {
+func loadAFromRegPairAddr(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.getRegisterPair(rp)))
 	}
@@ -593,7 +593,7 @@ func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
 	}
 }
 
-func pushRegisterPair(rp registerPair) opcodeHandler {
+func pushRegisterPair(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		value := p.registers.getRegisterPair(rp)
 		p.registers.sp -= 2
@@ -601,7 +601,7 @@ func pushRegisterPair(rp registerPair) opcodeHandler {
 	}
 }
 
-func popRegisterPair(rp registerPair) opcodeHandler {
+func popRegisterPair(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		value := p.memory.ReadU16(p.registers.sp)
 		p.registers.sp += 2
@@ -698,7 +698,7 @@ func add8BitImmediateToSPSaveInHL(op opcode, p *processor) {
 	doAdd8BitSignedImmediateToSP(p, RegisterPairHL)
 }
 
-func doAdd8BitSignedImmediateToSP(p *processor, rp registerPair) {
+func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 	v := int(p.Read8BitImmediate())
 	if v > 127 {
 		v -= 256

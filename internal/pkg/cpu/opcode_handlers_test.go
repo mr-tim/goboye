@@ -39,7 +39,7 @@ func TestLoad16BitToSP(t *testing.T) {
 	doTestLoad16BitImmediate(t, 0x31, RegisterPairSP)
 }
 
-func doTestLoad16BitImmediate(t *testing.T, op byte, rp registerPair) {
+func doTestLoad16BitImmediate(t *testing.T, op byte, rp RegisterPair) {
 	p := setupHandlerTest([]byte{op, 0x34, 0x12})
 	p.DoNextInstruction()
 
@@ -110,7 +110,7 @@ func TestSaveAtoHLAddrDec(t *testing.T) {
 	assert.Equal(t, uint16(0x03ff), p.registers.getRegisterPair(RegisterPairHL))
 }
 
-func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp registerPair) *processor {
+func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp RegisterPair) *processor {
 	p := setupHandlerTest([]byte{op, 0x46, 0x27, 0x83, 0x91, 0x27, 0x96})
 	p.registers.af = 0x5657
 	assert.Equal(t, uint8(0x56), p.registers.getRegister(r))
@@ -156,7 +156,7 @@ func TestDecrementSP(t *testing.T) {
 	doTestDecrementRegPair(t, 0x3B, RegisterPairSP)
 }
 
-func doTestIncrementRegPair(t *testing.T, op byte, rp registerPair) {
+func doTestIncrementRegPair(t *testing.T, op byte, rp RegisterPair) {
 	p := setupHandlerTest([]byte{op})
 	p.registers.setRegisterPair(rp, 0x13ff)
 
@@ -166,7 +166,7 @@ func doTestIncrementRegPair(t *testing.T, op byte, rp registerPair) {
 	assert.Equal(t, uint16(0x1400), p.registers.getRegisterPair(rp))
 }
 
-func doTestDecrementRegPair(t *testing.T, op byte, rp registerPair) {
+func doTestDecrementRegPair(t *testing.T, op byte, rp RegisterPair) {
 	p := setupHandlerTest([]byte{op})
 	p.registers.setRegisterPair(rp, 0x13ff)
 

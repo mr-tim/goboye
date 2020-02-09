@@ -11,7 +11,7 @@ type Processor interface {
 	DoNextInstruction()
 	DebugRegisters() string
 	GetRegister(reg register) uint8
-	GetRegisterPair(pair registerPair) uint16
+	GetRegisterPair(pair RegisterPair) uint16
 	Cycles() uint
 }
 
@@ -70,7 +70,7 @@ func (p *processor) GetRegister(reg register) uint8 {
 	return p.registers.getRegister(reg)
 }
 
-func (p *processor) GetRegisterPair(regPair registerPair) uint16 {
+func (p *processor) GetRegisterPair(regPair RegisterPair) uint16 {
 	return p.registers.getRegisterPair(regPair)
 }
 
