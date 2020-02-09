@@ -32,14 +32,14 @@ func (rp RegisterPair) String() string {
 	}[rp]
 }
 
-type opResultFlag uint8
+type OpResultFlag uint8
 
 const (
-	FlagNoFlags opResultFlag = 0x00
-	FlagZ       opResultFlag = 0x80
-	FlagN       opResultFlag = 0x40
-	FlagH       opResultFlag = 0x20
-	FlagC       opResultFlag = 0x10
+	FlagNoFlags OpResultFlag = 0x00
+	FlagZ       OpResultFlag = 0x80
+	FlagN       OpResultFlag = 0x40
+	FlagH       OpResultFlag = 0x20
+	FlagC       OpResultFlag = 0x10
 )
 
 type RegisterPair int
@@ -126,6 +126,6 @@ func (r *registers) getRegisterPointer(reg register) *uint16 {
 	}
 }
 
-func (r *registers) getFlagValue(flag opResultFlag) bool {
+func (r *registers) getFlagValue(flag OpResultFlag) bool {
 	return (uint8(flag) & r.getRegister(RegisterF)) != 0
 }

@@ -12,6 +12,7 @@ type Processor interface {
 	DebugRegisters() string
 	GetRegister(reg register) uint8
 	GetRegisterPair(pair RegisterPair) uint16
+	GetFlagValue(flagName OpResultFlag) bool
 	Cycles() uint
 }
 
@@ -72,6 +73,10 @@ func (p *processor) GetRegister(reg register) uint8 {
 
 func (p *processor) GetRegisterPair(regPair RegisterPair) uint16 {
 	return p.registers.getRegisterPair(regPair)
+}
+
+func (p *processor) GetFlagValue(flagName OpResultFlag) bool {
+	return p.registers.getFlagValue(flagName)
 }
 
 func (p *processor) Cycles() uint {

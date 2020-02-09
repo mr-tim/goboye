@@ -315,11 +315,11 @@ func doTestDecrementZero(op byte, reg register, t *testing.T) {
 	})
 }
 
-func checkFlagSet(t *testing.T, p *processor, flag opResultFlag) bool {
+func checkFlagSet(t *testing.T, p *processor, flag OpResultFlag) bool {
 	return assert.True(t, p.registers.getFlagValue(flag))
 }
 
-func checkFlagNotSet(t *testing.T, p *processor, flag opResultFlag) bool {
+func checkFlagNotSet(t *testing.T, p *processor, flag OpResultFlag) bool {
 	return assert.False(t, p.registers.getFlagValue(flag))
 }
 
@@ -445,7 +445,7 @@ func TestJRC(t *testing.T) {
 	doTestJRFlag(t, 0x38, FlagNoFlags, FlagC)
 }
 
-func doTestJRFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+func doTestJRFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x05})
 		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
@@ -488,7 +488,7 @@ func TestJC(t *testing.T) {
 	doTestJFlag(t, 0xDA, FlagNoFlags, FlagC)
 }
 
-func doTestJFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+func doTestJFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0xCD, 0xAB})
 		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
@@ -534,7 +534,7 @@ func TestCallC(t *testing.T) {
 	doTestCallFlag(t, 0xDC, FlagNoFlags, FlagC)
 }
 
-func doTestCallFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+func doTestCallFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
@@ -598,7 +598,7 @@ func TestRetC(t *testing.T) {
 	doTestRetFlag(t, 0xD8, FlagNoFlags, FlagC)
 }
 
-func doTestRetFlag(t *testing.T, opcode byte, noActionFlag opResultFlag, actionFlag opResultFlag) {
+func doTestRetFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x83, 0x45, 0x67})
 		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))

@@ -561,7 +561,7 @@ func doRelativeJump(unsignedJumpValue uint8, p *processor) {
 	}
 }
 
-func relativeJumpImmediateIfFlag(f opResultFlag, value bool) opcodeHandler {
+func relativeJumpImmediateIfFlag(f OpResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
 		jumpValue := p.Read8BitImmediate()
 
@@ -582,7 +582,7 @@ func jumpTo16BitAddress(op opcode, p *processor) {
 	p.registers.pc = newAddr
 }
 
-func jumpTo16BitAddressIfFlag(f opResultFlag, value bool) opcodeHandler {
+func jumpTo16BitAddressIfFlag(f OpResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
 		newAddr := p.Read16BitImmediate()
 
@@ -620,7 +620,7 @@ func doCall16BitAddress(p *processor, address uint16) {
 	p.registers.pc = address
 }
 
-func conditionalCall16BitAddress(f opResultFlag, value bool) opcodeHandler {
+func conditionalCall16BitAddress(f OpResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
 		address := p.Read16BitImmediate()
 		if p.registers.getFlagValue(f) == value {
@@ -642,7 +642,7 @@ func doReturnEnablingInterrupts(op opcode, p *processor) {
 	doReturn(op, p)
 }
 
-func conditionalReturn(f opResultFlag, value bool) opcodeHandler {
+func conditionalReturn(f OpResultFlag, value bool) opcodeHandler {
 	return func(op opcode, p *processor) {
 		if p.registers.getFlagValue(f) == value {
 			p.cycles += 12
