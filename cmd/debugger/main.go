@@ -8,13 +8,12 @@ import (
 
 	"github.com/jroimartin/gocui"
 
-	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/debugger/widgets"
-	"github.com/mr-tim/goboye/internal/pkg/memory"
+	"github.com/mr-tim/goboye/internal/pkg/goboye"
 )
 
 func main() {
-	f, err := os.OpenFile("debugger.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	f, err := os.OpenFile("debugger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -30,32 +29,25 @@ func main() {
 	}
 	defer g.Close()
 
-	buf := make([]byte, memory.MEM_SIZE)
-	mm := memory.NewMemoryMapWithBytes(buf)
-
 	if len(os.Args) != 2 {
 		fmt.Printf("Please specify a rom to run.\n")
 		os.Exit(1)
 	}
 
 	// set up the emulator
-	log.Printf("Loading rom: %s", os.Args[1])
-	e := mm.LoadRomImage(os.Args[1])
-	if e != nil {
-		panic(e)
-	}
-
-	p := cpu.NewProcessor(mm)
-	pc := p.GetRegisterPair(cpu.RegisterPairPC)
+	emulator := &goboye.Emulator{}
+	emulator.LoadRomImage(os.Args[1])
 
 	// set up ui
 	log.Printf("Creating ui...")
-	da := cpu.NewDisassembler(mm)
-	dw := widgets.NewDisassemblyWidget(da, pc)
-	rw := widgets.NewRegistersWidget()
+	dw := widgets.NewDisassemblyWidget(emulator)
+	rw := widgets.NewRegistersWidget(emulator)
 	g.SetManager(dw, rw)
 
-	err = g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, dw.Increment)
+	err = g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		emulator.Step()
+		return nil
+	})
 	if err != nil {
 		log.Fatalf("Failed to set key binding for increment: %s", err)
 	}

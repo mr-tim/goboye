@@ -30,9 +30,9 @@ func (d *Disassembler) GetNextInstruction() (uint16, Opcode, string) {
 	payloadStr := ""
 	argWidth := o.PayloadLength()
 	if argWidth == 1 {
-		payloadStr = fmt.Sprintf("0x%02x", d.m.ReadByte(d.pos))
+		payloadStr = fmt.Sprintf("0x%02X", d.m.ReadByte(d.pos))
 	} else if argWidth == 2 {
-		payloadStr = fmt.Sprintf("0x%04x", d.m.ReadU16(d.pos))
+		payloadStr = fmt.Sprintf("0x%04X", d.m.ReadU16(d.pos))
 	}
 	d.pos += uint16(argWidth)
 

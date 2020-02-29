@@ -3,15 +3,14 @@ package widgets
 import (
 	"fmt"
 	"github.com/jroimartin/gocui"
-	"github.com/mr-tim/goboye/internal/pkg/cpu"
+	"github.com/mr-tim/goboye/internal/pkg/goboye"
 	"log"
 )
 
 const DisassemblyViewName = "disassembly"
 
 type DisassemblyWidget struct {
-	da        *cpu.Disassembler
-	currentPc uint16
+	emulator *goboye.Emulator
 }
 
 func (d *DisassemblyWidget) Layout(g *gocui.Gui) error {
@@ -23,12 +22,14 @@ func (d *DisassemblyWidget) Layout(g *gocui.Gui) error {
 	}
 	v.Title = "Disassembly"
 	v.Clear()
-	// TODO: Handle scrolling in the disassembly view
-	d.da.SetPos(d.currentPc)
+	da := d.emulator.GetDisassembler()
+	currentPC := d.emulator.GetPC()
+	h := uint16(maxY - 2)
+	da.SetPos(currentPC - (currentPC % h))
 	for i := 0; i < maxY-1; i++ {
-		addr, o, payload := d.da.GetNextInstruction()
+		addr, o, payload := da.GetNextInstruction()
 		pointer := " "
-		if addr == d.currentPc {
+		if addr == currentPC {
 			pointer = ">"
 		}
 		fmt.Fprintf(v, " %s 0x%04x %s\n", pointer, addr, o.DisassemblyWithArg(payload))
@@ -37,21 +38,8 @@ func (d *DisassemblyWidget) Layout(g *gocui.Gui) error {
 	return nil
 }
 
-func (d *DisassemblyWidget) SetPc(newPc uint16) {
-	d.currentPc = newPc
-}
-
-func (d *DisassemblyWidget) Increment(g *gocui.Gui, v *gocui.View) error {
-	log.Printf("Incrementing...")
-	pos, _, _ := d.da.GetNextInstruction()
-	d.SetPc(pos)
-	log.Printf("Pc = %#v", pos)
-	return nil
-}
-
-func NewDisassemblyWidget(disassembler *cpu.Disassembler, currentPc uint16) *DisassemblyWidget {
+func NewDisassemblyWidget(emulator *goboye.Emulator) *DisassemblyWidget {
 	return &DisassemblyWidget{
-		da:        disassembler,
-		currentPc: currentPc,
+		emulator: emulator,
 	}
 }
