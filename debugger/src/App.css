@@ -1,0 +1,24 @@
+html, body, #root {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.app {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.left-column, .central-column, .right-column {
+    padding: 4px;
+}
+
+.left-column {
+    background: #ddd;
+    height: 100%;
+}
+
+.central-column {
+    flex-grow: 1;
+}
