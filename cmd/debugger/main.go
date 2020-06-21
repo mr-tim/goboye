@@ -42,6 +42,8 @@ func main() {
 	log.Printf("Creating ui...")
 	dw := widgets.NewDisassemblyWidget(emulator)
 	rw := widgets.NewRegistersWidget(emulator)
+	bm := widgets.NewBreakpointModal(emulator)
+
 	g.SetManager(dw, rw)
 
 	err = g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
@@ -51,6 +53,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to set key binding for increment: %s", err)
 	}
+
+	err = g.SetKeybinding("", 'b', gocui.ModNone, func (g *gocui.Gui, v *gocui.View) error {
+		bm.Toggle()
+		return nil
+	})
 
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Printf("Received ctrl-c")
