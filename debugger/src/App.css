@@ -17,6 +17,7 @@ html, body, #root {
 .left-column {
     background: #eee;
     padding: 0px;
+    width: 240px;
 }
 
 .central-column {
@@ -25,6 +26,8 @@ html, body, #root {
 
 .right-column {
     background: #eee;
+    padding: 0px;
+    width: 240px;
 }
 
 .monospaced {

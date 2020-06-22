@@ -17,7 +17,7 @@ function App() {
         <Display />
       </div>
       <div className="right-column">
-        <Registers />
+        <Registers registers={state.registers} />
       </div>
     </div>
   );
