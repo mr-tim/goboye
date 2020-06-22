@@ -5,18 +5,13 @@ import Disassembly from './Disassembly';
 import Display from './Display';
 import Registers from './Registers';
 
-function App() {
-  const instructions = [
-    {
-      address: 0x0000,
-      disassembly: 'LD SP,0xFFFE'
-    }
-  ];
+import state from './testState.json';
 
+function App() {
   return (
     <div className="app">
       <div className="left-column">
-        <Disassembly index={0} instructions={instructions} />
+        <Disassembly currentAddress={state.currentAddress} instructions={state.instructions} />
       </div>
       <div className="central-column">
         <Display />

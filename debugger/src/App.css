@@ -15,10 +15,18 @@ html, body, #root {
 }
 
 .left-column {
-    background: #ddd;
-    height: 100%;
+    background: #eee;
+    padding: 0px;
 }
 
 .central-column {
     flex-grow: 1;
+}
+
+.right-column {
+    background: #eee;
+}
+
+.monospaced {
+    font-family: Menlo;
 }

@@ -1,0 +1,17 @@
+{
+    "currentAddress": 0,
+    "instructions": [
+        {
+            "address": 0,
+            "disassembly": "LD SP,0xFFFE"
+        },
+        {
+            "address": 3,
+            "disassembly": "XOR A"
+        },
+        {
+            "address": 4,
+            "disassembly": "LD HL,0"
+        }
+    ]
+}
