@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="app">
       <div className="left-column">
-        <Disassembly currentAddress={state.currentAddress} instructions={state.instructions} />
+        <Disassembly currentAddress={state.registers.PC} instructions={state.instructions} />
       </div>
       <div className="central-column">
         <Display />

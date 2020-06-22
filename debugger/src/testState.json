@@ -1,5 +1,4 @@
 {
-    "currentAddress": 0,
     "instructions": [
         {
             "address": 0,
@@ -13,5 +12,13 @@
             "address": 4,
             "disassembly": "LD HL,0"
         }
-    ]
+    ],
+    "registers": {
+        "AF": 0,
+        "BC": 0,
+        "DE": 0,
+        "HL": 0,
+        "SP": 0,
+        "PC": 0
+    }
 }
