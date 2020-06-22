@@ -20,7 +20,7 @@ const Registers: React.FC<RegisterProps> = (props) => {
     const { registers } = props;
     return (<div>
         <SidebarCell>Registers</SidebarCell>
-        {Object.keys(registers).map((register, idx) => (
+        {Object.keys(registers).sort().map((register, idx) => (
             <SidebarCell key={idx} className="monospaced"><b>{register}</b> {toHex(registers[register], 4)}</SidebarCell>
         ))}
         <SidebarCell />

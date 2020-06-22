@@ -52,7 +52,7 @@ const MemoryViewContainer = styled.div`
     padding: 12px;
     padding-top: 24px;
     height: 100%;
-    width: 747px;
+    width: 705px;
     overflow-y: scroll;
     margin-left: auto;
     margin-right: auto;
