@@ -11,13 +11,24 @@ const SidebarCell = styled.div`
     border-bottom: 1px solid #999;
 `
 
+const tick = '\u2714';
+const cross = '\u274e';
+
+const flag = (value: boolean): string => value ? tick : cross;
+
 const Registers: React.FC<RegisterProps> = (props) => {
     const { registers } = props;
     return (<div>
         <SidebarCell>Registers</SidebarCell>
         {Object.keys(registers).map((register, idx) => (
-            <SidebarCell className="monospaced">{register}: {toHex(registers[register], 4)}</SidebarCell>
+            <SidebarCell className="monospaced"><b>{register}</b> {toHex(registers[register], 4)}</SidebarCell>
         ))}
+        <SidebarCell />
+        <SidebarCell>Flags</SidebarCell>
+        <SidebarCell className="monospaced"><b>Z</b> {flag(false)}</SidebarCell>
+        <SidebarCell className="monospaced"><b>N</b> {flag(false)}</SidebarCell>
+        <SidebarCell className="monospaced"><b>H</b> {flag(false)}</SidebarCell>
+        <SidebarCell className="monospaced"><b>C</b> {flag(false)}</SidebarCell>
     </div>);
 }
 
