@@ -9,6 +9,9 @@ const ScreenDiv = styled.div`
     margin-right: auto;
     margin-top: 30px;
     border: 12px solid #ccc;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 288px;
 `;
 
 const Display: React.FC<{}> = (props) => {

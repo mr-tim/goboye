@@ -3,6 +3,7 @@ import './App.css';
 
 import Disassembly from './Disassembly';
 import Display from './Display';
+import MemoryView from './MemoryView';
 import Registers from './Registers';
 
 import state from './testState.json';
@@ -15,6 +16,7 @@ function App() {
       </div>
       <div className="central-column">
         <Display />
+        <MemoryView />
       </div>
       <div className="right-column">
         <Registers registers={state.registers} />
