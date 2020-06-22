@@ -23,9 +23,9 @@ const DisassemblyCell = styled.div<DisassemblyCellProps>`
 `;
 
 const Disassembly: React.FC<DisassemblyProps> = (props) => {
-    let cells = props.instructions.map((instruction, index) => {
+    let cells = props.instructions.map((instruction, idx) => {
         let isCurrentAddress = props.currentAddress === instruction.address;
-        return (<DisassemblyCell className="monospaced" isCurrentAddress={isCurrentAddress}>
+        return (<DisassemblyCell key={idx} className="monospaced" isCurrentAddress={isCurrentAddress}>
             {toHex(instruction.address, 4)}: {instruction.disassembly}
         </DisassemblyCell>);
     });

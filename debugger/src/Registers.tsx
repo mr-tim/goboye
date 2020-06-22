@@ -21,7 +21,7 @@ const Registers: React.FC<RegisterProps> = (props) => {
     return (<div>
         <SidebarCell>Registers</SidebarCell>
         {Object.keys(registers).map((register, idx) => (
-            <SidebarCell className="monospaced"><b>{register}</b> {toHex(registers[register], 4)}</SidebarCell>
+            <SidebarCell key={idx} className="monospaced"><b>{register}</b> {toHex(registers[register], 4)}</SidebarCell>
         ))}
         <SidebarCell />
         <SidebarCell>Flags</SidebarCell>

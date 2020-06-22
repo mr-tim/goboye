@@ -62,7 +62,7 @@ const MemoryView: React.FC<{}> = (props) => {
     let rows = [];
     for (var i = 0; i < 0x400; i+= 0x10) {
         rows.push(
-            <MemoryViewRow className="monospaced">
+            <MemoryViewRow key={i} className="monospaced">
                 <Offset address={i} />
                 <HexView values={[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]} />
                 <TextView values="................" />
