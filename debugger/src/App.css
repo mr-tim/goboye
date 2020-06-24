@@ -10,6 +10,11 @@ html, body, #root {
     height: 100%;
 }
 
+.disassembly {
+    height: 100%;
+    overflow: hidden;
+}
+
 .left-column, .right-column {
     padding: 4px;
 }

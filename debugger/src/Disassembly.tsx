@@ -19,7 +19,7 @@ interface DisassemblyCellProps {
 const DisassemblyCell = styled.div<DisassemblyCellProps>`
     padding: 6px 12px;
     border-bottom: 1px solid #999;
-    color: ${props => props.isCurrentAddress? '#000': '#888'};
+    color: ${props => props.isCurrentAddress ? '#000' : '#888'};
 `;
 
 const Disassembly: React.FC<DisassemblyProps> = (props) => {
