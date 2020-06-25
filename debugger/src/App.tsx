@@ -35,6 +35,18 @@ function App() {
     const client = new W3CWebSocket('ws://127.0.0.1:8080/ws');
     client.onopen = () => {
       console.log('Websocket connected');
+        let handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === ' ') {
+                console.log("Sending step command");
+                client.send(JSON.stringify({
+                    command: {
+                        step: {}
+                    }
+                }));
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
     }
     client.onmessage = (e) => {
       if (typeof e.data === "string") {

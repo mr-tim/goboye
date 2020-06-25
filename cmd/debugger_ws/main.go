@@ -28,9 +28,9 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &Client{
-		conn: ws,
-		inbox: make(chan InboundMessage),
-		outbox: make(chan OutboundMessage),
+		conn:     ws,
+		inbox:    make(chan InboundMessage),
+		outbox:   make(chan OutboundMessage),
 		emulator: &goboye.Emulator{},
 	}
 	go client.writeMessages()
@@ -53,7 +53,7 @@ type OutboundMessage struct {
 }
 
 type UpdateMessage struct {
-	Instructions []Instruction `json:"instructions"`
+	Instructions []Instruction  `json:"instructions"`
 	Registers    map[string]int `json:"registers"`
 }
 
@@ -62,15 +62,14 @@ type InboundMessage struct {
 }
 
 type CommandMessage struct {
-	Step StepCommand `json:"step"`
+	Step *StepCommand `json:"step"`
 }
 
 type StepCommand struct {
-
 }
 
 type Instruction struct {
-	Address     int `json:"address"`
+	Address     int    `json:"address"`
 	Disassembly string `json:"disassembly"`
 }
 
@@ -78,26 +77,31 @@ func (c *Client) readMessages() {
 	for {
 		var msg InboundMessage
 		err := c.conn.ReadJSON(&msg)
-		log.Printf("Read message from client: %#v", msg)
 		if err != nil {
+			if websocket.IsCloseError(err, 1001) {
+				log.Printf("Client socket closed: %s", err)
+				break
+			}
 			log.Printf("Error reading json from ws: %s", err)
 			continue
 		}
+		log.Printf("Read message from client: %#v", msg)
 		c.inbox <- msg
 	}
+	defer c.close()
 }
 
 func (c *Client) writeMessages() {
 	for {
 		select {
-		case msg, ok := <- c.outbox:
+		case msg, ok := <-c.outbox:
 			if !ok {
 				//outbox closed - should hangup on client
 				return
 			}
 			log.Printf("Sending message to client: %#v", msg)
 			err := c.conn.WriteJSON(msg)
-			if err != nil{
+			if err != nil {
 				log.Printf("err: %s\n", err)
 			}
 		}
@@ -106,11 +110,23 @@ func (c *Client) writeMessages() {
 }
 
 func (c *Client) handleMessages() {
-
+	for {
+		select {
+		case msg, ok := <-c.inbox:
+			if !ok {
+				break
+			}
+			if msg.Command.Step != nil {
+				c.emulator.Step()
+				c.refreshState()
+			}
+		}
+	}
 }
 
 func (c *Client) close() {
 	close(c.outbox)
+	close(c.inbox)
 }
 
 func (c *Client) refreshState() {
@@ -119,10 +135,10 @@ func (c *Client) refreshState() {
 	disassembly.SetPos(c.emulator.GetPC())
 
 	instructions := make([]Instruction, 0)
-	for i:=0; i<100; i+=1 {
+	for i := 0; i < 100; i += 1 {
 		addr, o, payload := disassembly.GetNextInstruction()
 		instructions = append(instructions, Instruction{
-			Address: int(addr),
+			Address:     int(addr),
 			Disassembly: o.DisassemblyWithArg(payload),
 		})
 	}
