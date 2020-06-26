@@ -1,6 +1,7 @@
 package goboye
 
 import (
+	"encoding/base64"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"log"
@@ -42,4 +43,9 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 
 func (e *Emulator) Step() {
 	e.processor.DoNextInstruction()
+}
+
+func (e *Emulator) MemoryBase64() string {
+	mem := e.memoryMap.ReadAll()
+	return base64.StdEncoding.EncodeToString(mem)
 }

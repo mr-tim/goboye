@@ -55,6 +55,7 @@ type OutboundMessage struct {
 type UpdateMessage struct {
 	Instructions []Instruction  `json:"instructions"`
 	Registers    map[string]int `json:"registers"`
+	MemoryBase64 string         `json:"memory_base64"`
 }
 
 type InboundMessage struct {
@@ -154,6 +155,7 @@ func (c *Client) refreshState() {
 				"SP": int(c.emulator.GetRegisterPair(cpu.RegisterPairSP)),
 				"PC": int(c.emulator.GetRegisterPair(cpu.RegisterPairPC)),
 			},
+			MemoryBase64: c.emulator.MemoryBase64(),
 		},
 	}
 

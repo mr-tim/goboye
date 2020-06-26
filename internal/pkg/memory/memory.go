@@ -35,6 +35,7 @@ type MemoryMap interface {
 	WriteByte(addr uint16, value byte)
 	ReadU16(addr uint16) uint16
 	WriteU16(addr, value uint16)
+	ReadAll() []byte
 }
 
 func NewMemoryMapWithBytes(bytes []byte) MemoryMap {
@@ -84,4 +85,8 @@ func (m *memoryMap) WriteU16(addr, value uint16) {
 
 func (m *memoryMap) bootRomPageDisabled() bool {
 	return m.ReadByte(0xff50) == 0x01
+}
+
+func (m *memoryMap) ReadAll() []byte {
+	return m.mem
 }

@@ -18,7 +18,7 @@ const Offset: React.FC<offsetProps> = (props) => {
 }
 
 interface hexViewProps {
-    values: number[]
+    values: Array<number>
 }
 
 const HexView: React.FC<hexViewProps> = (props) => {
@@ -58,13 +58,17 @@ const MemoryViewContainer = styled.div`
     margin-right: auto;
 `
 
-const MemoryView: React.FC<{}> = (props) => {
+interface memoryViewProps {
+    memory: Array<number>
+};
+
+const MemoryView: React.FC<memoryViewProps> = (props) => {
     let rows = [];
     for (var i = 0; i < 0x400; i+= 0x10) {
         rows.push(
             <MemoryViewRow key={i} className="monospaced">
                 <Offset address={i} />
-                <HexView values={[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]} />
+                <HexView values={props.memory.slice(i, i+16)} />
                 <TextView values="................" />
             </MemoryViewRow>
         );

@@ -17,6 +17,7 @@ interface Message {
   update: {
     instructions?: instruction[]
     registers?: { [key: string]: number }
+    memory_base64?: string
   }
 }
 
@@ -30,6 +31,7 @@ function App() {
     PC: 0
   });
   let [instructions, setInstructions] = useState<instruction[]>([]);
+  let [memory, setMemory] = useState<Array<number>>(new Array(0xffff));
 
   useEffect(() => {
     const client = new W3CWebSocket('ws://127.0.0.1:8080/ws');
@@ -59,6 +61,14 @@ function App() {
           if (update.instructions !== undefined) {
             setInstructions(update.instructions);
           }
+          if (update.memory_base64 !== undefined) {
+            let decoded = window.atob(update.memory_base64);
+            let newBuffer = new Array(decoded.length);
+            for (var i = 0; i < decoded.length; i++) {
+              newBuffer[i] = decoded.charCodeAt(i);
+            }
+            setMemory(newBuffer);
+          }
         }
       }
     }
@@ -71,7 +81,7 @@ function App() {
       </div>
       <div className="central-column">
         <Display />
-        <MemoryView />
+        <MemoryView memory={memory} />
       </div>
       <div className="right-column">
         <Registers registers={registers} />
