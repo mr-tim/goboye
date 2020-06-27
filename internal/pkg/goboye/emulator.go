@@ -10,6 +10,13 @@ import (
 type Emulator struct {
 	memoryMap memory.MemoryMap
 	processor cpu.Processor
+	breakpoints map[uint16]bool
+}
+
+func NewEmulator() *Emulator {
+	return &(Emulator{
+		breakpoints: make(map[uint16]bool),
+	})
 }
 
 func (e *Emulator) LoadRomImage(filename string) {
@@ -43,6 +50,23 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 
 func (e *Emulator) Step() {
 	e.processor.DoNextInstruction()
+}
+
+func (e *Emulator) ContinueDebugging() {
+	for {
+		e.Step()
+		if _, isBreakpoint := e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)]; isBreakpoint {
+			break
+		}
+	}
+}
+
+func (e *Emulator) AddBreakpoint(addr uint16) {
+	e.breakpoints[addr] = true
+}
+
+func (e *Emulator) RemoveBreakpoint(addr uint16) {
+	delete(e.breakpoints, addr)
 }
 
 func (e *Emulator) MemoryBase64() string {

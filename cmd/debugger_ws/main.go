@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/goboye"
@@ -31,7 +32,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		conn:     ws,
 		inbox:    make(chan InboundMessage),
 		outbox:   make(chan OutboundMessage),
-		emulator: &goboye.Emulator{},
+		emulator: goboye.NewEmulator(),
 	}
 	go client.writeMessages()
 	go client.readMessages()
@@ -100,7 +101,8 @@ func (c *Client) writeMessages() {
 				//outbox closed - should hangup on client
 				return
 			}
-			log.Printf("Sending message to client: %#v", msg)
+			s := fmt.Sprintf("Sending message to client: %#v", msg)
+			log.Printf(s[:200])
 			err := c.conn.WriteJSON(msg)
 			if err != nil {
 				log.Printf("err: %s\n", err)
