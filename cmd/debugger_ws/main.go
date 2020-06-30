@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 var (
@@ -22,17 +23,19 @@ var upgrader = websocket.Upgrader{
 }
 
 func serveWs(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Starting client...\n")
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("upgrade: %s", err)
+		log.Printf("Error from upgrade: %s", err)
 		return
 	}
 
 	client := &Client{
-		conn:     ws,
-		inbox:    make(chan InboundMessage),
-		outbox:   make(chan OutboundMessage),
-		emulator: goboye.NewEmulator(),
+		conn:      ws,
+		inbox:     make(chan InboundMessage),
+		outbox:    make(chan OutboundMessage),
+		emulator:  goboye.NewEmulator(),
+		closeOnce: &(sync.Once{}),
 	}
 	go client.writeMessages()
 	go client.readMessages()
@@ -43,10 +46,11 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 }
 
 type Client struct {
-	conn     *websocket.Conn
-	inbox    chan InboundMessage
-	outbox   chan OutboundMessage
-	emulator *goboye.Emulator
+	conn      *websocket.Conn
+	inbox     chan InboundMessage
+	outbox    chan OutboundMessage
+	emulator  *goboye.Emulator
+	closeOnce *sync.Once
 }
 
 type OutboundMessage struct {
@@ -82,15 +86,15 @@ func (c *Client) readMessages() {
 		if err != nil {
 			if websocket.IsCloseError(err, 1001) {
 				log.Printf("Client socket closed: %s", err)
-				break
+			} else {
+				log.Printf("Error reading json from ws: %s", err)
 			}
-			log.Printf("Error reading json from ws: %s", err)
-			continue
+			c.close()
+			return
 		}
 		log.Printf("Read message from client: %#v", msg)
 		c.inbox <- msg
 	}
-	defer c.close()
 }
 
 func (c *Client) writeMessages() {
@@ -99,17 +103,19 @@ func (c *Client) writeMessages() {
 		case msg, ok := <-c.outbox:
 			if !ok {
 				//outbox closed - should hangup on client
+				log.Print("Outbox closed.\n")
 				return
 			}
 			s := fmt.Sprintf("Sending message to client: %#v", msg)
 			log.Printf(s[:200])
 			err := c.conn.WriteJSON(msg)
 			if err != nil {
-				log.Printf("err: %s\n", err)
+				log.Printf("Error writing json to ws: %s\n", err)
+				c.close()
+				return
 			}
 		}
 	}
-	defer c.conn.Close()
 }
 
 func (c *Client) handleMessages() {
@@ -117,19 +123,26 @@ func (c *Client) handleMessages() {
 		select {
 		case msg, ok := <-c.inbox:
 			if !ok {
-				break
+				log.Printf("Inbox closed.\n")
+				return
 			}
 			if msg.Command.Step != nil {
+				log.Print("Received step command")
 				c.emulator.Step()
 				c.refreshState()
 			}
 		}
 	}
+	fmt.Printf("Finished handling messages\n")
 }
 
 func (c *Client) close() {
-	close(c.outbox)
-	close(c.inbox)
+	c.closeOnce.Do(func() {
+		close(c.outbox)
+		close(c.inbox)
+		c.conn.Close()
+		fmt.Printf("Closed outbox and inbox\n")
+	})
 }
 
 func (c *Client) refreshState() {
