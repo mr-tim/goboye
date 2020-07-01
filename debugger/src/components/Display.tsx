@@ -15,8 +15,8 @@ const ScreenDiv = styled.div`
 `;
 
 const Display: React.FC<{}> = (props) => {
-    return (<ScreenDiv>
-    </ScreenDiv>);
+  return (<ScreenDiv>
+  </ScreenDiv>);
 }
 
 export default Display;

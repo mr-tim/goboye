@@ -1,36 +1,36 @@
 import React from 'react';
 import styled from 'styled-components';
-import { toHex } from './util/hex';
+import {toHex} from '../util/hex';
 
 interface range {
-    start: number;
-    end: number;
+  start: number;
+  end: number;
 }
 
 interface offsetProps {
-    address: number
+  address: number
 }
 
 const Offset: React.FC<offsetProps> = (props) => {
-    return (
-        <MemoryViewCol>{toHex(props.address, 4)}</MemoryViewCol>
-    );
+  return (
+      <MemoryViewCol>{toHex(props.address, 4)}</MemoryViewCol>
+  );
 }
 
 interface hexViewProps {
-    values: Array<number>
+  values: Array<number>
 }
 
 const HexView: React.FC<hexViewProps> = (props) => {
-    return <MemoryViewCol>{props.values.map(v => toHex(v, 2, false)).join(' ')}</MemoryViewCol>
+  return <MemoryViewCol>{props.values.map(v => toHex(v, 2, false)).join(' ')}</MemoryViewCol>
 }
 
 interface textViewProps {
-    values: string
+  values: string
 }
 
 const TextView: React.FC<textViewProps> = (props) => {
-    return <MemoryViewCol>{props.values}</MemoryViewCol>
+  return <MemoryViewCol>{props.values}</MemoryViewCol>
 }
 
 
@@ -59,24 +59,24 @@ const MemoryViewContainer = styled.div`
 `
 
 interface memoryViewProps {
-    memory: Array<number>
+  memory: Array<number>
 };
 
 const MemoryView: React.FC<memoryViewProps> = (props) => {
-    let rows = [];
-    for (var i = 0; i < 0x400; i+= 0x10) {
-        rows.push(
-            <MemoryViewRow key={i} className="monospaced">
-                <Offset address={i} />
-                <HexView values={props.memory.slice(i, i+16)} />
-                <TextView values="................" />
-            </MemoryViewRow>
-        );
-    }
+  let rows = [];
+  for (var i = 0; i < 0x400; i += 0x10) {
+    rows.push(
+        <MemoryViewRow key={i} className="monospaced">
+          <Offset address={i}/>
+          <HexView values={props.memory.slice(i, i + 16)}/>
+          <TextView values="................"/>
+        </MemoryViewRow>
+    );
+  }
 
-    return (<MemoryViewContainer>
-        {rows}
-    </MemoryViewContainer>);
+  return (<MemoryViewContainer>
+    {rows}
+  </MemoryViewContainer>);
 }
 
 export default MemoryView;

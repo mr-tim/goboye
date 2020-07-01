@@ -1,10 +1,10 @@
 import React from 'react';
 import './App.css';
 
-import Disassembly from './Disassembly';
-import Display from './Display';
-import MemoryView from './MemoryView';
-import Registers from './Registers';
+import Disassembly from './components/Disassembly';
+import Display from './components/Display';
+import MemoryView from './components/MemoryView';
+import Registers from './components/Registers';
 import { useState, useEffect } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 
