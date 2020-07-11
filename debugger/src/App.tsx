@@ -9,7 +9,7 @@ import Registers from './components/Registers';
 import {useWebsocket} from "./Websocket";
 
 function App() {
-  let [isConnected, instructions, registers, memory, sendCommand] = useWebsocket();
+  let [isConnected, instructions, registers, memory, breakpoints, sendCommand] = useWebsocket();
 
   let onKeyDown = (event: KeyboardEvent) => {
     if (event.key === ' ') {
@@ -17,6 +17,10 @@ function App() {
         step: {}
       });
       event.preventDefault();
+    } else if (event.key === 'Enter') {
+      sendCommand({
+        continue: {}
+      })
     }
   };
 
@@ -27,12 +31,21 @@ function App() {
     };
   })
 
+  let setBreakpoint = (address: number, isBreakpoint: boolean) => {
+    sendCommand({
+      breakpoint: {
+        address: address,
+        break: isBreakpoint
+      }
+    })
+  }
+
   return (
       <div className="app">
         {isConnected && (
             <>
               <div className="left-column">
-                <Disassembly currentAddress={registers.PC} instructions={instructions}/>
+                <Disassembly currentAddress={registers.PC} instructions={instructions} breakpoints={breakpoints} setBreakpoint={setBreakpoint}/>
               </div>
               <div className="central-column">
                 <Display/>

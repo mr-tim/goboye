@@ -73,3 +73,11 @@ func (e *Emulator) MemoryBase64() string {
 	mem := e.memoryMap.ReadAll()
 	return base64.StdEncoding.EncodeToString(mem)
 }
+
+func (e *Emulator) GetBreakpoints() []uint16 {
+	breakpoints := make([]uint16, 0)
+	for k := range e.breakpoints {
+		breakpoints = append(breakpoints, k)
+	}
+	return breakpoints
+}

@@ -11,10 +11,11 @@ interface Message {
     instructions?: instruction[]
     registers?: { [key: string]: number }
     memory_base64?: string
+    breakpoints?: number[]
   }
 }
 
-export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, Array<number>, (command:any)=>void] {
+export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, Array<number>, number[], (command:any)=>void] {
   let [isConnected, setIsConnected] = useState(false);
   let [registers, setRegisters] = useState<{[k: string]: number}>({
     AF: 0,
@@ -26,6 +27,7 @@ export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, 
   });
   let [instructions, setInstructions] = useState<instruction[]>([]);
   let [memory, setMemory] = useState<Array<number>>(new Array(0xffff));
+  let [breakpoints, setBreakpoints] = useState<number[]>([]);
   let [sendCommand, setSendCommand] = useState<(command:any)=>void>(() => (command: any) => {});
 
   useEffect(() => {
@@ -59,10 +61,13 @@ export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, 
             }
             setMemory(newBuffer);
           }
+          if (update.breakpoints !== undefined) {
+            setBreakpoints(update.breakpoints);
+          }
         }
       }
     }
   }, []);
 
-  return [isConnected, instructions, registers, memory, sendCommand];
+  return [isConnected, instructions, registers, memory, breakpoints, sendCommand];
 }

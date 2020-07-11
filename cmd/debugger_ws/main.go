@@ -61,6 +61,7 @@ type UpdateMessage struct {
 	Instructions []Instruction  `json:"instructions"`
 	Registers    map[string]int `json:"registers"`
 	MemoryBase64 string         `json:"memory_base64"`
+	Breakpoints  []uint16		`json:"breakpoints"`
 }
 
 type InboundMessage struct {
@@ -68,10 +69,20 @@ type InboundMessage struct {
 }
 
 type CommandMessage struct {
-	Step *StepCommand `json:"step"`
+	Step       *StepCommand       `json:"step"`
+	Breakpoint *BreakpointCommand `json:"breakpoint"`
+	Continue   *ContinueCommand   `json:"continue"`
 }
 
 type StepCommand struct {
+}
+
+type BreakpointCommand struct {
+	Address uint16 `json:"address"`
+	Break   bool   `json:"break"`
+}
+
+type ContinueCommand struct {
 }
 
 type Instruction struct {
@@ -126,9 +137,23 @@ func (c *Client) handleMessages() {
 				log.Printf("Inbox closed.\n")
 				return
 			}
-			if msg.Command.Step != nil {
+
+			cmd := msg.Command
+			if cmd.Step != nil {
 				log.Print("Received step command")
 				c.emulator.Step()
+				c.refreshState()
+			} else if cmd.Breakpoint != nil {
+				log.Print("Received breakpoint command")
+				if cmd.Breakpoint.Break {
+					c.emulator.AddBreakpoint(cmd.Breakpoint.Address)
+				} else {
+					c.emulator.RemoveBreakpoint(cmd.Breakpoint.Address)
+				}
+				c.refreshState()
+			} else if cmd.Continue != nil {
+				log.Print("Received continue command")
+				c.emulator.ContinueDebugging()
 				c.refreshState()
 			}
 		}
@@ -171,6 +196,7 @@ func (c *Client) refreshState() {
 				"PC": int(c.emulator.GetRegisterPair(cpu.RegisterPairPC)),
 			},
 			MemoryBase64: c.emulator.MemoryBase64(),
+			Breakpoints:  c.emulator.GetBreakpoints(),
 		},
 	}
 

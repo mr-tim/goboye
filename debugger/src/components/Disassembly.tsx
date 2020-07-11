@@ -1,10 +1,12 @@
-import React from "react";
+import React, {ChangeEventHandler} from "react";
 import styled from "styled-components";
 import {toHex} from "../util/hex";
 
 interface DisassemblyProps {
   currentAddress: number;
-  instructions: Instruction[]
+  instructions: Instruction[];
+  breakpoints: number[];
+  setBreakpoint: (address: number, isBreakpoint: boolean) => void;
 }
 
 interface Instruction {
@@ -25,7 +27,12 @@ const DisassemblyCell = styled.div<DisassemblyCellProps>`
 const Disassembly: React.FC<DisassemblyProps> = (props) => {
   let cells = props.instructions.map((instruction, idx) => {
     let isCurrentAddress = props.currentAddress === instruction.address;
+    let isBreakpoint = props.breakpoints.includes(instruction.address);
+    let toggleBreakpoint: ChangeEventHandler = (event) => {
+      props.setBreakpoint(instruction.address, !isBreakpoint);
+    };
     return (<DisassemblyCell key={idx} className="monospaced" isCurrentAddress={isCurrentAddress}>
+      <input type="checkbox" checked={isBreakpoint} onChange={toggleBreakpoint}/>
       {toHex(instruction.address, 4)}: {instruction.disassembly}
     </DisassemblyCell>);
   });
