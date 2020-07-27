@@ -25,15 +25,6 @@ const HexView: React.FC<hexViewProps> = (props) => {
   return <MemoryViewCol>{props.values.map(v => toHex(v, 2, false)).join(' ')}</MemoryViewCol>
 }
 
-interface textViewProps {
-  values: string
-}
-
-const TextView: React.FC<textViewProps> = (props) => {
-  return <MemoryViewCol>{props.values}</MemoryViewCol>
-}
-
-
 const MemoryViewRow = styled.div`
     display: flex;
     justify-content: flex-start;
@@ -64,12 +55,11 @@ interface memoryViewProps {
 
 const MemoryView: React.FC<memoryViewProps> = (props) => {
   let rows = [];
-  for (var i = 0; i < 0x400; i += 0x10) {
+  for (let i = 0; i < 0x0400; i += 0x10) {
     rows.push(
         <MemoryViewRow key={i} className="monospaced">
           <Offset address={i}/>
           <HexView values={props.memory.slice(i, i + 16)}/>
-          <TextView values="................"/>
         </MemoryViewRow>
     );
   }

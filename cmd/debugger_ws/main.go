@@ -58,10 +58,16 @@ type OutboundMessage struct {
 }
 
 type UpdateMessage struct {
-	Instructions []Instruction  `json:"instructions"`
-	Registers    map[string]int `json:"registers"`
-	MemoryBase64 string         `json:"memory_base64"`
-	Breakpoints  []uint16		`json:"breakpoints"`
+	Instructions  []Instruction  `json:"instructions"`
+	Registers     map[string]int `json:"registers"`
+	MemoryUpdates []MemoryUpdate `json:"memory_updates"`
+	Breakpoints   []uint16       `json:"breakpoints"`
+}
+
+type MemoryUpdate struct {
+	Start        uint16	`json:"start"`
+	Length       uint16	`json:"length"`
+	MemoryBase64 string `json:"memory_base64"`
 }
 
 type InboundMessage struct {
@@ -195,8 +201,14 @@ func (c *Client) refreshState() {
 				"SP": int(c.emulator.GetRegisterPair(cpu.RegisterPairSP)),
 				"PC": int(c.emulator.GetRegisterPair(cpu.RegisterPairPC)),
 			},
-			MemoryBase64: c.emulator.MemoryBase64(),
-			Breakpoints:  c.emulator.GetBreakpoints(),
+			MemoryUpdates: []MemoryUpdate{
+				{
+					MemoryBase64: c.emulator.MemoryBase64(),
+					Start:        0,
+					Length:       0xFFFF,
+				},
+			},
+			Breakpoints: c.emulator.GetBreakpoints(),
 		},
 	}
 

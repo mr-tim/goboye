@@ -6,11 +6,17 @@ interface instruction {
   disassembly: string
 }
 
+interface memory_update {
+  memory_base64: string
+  start: number
+  length: number
+}
+
 interface Message {
   update: {
     instructions?: instruction[]
     registers?: { [key: string]: number }
-    memory_base64?: string
+    memory_updates?: memory_update[]
     breakpoints?: number[]
   }
 }
@@ -53,13 +59,16 @@ export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, 
           if (update.instructions !== undefined) {
             setInstructions(update.instructions);
           }
-          if (update.memory_base64 !== undefined) {
-            let decoded = window.atob(update.memory_base64);
-            let newBuffer = new Array(decoded.length);
-            for (var i = 0; i < decoded.length; i++) {
-              newBuffer[i] = decoded.charCodeAt(i);
+          if (update.memory_updates !== undefined) {
+            let buffer = memory;
+            for (let i=0; i<update.memory_updates.length; i++) {
+              let m = update.memory_updates[i];
+              let decoded = window.atob(m.memory_base64);
+              for (let idx=0; idx<m.length; idx++) {
+                buffer[m.start+idx] = decoded.charCodeAt(idx);
+              }
             }
-            setMemory(newBuffer);
+            setMemory(buffer);
           }
           if (update.breakpoints !== undefined) {
             setBreakpoints(update.breakpoints);
