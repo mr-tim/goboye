@@ -8,6 +8,7 @@ import (
 
 func setupHandlerTest(bytes []byte) *processor {
 	m := memory.NewMemoryMapWithBytes(bytes)
+	m.GetBootRomRegister().SetBootRomPageDisabled(true)
 	rs := &registers{}
 	return &processor{
 		registers: rs,

@@ -25,6 +25,10 @@ import (
 const ROM_SIZE = 0x08000
 const MEM_SIZE = 0x10000
 
+const bootRomRegisterAddr uint16 = 0xff50
+const bootRomDisabledValue byte = 0x01
+const bootRomEnabledValue byte = 0x00
+
 type memoryMap struct {
 	mem []byte
 }
@@ -36,6 +40,7 @@ type MemoryMap interface {
 	ReadU16(addr uint16) uint16
 	WriteU16(addr, value uint16)
 	ReadAll() []byte
+	GetBootRomRegister() *BootRomRegister
 }
 
 func NewMemoryMapWithBytes(bytes []byte) MemoryMap {
@@ -84,7 +89,7 @@ func (m *memoryMap) WriteU16(addr, value uint16) {
 }
 
 func (m *memoryMap) bootRomPageDisabled() bool {
-	return m.ReadByte(0xff50) == 0x01
+	return m.ReadByte(bootRomRegisterAddr) == 0x01
 }
 
 func (m *memoryMap) ReadAll() []byte {
@@ -94,4 +99,23 @@ func (m *memoryMap) ReadAll() []byte {
 		copy(result[:0xff], bootRom)
 	}
 	return result
+}
+func (m *memoryMap) GetBootRomRegister() *BootRomRegister {
+	return &BootRomRegister{m: m}
+}
+
+type BootRomRegister struct {
+	m *memoryMap
+}
+
+func (brr *BootRomRegister) IsBootRomPageDisabled() bool {
+	return brr.m.bootRomPageDisabled()
+}
+
+func (brr *BootRomRegister) SetBootRomPageDisabled(disabled bool) {
+	value := bootRomEnabledValue
+	if disabled {
+		value = bootRomDisabledValue
+	}
+	brr.m.WriteByte(bootRomRegisterAddr, value)
 }
