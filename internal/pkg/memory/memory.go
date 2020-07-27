@@ -88,5 +88,10 @@ func (m *memoryMap) bootRomPageDisabled() bool {
 }
 
 func (m *memoryMap) ReadAll() []byte {
-	return m.mem
+	result := make([]byte, 0xffff)
+	copy(result, m.mem)
+	if !m.bootRomPageDisabled() {
+		copy(result[:0xff], bootRom)
+	}
+	return result
 }
