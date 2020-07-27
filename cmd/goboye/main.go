@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mr-tim/goboye/internal/pkg/display"
+	sdl2 "github.com/mr-tim/goboye/internal/pkg/display/sdl"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -11,7 +11,7 @@ func main() {
 	}
 	defer sdl.Quit()
 
-	d, err := display.NewDisplay()
+	d, err := sdl2.NewDisplay()
 	if err != nil {
 		panic(err)
 	}
