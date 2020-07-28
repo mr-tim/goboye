@@ -39,6 +39,8 @@ type MemoryMap interface {
 	WriteByte(addr uint16, value byte)
 	ReadU16(addr uint16) uint16
 	WriteU16(addr, value uint16)
+	GetRoRegister(addr uint16) RoRegister
+	GetRwRegister(addr uint16) RwRegister
 	ReadAll() []byte
 	GetBootRomRegister() *BootRomRegister
 }
@@ -100,6 +102,15 @@ func (m *memoryMap) ReadAll() []byte {
 	}
 	return result
 }
+
+func (m *memoryMap) GetRoRegister(addr uint16) RoRegister {
+	return &RoRegisterAtAddr{memoryMap: m, addr: addr}
+}
+
+func (m *memoryMap) GetRwRegister(addr uint16) RwRegister {
+	return &RwRegisterAtAddr{roRegister: RoRegisterAtAddr{memoryMap: m, addr: addr}}
+}
+
 func (m *memoryMap) GetBootRomRegister() *BootRomRegister {
 	return &BootRomRegister{m: m}
 }

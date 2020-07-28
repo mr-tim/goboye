@@ -1,6 +1,6 @@
 package display
 
-import "github.com/mr-tim/goboye/internal/pkg/utils"
+import "github.com/mr-tim/goboye/internal/pkg/memory"
 
 /*
 	0x8000-0x9FFF - display memory
@@ -40,7 +40,7 @@ import "github.com/mr-tim/goboye/internal/pkg/utils"
 				01 In vertical blanking period (cpu has access approx 1ms to display ram)
 				10 Searching OAM RAM
 				11 Transferring data to LCD driver
-			2: Match flag LYC = LCDC LY (0) or LYC = LCDC LY (1) [not a typo...]
+			2: Match flag LYC != LCDC LY (0) or LYC = LCDC LY (1)
 			Interrupt selection:
 				3: Mode 00 selection
 				4: Mode 01 selection 0: not selected
@@ -102,80 +102,30 @@ import "github.com/mr-tim/goboye/internal/pkg/utils"
 
 */
 
-type BgCodeArea byte
-
-const (
-	BgCodeArea1 BgCodeArea = 1 //0x9800-0x9BFF
-	BgCodeArea2 BgCodeArea = 2 //0x9C00-0x9FFF
-)
-
-type BgCharDataArea byte
-
-const (
-	BgCharArea1 BgCharDataArea = 1 // 0x8800-0x97FF
-	BgCharArea2 BgCharDataArea = 2 // 0x8000-0x8FFF
-)
-
-type WindowCodeArea byte
-
-const (
-	WindowCodeArea1 WindowCodeArea = 1 //0x9800-0x9BFF
-	WindowCodeArea2 WindowCodeArea = 2 //0x9C00-0x9FFF
-)
-
-type LCDCFlags byte
-
-/*
-	Bits:
-	0: Bg display off (0) or on (1). Always on for CGB
-	1: OBJ flag off (0) or on (1)
-	2: Obj composition 8x8 (0) or 8x16 (1)
-	3: BG code area selection 0x9800-0x9BFF (0) or 0x9C00-0x9FFF (1)
-	4: BG char data selection 0x8800-0x97FF (0) or 0x8000-0x8FFF (1)
-	5: Windowing flag off (0) or on (1)
-	6: Window code area 0x9800-0x9BFF (0) or 0x9C00-0x9FFF (1)
-	7: LCD controller op stop flag off (0) or on (1)
-*/
-func (b LCDCFlags) IsBgDisplay() bool {
-	return utils.IsBitSet(byte(b), 0)
+type ByteRegister struct {
+	r memory.RwRegister
 }
 
-func (b LCDCFlags) IsObjFlag() bool {
-	return utils.IsBitSet(byte(b), 1)
+func (r *ByteRegister) GetValue() byte {
+	return r.r.GetByte()
 }
 
-func (b LCDCFlags) IsDoubleObjTiles() bool {
-	return utils.IsBitSet(byte(b), 2)
-}
-
-func (b LCDCFlags) GetBgCodeArea() BgCodeArea {
-	if utils.IsBitSet(byte(b), 3) {
-		return BgCodeArea2
-	} else {
-		return BgCodeArea1
+func NewDisplay(m memory.MemoryMap) Display {
+	return Display{
+		lcdc: LCDCFlags{r: m.GetRwRegister(0xFF40)},
+		stat: StatFlags{r: m.GetRwRegister(0xFF41)},
+		scy:  ByteRegister{r: m.GetRwRegister(0xFF42)},
+		scx:  ByteRegister{r: m.GetRwRegister(0xFF43)},
+		ly:   ByteRegister{r: m.GetRwRegister(0xFF44)},
+		lyc:  ByteRegister{r: m.GetRwRegister(0xFF45)},
 	}
 }
 
-func (b LCDCFlags) GetBgCharArea() BgCharDataArea {
-	if utils.IsBitSet(byte(b), 4) {
-		return BgCharArea2
-	} else {
-		return BgCharArea1
-	}
-}
-
-func (b LCDCFlags) IsWindowingFlagSet() bool {
-	return utils.IsBitSet(byte(b), 5)
-}
-
-func (b LCDCFlags) GetWindowCodeArea() WindowCodeArea {
-	if utils.IsBitSet(byte(b), 6) {
-		return WindowCodeArea2
-	} else {
-		return WindowCodeArea1
-	}
-}
-
-func (b LCDCFlags) IsOpStopped() bool {
-	return utils.IsBitSet(byte(b), 7)
+type Display struct {
+	lcdc LCDCFlags
+	stat StatFlags
+	scy  ByteRegister
+	scx  ByteRegister
+	ly   ByteRegister
+	lyc  ByteRegister
 }
