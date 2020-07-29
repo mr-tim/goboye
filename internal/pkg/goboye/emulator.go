@@ -3,13 +3,16 @@ package goboye
 import (
 	"encoding/base64"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
+	"github.com/mr-tim/goboye/internal/pkg/display"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
+	"image"
 	"log"
 )
 
 type Emulator struct {
-	memoryMap memory.MemoryMap
-	processor cpu.Processor
+	memoryMap   memory.MemoryMap
+	processor   cpu.Processor
+	display     display.Display
 	breakpoints map[uint16]bool
 }
 
@@ -30,6 +33,7 @@ func (e *Emulator) LoadRomImage(filename string) {
 	}
 
 	e.processor = cpu.NewProcessor(e.memoryMap)
+	e.display = display.NewDisplay(e.memoryMap)
 }
 
 func (e *Emulator) GetDisassembler() *cpu.Disassembler {
@@ -80,4 +84,8 @@ func (e *Emulator) GetBreakpoints() []uint16 {
 		breakpoints = append(breakpoints, k)
 	}
 	return breakpoints
+}
+
+func (e *Emulator) DebugRender() image.Image {
+	return e.display.DebugRenderMemory()
 }

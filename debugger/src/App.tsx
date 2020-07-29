@@ -9,7 +9,7 @@ import Registers from './components/Registers';
 import {useWebsocket} from "./Websocket";
 
 function App() {
-  let [isConnected, instructions, registers, memory, breakpoints, sendCommand] = useWebsocket();
+  let [isConnected, instructions, registers, memory, breakpoints, debugRender, sendCommand] = useWebsocket();
 
   let onKeyDown = (event: KeyboardEvent) => {
     if (event.key === ' ') {
@@ -48,7 +48,7 @@ function App() {
                 <Disassembly currentAddress={registers.PC} instructions={instructions} breakpoints={breakpoints} setBreakpoint={setBreakpoint}/>
               </div>
               <div className="central-column">
-                <Display/>
+                <Display debugRender={debugRender}/>
                 <MemoryView memory={memory}/>
               </div>
               <div className="right-column">

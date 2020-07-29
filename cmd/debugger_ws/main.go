@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/goboye"
+	"image/png"
 	"log"
 	"net/http"
 	"strings"
@@ -62,11 +65,12 @@ type UpdateMessage struct {
 	Registers     map[string]int `json:"registers"`
 	MemoryUpdates []MemoryUpdate `json:"memory_updates"`
 	Breakpoints   []uint16       `json:"breakpoints"`
+	DebugImage    string         `json:"debug_image"`
 }
 
 type MemoryUpdate struct {
-	Start        uint16	`json:"start"`
-	Length       uint16	`json:"length"`
+	Start        uint16 `json:"start"`
+	Length       uint16 `json:"length"`
 	MemoryBase64 string `json:"memory_base64"`
 }
 
@@ -190,6 +194,14 @@ func (c *Client) refreshState() {
 		})
 	}
 
+	debugRenderImage := c.emulator.DebugRender()
+	b := new(bytes.Buffer)
+	err := png.Encode(b, debugRenderImage)
+	if err != nil {
+		panic(err)
+	}
+	base64debugImage := base64.StdEncoding.EncodeToString(b.Bytes())
+
 	msg := OutboundMessage{
 		Update: UpdateMessage{
 			Instructions: instructions,
@@ -209,6 +221,7 @@ func (c *Client) refreshState() {
 				},
 			},
 			Breakpoints: c.emulator.GetBreakpoints(),
+			DebugImage:  base64debugImage,
 		},
 	}
 

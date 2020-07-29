@@ -18,10 +18,11 @@ interface Message {
     registers?: { [key: string]: number }
     memory_updates?: memory_update[]
     breakpoints?: number[]
+    debug_image?: string
   }
 }
 
-export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, Array<number>, number[], (command:any)=>void] {
+export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, Array<number>, number[], string, (command:any)=>void] {
   let [isConnected, setIsConnected] = useState(false);
   let [registers, setRegisters] = useState<{[k: string]: number}>({
     AF: 0,
@@ -35,6 +36,7 @@ export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, 
   let [memory, setMemory] = useState<Array<number>>(new Array(0xffff));
   let [breakpoints, setBreakpoints] = useState<number[]>([]);
   let [sendCommand, setSendCommand] = useState<(command:any)=>void>(() => (command: any) => {});
+  let [debugImage, setDebugImage] = useState<string>('');
 
   useEffect(() => {
     const client = new W3CWebSocket('ws://127.0.0.1:8080/ws');
@@ -73,10 +75,13 @@ export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, 
           if (update.breakpoints !== undefined) {
             setBreakpoints(update.breakpoints);
           }
+          if (update.debug_image !== undefined) {
+            setDebugImage(update.debug_image);
+          }
         }
       }
     }
   }, []);
 
-  return [isConnected, instructions, registers, memory, breakpoints, sendCommand];
+  return [isConnected, instructions, registers, memory, breakpoints, debugImage, sendCommand];
 }

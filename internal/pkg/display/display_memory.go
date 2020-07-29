@@ -1,6 +1,10 @@
 package display
 
-import "github.com/mr-tim/goboye/internal/pkg/memory"
+import (
+	"github.com/mr-tim/goboye/internal/pkg/memory"
+	"image"
+	"image/color"
+)
 
 /*
 	0x8000-0x9FFF - display memory
@@ -128,4 +132,20 @@ type Display struct {
 	scx  ByteRegister
 	ly   ByteRegister
 	lyc  ByteRegister
+}
+
+func (d *Display) DebugRenderMemory() image.Image {
+	bounds := image.Rect(0, 0, 256, 256)
+	palette := color.Palette{}
+	palette = append(palette, color.RGBA{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff})
+	palette = append(palette, color.RGBA{R: 0x30, G: 0x62, B: 0x30, A: 0xff})
+	palette = append(palette, color.RGBA{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff})
+	palette = append(palette, color.RGBA{R: 0x9b, G: 0xbc, B: 0x0f, A: 0xff})
+	p := image.NewPaletted(bounds, palette)
+	for x := 0; x < 256; x++ {
+		for y := 0; y < 256; y++ {
+			p.SetColorIndex(x, y, uint8(x/64))
+		}
+	}
+	return p
 }
