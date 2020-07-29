@@ -146,7 +146,7 @@ func TestRotateHLLeft(t *testing.T) {
 }
 
 func doTestRotateLeft(t *testing.T, opcode uint8, get byteGetter, set byteSetter) {
-	t.Run("Rotate 0x80 left", func(t *testing.T) {
+	t.Run("Rotate 0x80 left, FlagC=false", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x80)
 		p.DoNextInstruction()
@@ -158,7 +158,20 @@ func doTestRotateLeft(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 		assert.Equal(t, true, p.registers.getFlagValue(FlagC))
 	})
 
-	t.Run("Rotate 0x11 left", func(t *testing.T) {
+	t.Run("Rotate 0x80 left, FlagC=true", func(t *testing.T) {
+		p := setupHandlerTest([]byte{0xCB, opcode})
+		set(p, 0x80)
+		setFlag(p, FlagC)
+		p.DoNextInstruction()
+		assert.Equal(t, uint16(2), p.registers.pc)
+		assert.Equal(t, uint8(0x01), get(p))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagN))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagH))
+		assert.Equal(t, true, p.registers.getFlagValue(FlagC))
+	})
+
+	t.Run("Rotate 0x11 left, FlagC=false", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x11)
 		p.DoNextInstruction()
@@ -169,6 +182,24 @@ func doTestRotateLeft(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 		assert.Equal(t, false, p.registers.getFlagValue(FlagH))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagC))
 	})
+
+	t.Run("Rotate 0x11 left, FlagC=true", func(t *testing.T) {
+		p := setupHandlerTest([]byte{0xCB, opcode})
+		set(p, 0x11)
+		setFlag(p, FlagC)
+		p.DoNextInstruction()
+		assert.Equal(t, uint16(2), p.registers.pc)
+		assert.Equal(t, uint8(0x23), get(p))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagN))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagH))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagC))
+	})
+}
+
+func setFlag(p *processor, flag OpResultFlag) {
+	flags := p.registers.getRegister(RegisterF) | uint8(flag)
+	p.registers.setRegister(RegisterF, flags)
 }
 
 func TestRotateRight(t *testing.T) {
@@ -193,7 +224,7 @@ func TestRotateHLRight(t *testing.T) {
 }
 
 func doTestRotateRight(t *testing.T, opcode uint8, get byteGetter, set byteSetter) {
-	t.Run("Rotate 0x01 Right", func(t *testing.T) {
+	t.Run("Rotate 0x01 Right, FlagC=false", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x01)
 		p.DoNextInstruction()
@@ -205,12 +236,38 @@ func doTestRotateRight(t *testing.T, opcode uint8, get byteGetter, set byteSette
 		assert.Equal(t, true, p.registers.getFlagValue(FlagC))
 	})
 
-	t.Run("Rotate 0x8A Right", func(t *testing.T) {
+	t.Run("Rotate 0x01 Right, FlagC=true", func(t *testing.T) {
+		p := setupHandlerTest([]byte{0xCB, opcode})
+		set(p, 0x01)
+		setFlag(p, FlagC)
+		p.DoNextInstruction()
+		assert.Equal(t, uint16(2), p.registers.pc)
+		assert.Equal(t, uint8(0x80), get(p))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagN))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagH))
+		assert.Equal(t, true, p.registers.getFlagValue(FlagC))
+	})
+
+	t.Run("Rotate 0x8A Right, FlagC=false", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0xCB, opcode})
 		set(p, 0x8A)
 		p.DoNextInstruction()
 		assert.Equal(t, uint16(2), p.registers.pc)
 		assert.Equal(t, uint8(0x45), get(p))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagN))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagH))
+		assert.Equal(t, false, p.registers.getFlagValue(FlagC))
+	})
+
+	t.Run("Rotate 0x8A Right, FlagC=true", func(t *testing.T) {
+		p := setupHandlerTest([]byte{0xCB, opcode})
+		set(p, 0x8A)
+		setFlag(p, FlagC)
+		p.DoNextInstruction()
+		assert.Equal(t, uint16(2), p.registers.pc)
+		assert.Equal(t, uint8(0xC5), get(p))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagZ))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagN))
 		assert.Equal(t, false, p.registers.getFlagValue(FlagH))

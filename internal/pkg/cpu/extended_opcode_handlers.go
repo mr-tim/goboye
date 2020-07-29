@@ -73,6 +73,8 @@ func doRotateLeft(p *processor, value uint8, carry bool) uint8 {
 	result := value << 1
 	if carry {
 		result |= value >> 7
+	} else if p.GetFlagValue(FlagC) {
+		result |= 0x01
 	}
 	setLeftShiftFlags(p, result, value)
 	return result
@@ -103,6 +105,8 @@ func doRotateRight(p *processor, value uint8, carry bool) uint8 {
 	result := value >> 1
 	if carry {
 		result |= value << 7
+	} else if p.GetFlagValue(FlagC) {
+		result |= 0x80
 	}
 
 	setRightShiftFlags(p, result, value)
