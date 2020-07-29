@@ -1,9 +1,13 @@
 package display
 
 import (
+	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"image"
 	"image/color"
+	"image/draw"
+	"image/png"
+	"os"
 )
 
 /*
@@ -122,6 +126,7 @@ func NewDisplay(m memory.MemoryMap) Display {
 		scx:  ByteRegister{r: m.GetRwRegister(0xFF43)},
 		ly:   ByteRegister{r: m.GetRwRegister(0xFF44)},
 		lyc:  ByteRegister{r: m.GetRwRegister(0xFF45)},
+		m:    m,
 	}
 }
 
@@ -132,20 +137,72 @@ type Display struct {
 	scx  ByteRegister
 	ly   ByteRegister
 	lyc  ByteRegister
+	m    memory.MemoryMap
 }
 
 func (d *Display) DebugRenderMemory() image.Image {
 	bounds := image.Rect(0, 0, 256, 256)
 	palette := color.Palette{}
-	palette = append(palette, color.RGBA{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff})
-	palette = append(palette, color.RGBA{R: 0x30, G: 0x62, B: 0x30, A: 0xff})
-	palette = append(palette, color.RGBA{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff})
 	palette = append(palette, color.RGBA{R: 0x9b, G: 0xbc, B: 0x0f, A: 0xff})
-	p := image.NewPaletted(bounds, palette)
-	for x := 0; x < 256; x++ {
-		for y := 0; y < 256; y++ {
-			p.SetColorIndex(x, y, uint8(x/64))
+	palette = append(palette, color.RGBA{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff})
+	palette = append(palette, color.RGBA{R: 0x30, G: 0x62, B: 0x30, A: 0xff})
+	palette = append(palette, color.RGBA{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff})
+
+	// data for characters
+	bgCharArea := d.lcdc.GetBgCharArea()
+	// render the characters into images
+	var bgChars = make([]image.PalettedImage, 0)
+	charBounds := image.Rect(0, 0, 8, 8)
+	for charId := 0; charId < 256; charId++ {
+		charImage := image.NewPaletted(charBounds, palette)
+		charAddr := bgCharArea.Address(byte(charId))
+		for y := 0; y < 8; y++ {
+			addr := charAddr + uint16(2*y)
+			// first byte (high) is low shade bit
+			// second byte (lower) is high shade bit
+			row := decodeRow(d.m.ReadU16(addr))
+			for x := 0; x < 8; x++ {
+				charImage.SetColorIndex(x, y, row[x])
+			}
 		}
+		bgChars = append(bgChars, charImage)
+	}
+
+	for idx, bgChar := range bgChars {
+		err := os.MkdirAll("../chars", 0755)
+		if err != nil {
+			panic(err)
+		}
+		f, err := os.Create(fmt.Sprintf("../chars/bgchar%000d.png", idx))
+		if err != nil {
+			panic(err)
+		}
+		png.Encode(f, bgChar)
+		f.Close()
+	}
+
+	// position of character codes
+	bgCodeArea := d.lcdc.GetBgCodeArea()
+	offset := bgCodeArea.StartAddress()
+	p := image.NewPaletted(bounds, palette)
+	for i := 0; i < 1024; i++ {
+		tileX := i % 32
+		tileY := int(i / 32)
+		charCode := d.m.ReadByte(offset + uint16(i))
+		charImg := bgChars[charCode]
+		draw.Draw(p, image.Rect(tileX*8, tileY*8, (tileX+1)*8, (tileY+1)*8), charImg, image.Point{}, draw.Src)
 	}
 	return p
+}
+
+func decodeRow(rowData uint16) [8]uint8 {
+	var result [8]uint8
+	for col := 0; col < 8; col++ {
+		shift := 7 - col
+		low := uint8(((0x0001 << shift) & rowData) >> shift)
+		high := uint8(((0x0100 << shift) & rowData) >> (shift + 7))
+		result[col] = low + high
+	}
+
+	return result
 }

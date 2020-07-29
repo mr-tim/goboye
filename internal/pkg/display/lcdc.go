@@ -9,12 +9,32 @@ const (
 	BgCodeArea2 BgCodeArea = 2 //0x9C00-0x9FFF
 )
 
+func (a BgCodeArea) StartAddress() uint16 {
+	if a == BgCodeArea1 {
+		return 0x9800
+	} else if a == BgCodeArea2 {
+		return 0x9C00
+	} else {
+		panic("invalid bg code area specified!")
+	}
+}
+
 type BgCharDataArea byte
 
 const (
 	BgCharArea1 BgCharDataArea = 1 // 0x8800-0x97FF
 	BgCharArea2 BgCharDataArea = 2 // 0x8000-0x8FFF
 )
+
+func (a BgCharDataArea) Address(id byte) uint16 {
+	if a == BgCharArea1 && id < 0x80 {
+		// for BgCharArea1, 0x00-0x7F are in 0x9000 (as is BgCharArea2)
+		// 0x80+ is in 0x8800-0x8FFF
+		return 0x9000 + uint16(id)*0x0010
+	} else {
+		return 0x8000 + uint16(id)*0x0010
+	}
+}
 
 type WindowCodeArea byte
 
