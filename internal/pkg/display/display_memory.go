@@ -126,6 +126,7 @@ func NewDisplay(m memory.MemoryMap) Display {
 		scx:  ByteRegister{r: m.GetRwRegister(0xFF43)},
 		ly:   ByteRegister{r: m.GetRwRegister(0xFF44)},
 		lyc:  ByteRegister{r: m.GetRwRegister(0xFF45)},
+		bgp:  ByteRegister{r: m.GetRwRegister(0xFF47)},
 		m:    m,
 	}
 }
@@ -137,16 +138,26 @@ type Display struct {
 	scx  ByteRegister
 	ly   ByteRegister
 	lyc  ByteRegister
+	bgp  ByteRegister
 	m    memory.MemoryMap
 }
 
 func (d *Display) DebugRenderMemory() image.Image {
 	bounds := image.Rect(0, 0, 256, 256)
+
+	colors := []color.RGBA{
+		{R: 0x9b, G: 0xbc, B: 0x0f, A: 0xff},
+		{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff},
+		{R: 0x30, G: 0x62, B: 0x30, A: 0xff},
+		{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff},
+	}
+
 	palette := color.Palette{}
-	palette = append(palette, color.RGBA{R: 0x9b, G: 0xbc, B: 0x0f, A: 0xff})
-	palette = append(palette, color.RGBA{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff})
-	palette = append(palette, color.RGBA{R: 0x30, G: 0x62, B: 0x30, A: 0xff})
-	palette = append(palette, color.RGBA{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff})
+	palDefinition := d.bgp.GetValue()
+	for i := 0; i < 4; i++ {
+		idx := (palDefinition >> byte(2*i)) & 0x03
+		palette = append(palette, colors[idx])
+	}
 
 	// data for characters
 	bgCharArea := d.lcdc.GetBgCharArea()
