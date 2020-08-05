@@ -8,7 +8,7 @@ import (
 
 type Processor interface {
 	NextInstruction() Opcode
-	DoNextInstruction()
+	DoNextInstruction() uint8
 	DebugRegisters() string
 	GetRegister(reg register) uint8
 	GetRegisterPair(pair RegisterPair) uint16
@@ -56,10 +56,11 @@ func (p *processor) Read16BitImmediate() uint16 {
 	return value
 }
 
-func (p *processor) DoNextInstruction() {
+func (p *processor) DoNextInstruction() uint8 {
 	o := p.readNextInstruction()
 	o.handler(o, p)
 	p.cycles += uint(o.Cycles())
+	return o.Cycles()
 }
 
 func (p *processor) DebugRegisters() string {

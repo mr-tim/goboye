@@ -16,6 +16,10 @@ type Emulator struct {
 	breakpoints map[uint16]bool
 }
 
+const CYCLES_PER_SECOND = 4194304
+const FRAMES_PER_SECOND = 60
+const CYCLES_PER_FRAME = CYCLES_PER_SECOND/FRAMES_PER_SECOND
+
 func NewEmulator() *Emulator {
 	return &(Emulator{
 		breakpoints: make(map[uint16]bool),
@@ -54,6 +58,14 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 
 func (e *Emulator) Step() {
 	e.processor.DoNextInstruction()
+}
+
+func (e *Emulator) StepFrame() {
+	cycles := 0
+	for cycles < CYCLES_PER_FRAME {
+		c := e.processor.DoNextInstruction()
+		e.display.Update(c)
+	}
 }
 
 func (e *Emulator) ContinueDebugging() {
