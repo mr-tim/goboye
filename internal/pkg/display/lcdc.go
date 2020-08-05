@@ -98,6 +98,6 @@ func (f LCDCFlags) GetWindowCodeArea() WindowCodeArea {
 	}
 }
 
-func (f LCDCFlags) IsOpStopped() bool {
+func (f LCDCFlags) IsLCDEnabled() bool {
 	return f.r.IsBitSet(7)
 }
