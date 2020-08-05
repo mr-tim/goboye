@@ -68,7 +68,7 @@ func (m *memoryMap) initWithBytes(bytes []byte) {
 }
 
 func (m *memoryMap) ReadByte(addr uint16) byte {
-	if addr < 0xFF && !m.bootRomPageDisabled() {
+	if addr < 0x0100 && !m.bootRomPageDisabled() {
 		return bootRom[addr]
 	} else {
 		return m.mem[addr]
