@@ -2,6 +2,7 @@ package display
 
 import (
 	"fmt"
+	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"image"
 	"image/color"
@@ -110,12 +111,27 @@ import (
 
 */
 
+const FRAMES_PER_SECOND = 60
+const CYCLES_PER_FRAME = cpu.CYCLES_PER_SECOND/FRAMES_PER_SECOND
+const ROWS = 144
+const VBLANK_ROWS = 10
+const TOTAL_ROWS = ROWS + VBLANK_ROWS
+const CYCLES_PER_LINE = CYCLES_PER_FRAME / TOTAL_ROWS
+
 type ByteRegister struct {
 	r memory.RwRegister
 }
 
 func (r *ByteRegister) GetValue() byte {
 	return r.r.GetByte()
+}
+
+func (r *ByteRegister) Increment() {
+	r.r.SetValue(r.r.GetByte() + 1)
+}
+
+func (r *ByteRegister) SetValue(value byte) {
+	r.r.SetValue(value)
 }
 
 func NewDisplay(m memory.MemoryMap) Display {
@@ -132,14 +148,15 @@ func NewDisplay(m memory.MemoryMap) Display {
 }
 
 type Display struct {
-	lcdc LCDCFlags
-	stat StatFlags
-	scy  ByteRegister
-	scx  ByteRegister
-	ly   ByteRegister
-	lyc  ByteRegister
-	bgp  ByteRegister
-	m    memory.MemoryMap
+	lcdc   LCDCFlags
+	stat   StatFlags
+	scy    ByteRegister
+	scx    ByteRegister
+	ly     ByteRegister
+	lyc    ByteRegister
+	bgp    ByteRegister
+	m      memory.MemoryMap
+	cycles int
 }
 
 func (d *Display) DebugRenderMemory() image.Image {
@@ -204,6 +221,30 @@ func (d *Display) DebugRenderMemory() image.Image {
 		draw.Draw(p, image.Rect(tileX*8, tileY*8, (tileX+1)*8, (tileY+1)*8), charImg, image.Point{}, draw.Src)
 	}
 	return p
+}
+
+func (d *Display) Update(cycles uint8) {
+	if d.lcdc.IsLCDEnabled() {
+		d.cycles += int(cycles)
+		for d.cycles > CYCLES_PER_LINE {
+			d.ly.Increment()
+			value := d.ly.GetValue()
+			if value >= TOTAL_ROWS {
+				// set it to zero
+				d.ly.SetValue(0)
+			}
+
+			if d.ly.GetValue() >= ROWS {
+				// set v-blank flag
+ 				d.stat.SetMode(VerticalBlank)
+			} else {
+				d.stat.SetMode(EnableCPUAccessToDisplayRAM)
+			}
+
+			// draw a line
+			d.cycles -= CYCLES_PER_LINE
+		}
+	}
 }
 
 func decodeRow(rowData uint16) [8]uint8 {

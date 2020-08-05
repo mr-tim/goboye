@@ -6,6 +6,8 @@ import (
 	"github.com/mr-tim/goboye/internal/pkg/utils"
 )
 
+const CYCLES_PER_SECOND = 4194304
+
 type Processor interface {
 	NextInstruction() Opcode
 	DoNextInstruction() uint8

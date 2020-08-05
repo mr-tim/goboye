@@ -28,7 +28,11 @@ func (f *StatFlags) GetMode() LcdcMode {
 	return LcdcMode(f.r.GetByte() & 0x03)
 }
 
+func (f *StatFlags) SetMode(mode LcdcMode) {
+	updated := (f.r.GetByte() & 0b11111100) | byte(mode)
+	f.r.SetValue(updated)
+}
+
 func (f *StatFlags) IsInterruptEnabled(selector LcdInterruptSelector) bool {
 	return f.r.IsBitSet(byte(selector))
 }
-
