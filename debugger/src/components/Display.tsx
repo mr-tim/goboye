@@ -22,7 +22,7 @@ const Display: React.FC<DisplayProps> = (props) => {
       undefined : 'data:image/png;base64,' + props.debugRender;
   return (<ScreenDiv>
     {props.debugRender !== undefined &&
-      <img src={imgSrc}/>
+      <img alt="current screen contents" src={imgSrc}/>
     }
   </ScreenDiv>);
 }

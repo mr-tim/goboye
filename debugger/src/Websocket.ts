@@ -81,7 +81,12 @@ export function useWebsocket(): [boolean, instruction[], {[key:string]:number}, 
         }
       }
     }
-  }, []);
+
+    return () => {
+      console.log('Closing websocket...');
+      client.close();
+    };
+  }, [memory]);
 
   return [isConnected, instructions, registers, memory, breakpoints, debugImage, sendCommand];
 }
