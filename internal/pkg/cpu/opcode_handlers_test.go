@@ -636,3 +636,49 @@ func TestEnableInterrupts(t *testing.T) {
 	p.DoNextInstruction()
 	assert.Equal(t, true, p.interruptsEnabled)
 }
+
+func TestXorA(t *testing.T) {
+	doTestXorReg(t, RegisterA, 0xAF)
+}
+
+func TestXorB(t *testing.T) {
+	doTestXorReg(t, RegisterB, 0xA8)
+}
+
+func TestXorC(t *testing.T) {
+	doTestXorReg(t, RegisterC, 0xA9)
+}
+
+func TestXorD(t *testing.T) {
+	doTestXorReg(t, RegisterD, 0xAA)
+}
+
+func TestXorE(t *testing.T) {
+	doTestXorReg(t, RegisterE, 0xAB)
+}
+
+func TestXorH(t *testing.T) {
+	doTestXorReg(t, RegisterH, 0xAC)
+}
+
+func TestXorL(t *testing.T) {
+	doTestXorReg(t, RegisterL, 0xAD)
+}
+
+func doTestXorReg(t *testing.T, reg register, opcode byte) {
+	p := setupHandlerTest([]byte{opcode})
+	p.registers.setRegister(RegisterA, 0xF0)
+	if reg != RegisterA {
+		p.registers.setRegister(reg, 0x33)
+	}
+	p.DoNextInstruction()
+
+	var expected byte
+	if reg == RegisterA {
+		expected = 0x00
+	} else {
+		expected = 0xC3
+	}
+	assert.Equal(t, expected, p.GetRegister(RegisterA))
+}
+

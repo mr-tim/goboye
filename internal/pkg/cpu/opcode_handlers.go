@@ -344,7 +344,7 @@ func or(a, b uint8) uint8 {
 
 func doLogicalOpAgainstA(p *processor, other uint8, op func(a, b uint8) uint8) uint8 {
 	oldValue := p.registers.getRegister(RegisterA)
-	newValue := oldValue | other
+	newValue := op(oldValue, other)
 	p.registers.setRegister(RegisterA, newValue)
 	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
 	if newValue == 0 {
