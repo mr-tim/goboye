@@ -182,11 +182,12 @@ func (c *Client) close() {
 
 func (c *Client) refreshState() {
 	log.Printf("Refreshing state...")
+	disassemblyPos := uint16(0x0000)
 	disassembly := c.emulator.GetDisassembler()
-	disassembly.SetPos(c.emulator.GetPC())
+	disassembly.SetPos(disassemblyPos)
 
 	instructions := make([]Instruction, 0)
-	for i := 0; i < 100; i += 1 {
+	for i := 0; i < 1000; i += 1 {
 		addr, o, payload := disassembly.GetNextInstruction()
 		instructions = append(instructions, Instruction{
 			Address:     int(addr),

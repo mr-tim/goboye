@@ -44,12 +44,9 @@ function App() {
       <div className="app">
         {isConnected && (
             <>
-              <div className="left-column">
-                <Disassembly currentAddress={registers.PC} instructions={instructions} breakpoints={breakpoints} setBreakpoint={setBreakpoint}/>
-              </div>
               <div className="central-column">
                 <Display debugRender={debugRender}/>
-                <MemoryView memory={memory}/>
+                <Disassembly currentAddress={registers.PC} instructions={instructions} breakpoints={breakpoints} setBreakpoint={setBreakpoint}/>
               </div>
               <div className="right-column">
                 <Registers registers={registers}/>
