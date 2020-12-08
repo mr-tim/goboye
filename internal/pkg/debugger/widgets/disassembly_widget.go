@@ -27,12 +27,12 @@ func (d *DisassemblyWidget) Layout(g *gocui.Gui) error {
 	h := uint16(maxY - 2)
 	da.SetPos(currentPC - (currentPC % h))
 	for i := 0; i < maxY-1; i++ {
-		addr, o, payload := da.GetNextInstruction()
+		addr, o := da.GetNextInstruction()
 		pointer := " "
 		if addr == currentPC {
 			pointer = ">"
 		}
-		fmt.Fprintf(v, " %s 0x%04x %s\n", pointer, addr, o.DisassemblyWithArg(payload))
+		fmt.Fprintf(v, " %s 0x%04x %s\n", pointer, addr, o.Disassembly())
 	}
 
 	return nil

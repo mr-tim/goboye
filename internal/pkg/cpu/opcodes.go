@@ -1,6 +1,9 @@
 package cpu
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type opcodeHandler func(opcode, *processor)
 
@@ -11,6 +14,29 @@ type Opcode interface {
 	Description() string
 	PayloadLength() uint8
 	Cycles() uint8
+}
+
+type OpcodeAndPayload struct {
+	op Opcode
+	payload []byte
+}
+
+func (o *OpcodeAndPayload) Disassembly() string {
+	return o.op.DisassemblyWithArg(o.FormatPayload())
+}
+
+func (o *OpcodeAndPayload) Opcode() Opcode {
+	return o.op
+}
+
+func (o *OpcodeAndPayload) FormatPayload() string {
+	argWidth := o.op.PayloadLength()
+	if argWidth == 1 {
+		return fmt.Sprintf("0x%02X", o.payload[0])
+	} else if argWidth == 2 {
+		return fmt.Sprintf("0x%04X", (uint16(o.payload[1]) << 8) | uint16(o.payload[0]))
+	}
+	return ""
 }
 
 type opcode struct {

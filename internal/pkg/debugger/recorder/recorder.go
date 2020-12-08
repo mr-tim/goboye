@@ -9,12 +9,12 @@ import (
 type Snapshot struct {
 	registers cpu.Registers
 	address   uint16
-	op        cpu.Opcode
+	op        cpu.OpcodeAndPayload
 	payload   string
 }
 
 func (s Snapshot) String() string {
-	return fmt.Sprintf("%s 0x%04x: %s %s", s.registers.String(), s.address, s.op.Disassembly(), s.payload)
+	return fmt.Sprintf("%s 0x%04x: %s", s.registers.String(), s.address, s.op.Disassembly())
 }
 
 type Recorder struct {
@@ -28,13 +28,11 @@ func (r *Recorder) TakeSnapshot(processor cpu.Processor, memoryMap memory.Memory
 		registers := processor.DebugRegisters()
 		d := cpu.NewDisassembler(memoryMap)
 		d.SetPos(processor.GetRegisterPair(cpu.RegisterPairPC))
-		// TODO: can probably make this more efficient by just storing PC + any operands?
-		addr, op, payload := d.GetNextInstruction()
+		addr, op := d.GetNextInstruction()
 		r.snapshots[r.currentIndex] = Snapshot{
 			registers: registers,
 			address:   addr,
 			op:        op,
-			payload:   payload,
 		}
 		r.currentIndex = (r.currentIndex + 1) % r.maxSnapshots
 	}

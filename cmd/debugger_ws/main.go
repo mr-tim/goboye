@@ -188,10 +188,10 @@ func (c *Client) refreshState() {
 
 	instructions := make([]Instruction, 0)
 	for i := 0; i < 1000; i += 1 {
-		addr, o, payload := disassembly.GetNextInstruction()
+		addr, o := disassembly.GetNextInstruction()
 		instructions = append(instructions, Instruction{
 			Address:     int(addr),
-			Disassembly: o.DisassemblyWithArg(payload),
+			Disassembly: o.Disassembly(),
 		})
 	}
 

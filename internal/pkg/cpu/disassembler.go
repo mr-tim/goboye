@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 )
 
@@ -14,7 +13,7 @@ func (d *Disassembler) SetPos(pos uint16) {
 	d.pos = pos
 }
 
-func (d *Disassembler) GetNextInstruction() (uint16, Opcode, string) {
+func (d *Disassembler) GetNextInstruction() (uint16, OpcodeAndPayload) {
 	addr := d.pos
 	opcodeByte := d.m.ReadByte(d.pos)
 	d.pos += 1
@@ -27,16 +26,24 @@ func (d *Disassembler) GetNextInstruction() (uint16, Opcode, string) {
 		o = LookupExtOpcode(opcodeByte)
 	}
 
-	payloadStr := ""
+
 	argWidth := o.PayloadLength()
+	var payload = make([]byte, argWidth)
 	if argWidth == 1 {
-		payloadStr = fmt.Sprintf("0x%02X", d.m.ReadByte(d.pos))
+		payload = append(payload, d.m.ReadByte(d.pos))
 	} else if argWidth == 2 {
-		payloadStr = fmt.Sprintf("0x%04X", d.m.ReadU16(d.pos))
+		payload = append(payload, d.m.ReadByte(d.pos))
+		payload = append(payload, d.m.ReadByte(d.pos+1))
 	}
+
+	op := OpcodeAndPayload{
+		op: &o,
+		payload: payload,
+	}
+
 	d.pos += uint16(argWidth)
 
-	return addr, &o, payloadStr
+	return addr, op
 }
 
 func NewDisassembler(m memory.MemoryMap) *Disassembler {
