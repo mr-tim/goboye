@@ -3,6 +3,7 @@ package goboye
 import (
 	"encoding/base64"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
+	"github.com/mr-tim/goboye/internal/pkg/debugger/recorder"
 	"github.com/mr-tim/goboye/internal/pkg/display"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"image"
@@ -14,11 +15,13 @@ type Emulator struct {
 	processor   cpu.Processor
 	display     display.Display
 	breakpoints map[uint16]bool
+	recorder    *recorder.Recorder
 }
 
 func NewEmulator() *Emulator {
 	return &(Emulator{
 		breakpoints: make(map[uint16]bool),
+		recorder: recorder.NewRecorder(100),
 	})
 }
 
@@ -53,6 +56,7 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 }
 
 func (e *Emulator) Step() uint8 {
+	e.recorder.TakeSnapshot(e.processor, e.memoryMap)
 	c := e.processor.DoNextInstruction()
 	e.display.Update(c)
 	return c
@@ -67,12 +71,19 @@ func (e *Emulator) StepFrame() {
 }
 
 func (e *Emulator) ContinueDebugging() {
+	stepCount := 0
 	for {
 		e.Step()
 		if _, isBreakpoint := e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)]; isBreakpoint {
 			break
 		}
+		stepCount += 1
 	}
+
+	for _, s := range e.recorder.GetSnapshots() {
+		log.Printf("%s\n", s)
+	}
+	log.Printf("%d steps", stepCount)
 }
 
 func (e *Emulator) AddBreakpoint(addr uint16) {

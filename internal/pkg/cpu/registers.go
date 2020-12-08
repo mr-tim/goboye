@@ -1,5 +1,7 @@
 package cpu
 
+import "fmt"
+
 type register int
 
 const (
@@ -44,19 +46,19 @@ const (
 
 type RegisterPair int
 
-type registers struct {
+type Registers struct {
 	af, bc, de, hl uint16
 	sp, pc         uint16
 }
 
-func (r *registers) getRegister(reg register) uint8 {
+func (r *Registers) getRegister(reg register) uint8 {
 	shift := r.getShift(reg)
 	ptr := r.getRegisterPointer(reg)
 	result := uint8(*ptr >> shift)
 	return result
 }
 
-func (r *registers) setRegister(reg register, value uint8) {
+func (r *Registers) setRegister(reg register, value uint8) {
 	shift := r.getShift(reg)
 	ptr := r.getRegisterPointer(reg)
 	orig := *ptr
@@ -74,7 +76,7 @@ func (r *registers) setRegister(reg register, value uint8) {
 	*ptr = x | y
 }
 
-func (r *registers) getShift(reg register) uint8 {
+func (r *Registers) getShift(reg register) uint8 {
 	shift := uint8(0)
 	if reg == RegisterA || reg == RegisterB || reg == RegisterD || reg == RegisterH {
 		shift = 8
@@ -82,7 +84,7 @@ func (r *registers) getShift(reg register) uint8 {
 	return shift
 }
 
-func (r *registers) getRegisterPair(regPair RegisterPair) uint16 {
+func (r *Registers) getRegisterPair(regPair RegisterPair) uint16 {
 	if regPair == RegisterPairAF {
 		return r.af
 	} else if regPair == RegisterPairBC {
@@ -98,7 +100,7 @@ func (r *registers) getRegisterPair(regPair RegisterPair) uint16 {
 	}
 }
 
-func (r *registers) setRegisterPair(regPair RegisterPair, value uint16) {
+func (r *Registers) setRegisterPair(regPair RegisterPair, value uint16) {
 	if regPair == RegisterPairAF {
 		r.af = value
 	} else if regPair == RegisterPairBC {
@@ -114,7 +116,7 @@ func (r *registers) setRegisterPair(regPair RegisterPair, value uint16) {
 	}
 }
 
-func (r *registers) getRegisterPointer(reg register) *uint16 {
+func (r *Registers) getRegisterPointer(reg register) *uint16 {
 	if reg == RegisterA || reg == RegisterF {
 		return &r.af
 	} else if reg == RegisterB || reg == RegisterC {
@@ -126,6 +128,10 @@ func (r *registers) getRegisterPointer(reg register) *uint16 {
 	}
 }
 
-func (r *registers) getFlagValue(flag OpResultFlag) bool {
+func (r *Registers) getFlagValue(flag OpResultFlag) bool {
 	return (uint8(flag) & r.getRegister(RegisterF)) != 0
+}
+
+func (r *Registers) String() string {
+	return fmt.Sprintf("{af:%04x bc:%04x de:%04x hl:%04x sp:%04x}", r.af, r.bc, r.de, r.hl, r.sp)
 }

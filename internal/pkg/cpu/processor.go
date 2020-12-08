@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"github.com/mr-tim/goboye/internal/pkg/utils"
 )
@@ -11,7 +10,7 @@ const CYCLES_PER_SECOND = 4194304
 type Processor interface {
 	NextInstruction() Opcode
 	DoNextInstruction() uint8
-	DebugRegisters() string
+	DebugRegisters() Registers
 	GetRegister(reg register) uint8
 	GetRegisterPair(pair RegisterPair) uint16
 	GetFlagValue(flagName OpResultFlag) bool
@@ -19,8 +18,8 @@ type Processor interface {
 }
 
 type processor struct {
-	registers         *registers
-	savedRegisters    *registers
+	registers         *Registers
+	savedRegisters    *Registers
 	memory            memory.MemoryMap
 	cycles            uint
 	interruptsEnabled bool
@@ -28,7 +27,7 @@ type processor struct {
 
 func NewProcessor(memory memory.MemoryMap) Processor {
 	p := processor{
-		registers: &registers{},
+		registers: &Registers{},
 		memory:    memory,
 	}
 	p.registers.pc = uint16(0x0000)
@@ -65,9 +64,8 @@ func (p *processor) DoNextInstruction() uint8 {
 	return o.Cycles()
 }
 
-func (p *processor) DebugRegisters() string {
-	return fmt.Sprintf("{af:%04x bc:%04x de:%04x hl:%04x sp:%04x}",
-		p.registers.af, p.registers.bc, p.registers.de, p.registers.hl, p.registers.sp)
+func (p *processor) DebugRegisters() Registers {
+	return *p.registers
 }
 
 func (p *processor) GetRegister(reg register) uint8 {
@@ -96,7 +94,7 @@ func (p *processor) HandleInterrupts() {
 }
 
 func (p *processor) serviceInterrupt(address interruptAddress) {
-	//save registers
+	//save Registers
 	p.savedRegisters = p.registers
 	//disable interrupts
 	p.interruptsEnabled = false
