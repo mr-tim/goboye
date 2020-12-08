@@ -10,7 +10,7 @@ const BreakpointModalViewName = "breakpoint_modal"
 
 type BreakpointModal struct {
 	emulator *goboye.Emulator
-	visible bool
+	visible  bool
 }
 
 var _ gocui.Manager = &BreakpointModal{}

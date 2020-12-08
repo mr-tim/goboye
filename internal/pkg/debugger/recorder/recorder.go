@@ -41,11 +41,11 @@ func (r *Recorder) TakeSnapshot(processor cpu.Processor, memoryMap memory.Memory
 func (r *Recorder) GetSnapshots() []*Snapshot {
 	result := make([]*Snapshot, r.maxSnapshots)
 	idx := 0
-	for i := r.currentIndex; i<r.maxSnapshots; i+=1 {
+	for i := r.currentIndex; i < r.maxSnapshots; i += 1 {
 		result[idx] = &r.snapshots[i]
 		idx += 1
 	}
-	for i := 0; i<r.currentIndex; i+=1 {
+	for i := 0; i < r.currentIndex; i += 1 {
 		result[idx] = &r.snapshots[i]
 		idx += 1
 	}
@@ -55,7 +55,7 @@ func (r *Recorder) GetSnapshots() []*Snapshot {
 func NewRecorder(maxSnapshots int) *Recorder {
 	return &(Recorder{
 		maxSnapshots: maxSnapshots,
-		snapshots: make([]Snapshot, maxSnapshots),
+		snapshots:    make([]Snapshot, maxSnapshots),
 		currentIndex: 0,
 	})
 }

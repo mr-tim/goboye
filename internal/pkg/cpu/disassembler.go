@@ -26,7 +26,6 @@ func (d *Disassembler) GetNextInstruction() (uint16, OpcodeAndPayload) {
 		o = LookupExtOpcode(opcodeByte)
 	}
 
-
 	argWidth := o.PayloadLength()
 	var payload = make([]byte, argWidth)
 	if argWidth == 1 {
@@ -37,7 +36,7 @@ func (d *Disassembler) GetNextInstruction() (uint16, OpcodeAndPayload) {
 	}
 
 	op := OpcodeAndPayload{
-		op: &o,
+		op:      &o,
 		payload: payload,
 	}
 

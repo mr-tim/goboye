@@ -40,4 +40,3 @@ func (rw *RwRegisterAtAddr) GetByte() byte {
 func (rw *RwRegisterAtAddr) SetValue(value byte) {
 	rw.roRegister.memoryMap.WriteByte(rw.roRegister.addr, value)
 }
-

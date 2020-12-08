@@ -112,7 +112,7 @@ import (
 */
 
 const FRAMES_PER_SECOND = 60
-const CYCLES_PER_FRAME = cpu.CYCLES_PER_SECOND/FRAMES_PER_SECOND
+const CYCLES_PER_FRAME = cpu.CYCLES_PER_SECOND / FRAMES_PER_SECOND
 const ROWS = 144
 const VBLANK_ROWS = 10
 const TOTAL_ROWS = ROWS + VBLANK_ROWS
@@ -236,7 +236,7 @@ func (d *Display) Update(cycles uint8) {
 
 			if d.ly.GetValue() >= ROWS {
 				// set v-blank flag
- 				d.stat.SetMode(VerticalBlank)
+				d.stat.SetMode(VerticalBlank)
 			} else {
 				d.stat.SetMode(EnableCPUAccessToDisplayRAM)
 			}

@@ -54,7 +54,7 @@ func main() {
 		log.Fatalf("Failed to set key binding for increment: %s", err)
 	}
 
-	err = g.SetKeybinding("", 'b', gocui.ModNone, func (g *gocui.Gui, v *gocui.View) error {
+	err = g.SetKeybinding("", 'b', gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
 		bm.Toggle()
 		return nil
 	})

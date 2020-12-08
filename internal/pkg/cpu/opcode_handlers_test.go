@@ -681,4 +681,3 @@ func doTestXorReg(t *testing.T, reg register, opcode byte) {
 	}
 	assert.Equal(t, expected, p.GetRegister(RegisterA))
 }
-

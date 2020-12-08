@@ -17,7 +17,7 @@ type Opcode interface {
 }
 
 type OpcodeAndPayload struct {
-	op Opcode
+	op      Opcode
 	payload []byte
 }
 
@@ -34,7 +34,7 @@ func (o *OpcodeAndPayload) FormatPayload() string {
 	if argWidth == 1 {
 		return fmt.Sprintf("0x%02X", o.payload[0])
 	} else if argWidth == 2 {
-		return fmt.Sprintf("0x%04X", (uint16(o.payload[1]) << 8) | uint16(o.payload[0]))
+		return fmt.Sprintf("0x%04X", (uint16(o.payload[1])<<8)|uint16(o.payload[0]))
 	}
 	return ""
 }
