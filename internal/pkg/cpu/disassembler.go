@@ -5,7 +5,7 @@ import (
 )
 
 type Disassembler struct {
-	m   memory.MemoryMap
+	m   memory.Controller
 	pos uint16
 }
 
@@ -45,7 +45,7 @@ func (d *Disassembler) GetNextInstruction() (uint16, OpcodeAndPayload) {
 	return addr, op
 }
 
-func NewDisassembler(m memory.MemoryMap) *Disassembler {
+func NewDisassembler(m memory.Controller) *Disassembler {
 	return &Disassembler{
 		m:   m,
 		pos: 0,

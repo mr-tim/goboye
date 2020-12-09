@@ -1,6 +1,8 @@
-package display
+package register
 
-import "github.com/mr-tim/goboye/internal/pkg/memory"
+import (
+	"github.com/mr-tim/goboye/internal/pkg/utils"
+)
 
 type BgCodeArea byte
 
@@ -44,7 +46,15 @@ const (
 )
 
 type LCDCFlags struct {
-	r memory.RwRegister
+	flagValues byte
+}
+
+func (f *LCDCFlags) Read() byte {
+	return f.flagValues
+}
+
+func (f *LCDCFlags) Write(value byte) {
+	f.flagValues = value
 }
 
 /*
@@ -59,19 +69,19 @@ type LCDCFlags struct {
 	7: LCD controller op stop flag off (0) or on (1)
 */
 func (f LCDCFlags) IsBgDisplay() bool {
-	return f.r.IsBitSet(0)
+	return utils.IsBitSet(f.flagValues, 0)
 }
 
 func (f LCDCFlags) IsObjFlag() bool {
-	return f.r.IsBitSet(1)
+	return utils.IsBitSet(f.flagValues, 1)
 }
 
 func (f LCDCFlags) IsDoubleObjTiles() bool {
-	return f.r.IsBitSet(2)
+	return utils.IsBitSet(f.flagValues, 2)
 }
 
 func (f LCDCFlags) GetBgCodeArea() BgCodeArea {
-	if f.r.IsBitSet(3) {
+	if utils.IsBitSet(f.flagValues, 3) {
 		return BgCodeArea2
 	} else {
 		return BgCodeArea1
@@ -79,7 +89,7 @@ func (f LCDCFlags) GetBgCodeArea() BgCodeArea {
 }
 
 func (f LCDCFlags) GetBgCharArea() BgCharDataArea {
-	if f.r.IsBitSet(4) {
+	if utils.IsBitSet(f.flagValues, 4) {
 		return BgCharArea2
 	} else {
 		return BgCharArea1
@@ -87,11 +97,11 @@ func (f LCDCFlags) GetBgCharArea() BgCharDataArea {
 }
 
 func (f LCDCFlags) IsWindowingFlagSet() bool {
-	return f.r.IsBitSet(5)
+	return utils.IsBitSet(f.flagValues, 5)
 }
 
 func (f LCDCFlags) GetWindowCodeArea() WindowCodeArea {
-	if f.r.IsBitSet(6) {
+	if utils.IsBitSet(f.flagValues, 6) {
 		return WindowCodeArea2
 	} else {
 		return WindowCodeArea1
@@ -99,5 +109,5 @@ func (f LCDCFlags) GetWindowCodeArea() WindowCodeArea {
 }
 
 func (f LCDCFlags) IsLCDEnabled() bool {
-	return f.r.IsBitSet(7)
+	return utils.IsBitSet(f.flagValues, 7)
 }

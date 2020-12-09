@@ -9,7 +9,7 @@ import (
 type byteGetter = func(p *processor) uint8
 type byteSetter = func(p *processor, value uint8)
 
-var hlAddr = uint16(0x6532)
+var hlAddr = uint16(0x8000)
 
 func getRegisterValue(reg register) byteGetter {
 	return func(p *processor) uint8 {

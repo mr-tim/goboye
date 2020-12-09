@@ -7,8 +7,9 @@ import (
 )
 
 func setupHandlerTest(bytes []byte) *processor {
-	m := memory.NewMemoryMapWithBytes(bytes)
-	m.GetBootRomRegister().SetBootRomPageDisabled(true)
+	m := memory.NewControllerWithBytes(bytes)
+	// disable the boot rom
+	m.BootRomRegister.Write(0x01)
 	rs := &Registers{}
 	return &processor{
 		registers: rs,
@@ -86,11 +87,11 @@ func doTestLoad8BitImmediate(t *testing.T, op uint8, reg register) {
 
 func TestLoad8BitToHLAddr(t *testing.T) {
 	p := setupHandlerTest([]byte{0x36, 0x37})
-	p.registers.hl = uint16(0x1478)
+	p.registers.hl = uint16(0x8478)
 	p.DoNextInstruction()
 
 	assert.Equal(t, uint16(2), p.registers.pc)
-	assert.Equal(t, uint8(0x37), p.memory.ReadByte(0x1478))
+	assert.Equal(t, uint8(0x37), p.memory.ReadByte(0x8478))
 }
 
 func TestSaveAtoBCAddr(t *testing.T) {
@@ -103,24 +104,24 @@ func TestSaveAtoDEAddr(t *testing.T) {
 
 func TestSaveAtoHLAddrInc(t *testing.T) {
 	p := doTestSaveRegisterToRegPairAddr(t, 0x22, RegisterA, RegisterPairHL)
-	assert.Equal(t, uint16(0x0401), p.registers.getRegisterPair(RegisterPairHL))
+	assert.Equal(t, uint16(0x9401), p.registers.getRegisterPair(RegisterPairHL))
 }
 
 func TestSaveAtoHLAddrDec(t *testing.T) {
 	p := doTestSaveRegisterToRegPairAddr(t, 0x32, RegisterA, RegisterPairHL)
-	assert.Equal(t, uint16(0x03ff), p.registers.getRegisterPair(RegisterPairHL))
+	assert.Equal(t, uint16(0x93ff), p.registers.getRegisterPair(RegisterPairHL))
 }
 
 func doTestSaveRegisterToRegPairAddr(t *testing.T, op byte, r register, rp RegisterPair) *processor {
 	p := setupHandlerTest([]byte{op, 0x46, 0x27, 0x83, 0x91, 0x27, 0x96})
 	p.registers.af = 0x5657
 	assert.Equal(t, uint8(0x56), p.registers.getRegister(r))
-	p.registers.setRegisterPair(rp, 0x0400)
+	p.registers.setRegisterPair(rp, 0x9400)
 
 	p.DoNextInstruction()
 
 	assert.Equal(t, uint16(1), p.registers.pc)
-	assert.Equal(t, uint8(0x56), p.memory.ReadByte(0x0400))
+	assert.Equal(t, uint8(0x56), p.memory.ReadByte(0x9400))
 	assert.Equal(t, uint8(0x56), p.registers.getRegister(r))
 	return p
 }
@@ -325,15 +326,16 @@ func checkFlagNotSet(t *testing.T, p *processor, flag OpResultFlag) bool {
 }
 
 func TestIncrementHLAddr(t *testing.T) {
+	hlAddr = uint16(0x8234)
 	t.Run("Simple increment", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x34})
-		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
-		p.memory.WriteByte(0x1234, 0x49)
+		p.registers.setRegisterPair(RegisterPairHL, hlAddr)
+		p.memory.WriteByte(hlAddr, 0x49)
 
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint16(1), p.registers.pc)
-		assert.Equal(t, uint8(0x4a), p.memory.ReadByte(0x1234))
+		assert.Equal(t, uint8(0x4a), p.memory.ReadByte(hlAddr))
 		checkFlagNotSet(t, p, FlagZ)
 		checkFlagNotSet(t, p, FlagN)
 		checkFlagNotSet(t, p, FlagH)
@@ -341,13 +343,13 @@ func TestIncrementHLAddr(t *testing.T) {
 
 	t.Run("Increment Half Carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x34})
-		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
-		p.memory.WriteByte(0x1234, 0x4F)
+		p.registers.setRegisterPair(RegisterPairHL, hlAddr)
+		p.memory.WriteByte(hlAddr, 0x4F)
 
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint16(1), p.registers.pc)
-		assert.Equal(t, uint8(0x50), p.memory.ReadByte(0x1234))
+		assert.Equal(t, uint8(0x50), p.memory.ReadByte(hlAddr))
 		checkFlagNotSet(t, p, FlagZ)
 		checkFlagNotSet(t, p, FlagN)
 		checkFlagSet(t, p, FlagH)
@@ -355,13 +357,13 @@ func TestIncrementHLAddr(t *testing.T) {
 
 	t.Run("Increment Zero", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x34})
-		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
-		p.memory.WriteByte(0x1234, 0xFF)
+		p.registers.setRegisterPair(RegisterPairHL, hlAddr)
+		p.memory.WriteByte(hlAddr, 0xFF)
 
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint16(1), p.registers.pc)
-		assert.Equal(t, uint8(0x00), p.memory.ReadByte(0x1234))
+		assert.Equal(t, uint8(0x00), p.memory.ReadByte(hlAddr))
 		checkFlagSet(t, p, FlagZ)
 		checkFlagNotSet(t, p, FlagN)
 		checkFlagSet(t, p, FlagH)
@@ -369,15 +371,16 @@ func TestIncrementHLAddr(t *testing.T) {
 }
 
 func TestDecrementHLAddr(t *testing.T) {
+	hlAddr := uint16(0x8432)
 	t.Run("Simple decrement", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x35})
-		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
-		p.memory.WriteByte(0x1234, 0x49)
+		p.registers.setRegisterPair(RegisterPairHL, hlAddr)
+		p.memory.WriteByte(hlAddr, 0x49)
 
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint16(1), p.registers.pc)
-		assert.Equal(t, uint8(0x48), p.memory.ReadByte(0x1234))
+		assert.Equal(t, uint8(0x48), p.memory.ReadByte(hlAddr))
 		checkFlagNotSet(t, p, FlagZ)
 		checkFlagSet(t, p, FlagN)
 		checkFlagNotSet(t, p, FlagH)
@@ -385,13 +388,13 @@ func TestDecrementHLAddr(t *testing.T) {
 
 	t.Run("Decrement Half Carry", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x35})
-		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
-		p.memory.WriteByte(0x1234, 0x10)
+		p.registers.setRegisterPair(RegisterPairHL, hlAddr)
+		p.memory.WriteByte(hlAddr, 0x10)
 
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint16(1), p.registers.pc)
-		assert.Equal(t, uint8(0x0F), p.memory.ReadByte(0x1234))
+		assert.Equal(t, uint8(0x0F), p.memory.ReadByte(hlAddr))
 		checkFlagNotSet(t, p, FlagZ)
 		checkFlagSet(t, p, FlagN)
 		checkFlagSet(t, p, FlagH)
@@ -399,13 +402,13 @@ func TestDecrementHLAddr(t *testing.T) {
 
 	t.Run("Decrement Zero", func(t *testing.T) {
 		p := setupHandlerTest([]byte{0x35})
-		p.registers.setRegisterPair(RegisterPairHL, 0x1234)
-		p.memory.WriteByte(0x1234, 0x01)
+		p.registers.setRegisterPair(RegisterPairHL, hlAddr)
+		p.memory.WriteByte(hlAddr, 0x01)
 
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint16(1), p.registers.pc)
-		assert.Equal(t, uint8(0x00), p.memory.ReadByte(0x1234))
+		assert.Equal(t, uint8(0x00), p.memory.ReadByte(hlAddr))
 		checkFlagSet(t, p, FlagZ)
 		checkFlagSet(t, p, FlagN)
 		checkFlagNotSet(t, p, FlagH)
@@ -413,13 +416,13 @@ func TestDecrementHLAddr(t *testing.T) {
 }
 
 func TestSaveSPToAddr(t *testing.T) {
-	p := setupHandlerTest([]byte{0x08, 0x26, 0x39})
+	p := setupHandlerTest([]byte{0x08, 0x26, 0x89})
 	p.registers.sp = 0x8542
 	p.DoNextInstruction()
 	assert.Equal(t, uint16(3), p.registers.pc)
-	assert.Equal(t, uint8(0x42), p.memory.ReadByte(0x3926))
-	assert.Equal(t, uint8(0x85), p.memory.ReadByte(0x3927))
-	assert.Equal(t, uint16(0x8542), p.memory.ReadU16(0x3926))
+	assert.Equal(t, uint8(0x42), p.memory.ReadByte(0x8926))
+	assert.Equal(t, uint8(0x85), p.memory.ReadByte(0x8927))
+	assert.Equal(t, uint16(0x8542), p.memory.ReadU16(0x8926))
 }
 
 func TestJR(t *testing.T) {
@@ -509,14 +512,14 @@ func doTestJFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFla
 }
 
 func TestCall(t *testing.T) {
-	p := setupHandlerTest([]byte{0xCD, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-	p.registers.setRegisterPair(RegisterPairSP, 10)
+	p := setupHandlerTest([]byte{0xCD, 0x34, 0x12})
+	p.registers.setRegisterPair(RegisterPairSP, 0xFFFE)
 	p.DoNextInstruction()
 
 	assert.Equal(t, uint(24), p.Cycles())
 	assert.Equal(t, uint16(0x1234), p.GetRegisterPair(RegisterPairPC))
-	assert.Equal(t, uint16(8), p.GetRegisterPair(RegisterPairSP))
-	assert.Equal(t, uint16(0x0003), p.memory.ReadU16(uint16(8)))
+	assert.Equal(t, uint16(0xFFFC), p.GetRegisterPair(RegisterPairSP))
+	assert.Equal(t, uint16(0x0003), p.memory.ReadU16(uint16(0xFFFC)))
 }
 
 func TestCallNZ(t *testing.T) {
@@ -537,26 +540,26 @@ func TestCallC(t *testing.T) {
 
 func doTestCallFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
-		p := setupHandlerTest([]byte{opcode, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+		p := setupHandlerTest([]byte{opcode, 0x34, 0x12})
 		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
-		p.registers.setRegisterPair(RegisterPairSP, uint16(10))
+		p.registers.setRegisterPair(RegisterPairSP, uint16(0xFFFE))
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint(12), p.Cycles())
 		assert.Equal(t, uint16(3), p.GetRegisterPair(RegisterPairPC))
-		assert.Equal(t, uint16(10), p.GetRegisterPair(RegisterPairSP))
+		assert.Equal(t, uint16(0xFFFE), p.GetRegisterPair(RegisterPairSP))
 	})
 
 	t.Run("Action taken", func(t *testing.T) {
-		p := setupHandlerTest([]byte{opcode, 0x34, 0x12, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+		p := setupHandlerTest([]byte{opcode, 0x34, 0x12})
 		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
-		p.registers.setRegisterPair(RegisterPairSP, 10)
+		p.registers.setRegisterPair(RegisterPairSP, 0xFFFE)
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint(24), p.Cycles())
 		assert.Equal(t, uint16(0x1234), p.GetRegisterPair(RegisterPairPC))
-		assert.Equal(t, uint16(8), p.GetRegisterPair(RegisterPairSP))
-		assert.Equal(t, uint16(0x0003), p.memory.ReadU16(uint16(8)))
+		assert.Equal(t, uint16(0xFFFC), p.GetRegisterPair(RegisterPairSP))
+		assert.Equal(t, uint16(0x0003), p.memory.ReadU16(uint16(0xFFFC)))
 	})
 }
 

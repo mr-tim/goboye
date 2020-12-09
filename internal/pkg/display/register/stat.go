@@ -1,6 +1,8 @@
-package display
+package register
 
-import "github.com/mr-tim/goboye/internal/pkg/memory"
+import (
+	"github.com/mr-tim/goboye/internal/pkg/utils"
+)
 
 type LcdcMode byte
 
@@ -21,18 +23,27 @@ const (
 )
 
 type StatFlags struct {
-	r memory.RwRegister
+	value byte
+}
+
+func (f *StatFlags) Read() byte {
+	return f.value
+}
+
+func (f *StatFlags) Write(value byte) {
+	// TODO: should this be readonly?
+	f.value = value
 }
 
 func (f *StatFlags) GetMode() LcdcMode {
-	return LcdcMode(f.r.GetByte() & 0x03)
+	return LcdcMode(f.value & 0x03)
 }
 
 func (f *StatFlags) SetMode(mode LcdcMode) {
-	updated := (f.r.GetByte() & 0b11111100) | byte(mode)
-	f.r.SetValue(updated)
+	updated := (f.value & 0b11111100) | byte(mode)
+	f.value = updated
 }
 
 func (f *StatFlags) IsInterruptEnabled(selector LcdInterruptSelector) bool {
-	return f.r.IsBitSet(byte(selector))
+	return utils.IsBitSet(f.value, byte(selector))
 }

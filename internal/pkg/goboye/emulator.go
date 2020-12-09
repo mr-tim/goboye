@@ -11,7 +11,7 @@ import (
 )
 
 type Emulator struct {
-	memoryMap   memory.MemoryMap
+	memory   	memory.Controller
 	processor   cpu.Processor
 	display     display.Display
 	breakpoints map[uint16]bool
@@ -26,21 +26,20 @@ func NewEmulator() *Emulator {
 }
 
 func (e *Emulator) LoadRomImage(filename string) {
-	buf := make([]byte, memory.MEM_SIZE)
-	e.memoryMap = memory.NewMemoryMapWithBytes(buf)
+	e.memory = memory.NewController()
 
 	log.Printf("Loading rom: %s", filename)
-	err := e.memoryMap.LoadRomImage(filename)
+	err := e.memory.LoadRomImage(filename)
 	if err != nil {
 		panic(err)
 	}
 
-	e.processor = cpu.NewProcessor(e.memoryMap)
-	e.display = display.NewDisplay(e.memoryMap)
+	e.processor = cpu.NewProcessor(e.memory)
+	e.display = display.NewDisplay(e.memory)
 }
 
 func (e *Emulator) GetDisassembler() *cpu.Disassembler {
-	return cpu.NewDisassembler(e.memoryMap)
+	return cpu.NewDisassembler(e.memory)
 }
 
 func (e *Emulator) GetPC() uint16 {
@@ -56,7 +55,7 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 }
 
 func (e *Emulator) Step() uint8 {
-	e.recorder.TakeSnapshot(e.processor, e.memoryMap)
+	e.recorder.TakeSnapshot(e.processor, e.memory)
 	c := e.processor.DoNextInstruction()
 	e.display.Update(c)
 	return c
@@ -72,6 +71,18 @@ func (e *Emulator) StepFrame() {
 
 func (e *Emulator) ContinueDebugging() {
 	stepCount := 0
+
+	defer func () {
+		r := recover()
+		for _, s := range e.recorder.GetSnapshots() {
+			log.Printf("%s\n", s)
+		}
+		log.Printf("%d steps", stepCount)
+		if r != nil {
+			panic(r)
+		}
+	}()
+
 	for {
 		e.Step()
 		if _, isBreakpoint := e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)]; isBreakpoint {
@@ -80,10 +91,7 @@ func (e *Emulator) ContinueDebugging() {
 		stepCount += 1
 	}
 
-	for _, s := range e.recorder.GetSnapshots() {
-		log.Printf("%s\n", s)
-	}
-	log.Printf("%d steps", stepCount)
+
 }
 
 func (e *Emulator) AddBreakpoint(addr uint16) {
@@ -95,7 +103,7 @@ func (e *Emulator) RemoveBreakpoint(addr uint16) {
 }
 
 func (e *Emulator) MemoryBase64() string {
-	mem := e.memoryMap.ReadAll()
+	mem := e.memory.ReadAll()
 	return base64.StdEncoding.EncodeToString(mem)
 }
 

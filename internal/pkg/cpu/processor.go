@@ -5,8 +5,6 @@ import (
 	"github.com/mr-tim/goboye/internal/pkg/utils"
 )
 
-const CYCLES_PER_SECOND = 4194304
-
 type Processor interface {
 	NextInstruction() Opcode
 	DoNextInstruction() uint8
@@ -20,12 +18,12 @@ type Processor interface {
 type processor struct {
 	registers         *Registers
 	savedRegisters    *Registers
-	memory            memory.MemoryMap
+	memory            memory.Controller
 	cycles            uint
 	interruptsEnabled bool
 }
 
-func NewProcessor(memory memory.MemoryMap) Processor {
+func NewProcessor(memory memory.Controller) Processor {
 	p := processor{
 		registers: &Registers{},
 		memory:    memory,

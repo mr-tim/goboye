@@ -1,4 +1,4 @@
-package display
+package register
 
 import (
 	"github.com/stretchr/testify/assert"

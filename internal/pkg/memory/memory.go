@@ -24,31 +24,3 @@ const bootRomRegisterAddr uint16 = 0xff50
 const bootRomDisabledValue byte = 0x01
 const bootRomEnabledValue byte = 0x00
 
-type MemoryMap interface {
-	LoadRomImage(filename string) error
-	ReadByte(addr uint16) byte
-	WriteByte(addr uint16, value byte)
-	ReadU16(addr uint16) uint16
-	WriteU16(addr, value uint16)
-	GetRoRegister(addr uint16) RoRegister
-	GetRwRegister(addr uint16) RwRegister
-	ReadAll() []byte
-	GetBootRomRegister() *BootRomRegister
-}
-
-type BootRomRegister struct {
-	// TODO: need to invert this relationship - memoryMap should point at register rather than other way round
-	m *memoryMap
-}
-
-func (brr *BootRomRegister) IsBootRomPageDisabled() bool {
-	return brr.m.bootRomPageDisabled()
-}
-
-func (brr *BootRomRegister) SetBootRomPageDisabled(disabled bool) {
-	value := bootRomEnabledValue
-	if disabled {
-		value = bootRomDisabledValue
-	}
-	brr.m.WriteByte(bootRomRegisterAddr, value)
-}

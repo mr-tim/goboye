@@ -2,8 +2,9 @@ package display
 
 import (
 	"fmt"
-	"github.com/mr-tim/goboye/internal/pkg/cpu"
+	"github.com/mr-tim/goboye/internal/pkg/display/register"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
+	"github.com/mr-tim/goboye/internal/pkg/utils"
 	"image"
 	"image/color"
 	"image/draw"
@@ -112,50 +113,20 @@ import (
 */
 
 const FRAMES_PER_SECOND = 60
-const CYCLES_PER_FRAME = cpu.CYCLES_PER_SECOND / FRAMES_PER_SECOND
+const CYCLES_PER_FRAME = utils.CPU_CYCLES_PER_SECOND / FRAMES_PER_SECOND
 const ROWS = 144
 const VBLANK_ROWS = 10
 const TOTAL_ROWS = ROWS + VBLANK_ROWS
 const CYCLES_PER_LINE = CYCLES_PER_FRAME / TOTAL_ROWS
 
-type ByteRegister struct {
-	r memory.RwRegister
-}
-
-func (r *ByteRegister) GetValue() byte {
-	return r.r.GetByte()
-}
-
-func (r *ByteRegister) Increment() {
-	r.r.SetValue(r.r.GetByte() + 1)
-}
-
-func (r *ByteRegister) SetValue(value byte) {
-	r.r.SetValue(value)
-}
-
-func NewDisplay(m memory.MemoryMap) Display {
+func NewDisplay(m memory.Controller) Display {
 	return Display{
-		lcdc: LCDCFlags{r: m.GetRwRegister(0xFF40)},
-		stat: StatFlags{r: m.GetRwRegister(0xFF41)},
-		scy:  ByteRegister{r: m.GetRwRegister(0xFF42)},
-		scx:  ByteRegister{r: m.GetRwRegister(0xFF43)},
-		ly:   ByteRegister{r: m.GetRwRegister(0xFF44)},
-		lyc:  ByteRegister{r: m.GetRwRegister(0xFF45)},
-		bgp:  ByteRegister{r: m.GetRwRegister(0xFF47)},
-		m:    m,
+		m: m,
 	}
 }
 
 type Display struct {
-	lcdc   LCDCFlags
-	stat   StatFlags
-	scy    ByteRegister
-	scx    ByteRegister
-	ly     ByteRegister
-	lyc    ByteRegister
-	bgp    ByteRegister
-	m      memory.MemoryMap
+	m      memory.Controller
 	cycles int
 }
 
@@ -170,14 +141,14 @@ func (d *Display) DebugRenderMemory() image.Image {
 	}
 
 	palette := color.Palette{}
-	palDefinition := d.bgp.GetValue()
+	palDefinition := d.m.BGP.Read()
 	for i := 0; i < 4; i++ {
 		idx := (palDefinition >> byte(2*i)) & 0x03
 		palette = append(palette, colors[idx])
 	}
 
 	// data for characters
-	bgCharArea := d.lcdc.GetBgCharArea()
+	bgCharArea := d.m.LCDCFlags.GetBgCharArea()
 	// render the characters into images
 	var bgChars = make([]image.PalettedImage, 0)
 	charBounds := image.Rect(0, 0, 8, 8)
@@ -210,7 +181,7 @@ func (d *Display) DebugRenderMemory() image.Image {
 	}
 
 	// position of character codes
-	bgCodeArea := d.lcdc.GetBgCodeArea()
+	bgCodeArea := d.m.LCDCFlags.GetBgCodeArea()
 	offset := bgCodeArea.StartAddress()
 	p := image.NewPaletted(bounds, palette)
 	for i := 0; i < 1024; i++ {
@@ -224,21 +195,21 @@ func (d *Display) DebugRenderMemory() image.Image {
 }
 
 func (d *Display) Update(cycles uint8) {
-	if d.lcdc.IsLCDEnabled() {
+	if d.m.LCDCFlags.IsLCDEnabled() {
 		d.cycles += int(cycles)
 		for d.cycles > CYCLES_PER_LINE {
-			d.ly.Increment()
-			value := d.ly.GetValue()
+			d.m.LY.Write(d.m.LY.Read() + 1)
+			value := d.m.LY.Read()
 			if value >= TOTAL_ROWS {
 				// set it to zero
-				d.ly.SetValue(0)
+				d.m.LY.Write(0)
 			}
 
-			if d.ly.GetValue() >= ROWS {
+			if d.m.LY.Read() >= ROWS {
 				// set v-blank flag
-				d.stat.SetMode(VerticalBlank)
+				d.m.StatFlags.SetMode(register.VerticalBlank)
 			} else {
-				d.stat.SetMode(EnableCPUAccessToDisplayRAM)
+				d.m.StatFlags.SetMode(register.EnableCPUAccessToDisplayRAM)
 			}
 
 			// draw a line
