@@ -38,7 +38,7 @@ func Disassemble(m *memory.Controller, pos uint16) (uint16, OpcodeAndPayload, ui
 		payload[0] = m.ReadByte(pos)
 	} else if argWidth == 2 {
 		payload[0] = m.ReadByte(pos)
-		payload[1] = m.ReadByte(pos+1)
+		payload[1] = m.ReadByte(pos + 1)
 	}
 
 	op := OpcodeAndPayload{

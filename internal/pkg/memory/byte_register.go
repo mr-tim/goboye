@@ -30,5 +30,5 @@ func (r *bootRomByteRegister) Read() byte {
 }
 
 func (r *bootRomByteRegister) Write(value byte) {
-	r.isDisabled = value & bootRomDisabledValue == bootRomDisabledValue
+	r.isDisabled = value&bootRomDisabledValue == bootRomDisabledValue
 }

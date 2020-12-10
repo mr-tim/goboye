@@ -11,7 +11,7 @@ import (
 )
 
 type Emulator struct {
-	memory   	*memory.Controller
+	memory      *memory.Controller
 	processor   cpu.Processor
 	display     display.Display
 	breakpoints map[uint16]bool
@@ -73,7 +73,7 @@ func (e *Emulator) StepFrame() {
 func (e *Emulator) ContinueDebugging() {
 	stepCount := 0
 
-	defer func () {
+	defer func() {
 		r := recover()
 		for _, s := range e.recorder.GetSnapshots() {
 			log.Printf("%s\n", s)
@@ -91,7 +91,6 @@ func (e *Emulator) ContinueDebugging() {
 		}
 		stepCount += 1
 	}
-
 
 }
 

@@ -23,4 +23,3 @@ const MEM_SIZE = 0x10000
 const bootRomRegisterAddr uint16 = 0xff50
 const bootRomDisabledValue byte = 0x01
 const bootRomEnabledValue byte = 0x00
-

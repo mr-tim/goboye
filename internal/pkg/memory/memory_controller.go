@@ -87,7 +87,7 @@ func (c *Controller) ReadByte(addr uint16) byte {
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		return reg.Read()
 	} else if addr >= 0xFF00 && addr < 0xFFFE {
-		return c.stack.ReadByte(addr-0xFF00)
+		return c.stack.ReadByte(addr - 0xFF00)
 	} else {
 		return 0x00
 	}
@@ -124,7 +124,7 @@ func (c *Controller) WriteU16(addr, value uint16) {
 
 func (c *Controller) ReadAll() []byte {
 	result := make([]byte, 0xFFFF)
-	for i := 0x0000; i<0xFFFF; i+=1 {
+	for i := 0x0000; i < 0xFFFF; i += 1 {
 		result[i] = c.ReadByte(uint16(i))
 	}
 	return result

@@ -44,11 +44,3 @@ func (m *memoryMap) ReadAll() []byte {
 	copy(result, m.mem)
 	return result
 }
-
-func (m *memoryMap) GetRoRegister(addr uint16) RoRegister {
-	return &RoRegisterAtAddr{memoryMap: m, addr: addr}
-}
-
-func (m *memoryMap) GetRwRegister(addr uint16) RwRegister {
-	return &RwRegisterAtAddr{roRegister: RoRegisterAtAddr{memoryMap: m, addr: addr}}
-}
