@@ -3,7 +3,6 @@ package memory
 import (
 	"github.com/mr-tim/goboye/internal/pkg/display/register"
 	"io"
-	"log"
 	"os"
 )
 
@@ -11,6 +10,7 @@ type Controller struct {
 	romImage        memoryMap
 	ram             memoryMap
 	stack           memoryMap
+	ControllerData  controllerRegister
 	BootRomRegister bootRomByteRegister
 	LCDCFlags       register.LCDCFlags
 	StatFlags       register.StatFlags
@@ -24,8 +24,8 @@ type Controller struct {
 func NewController() Controller {
 	return Controller{
 		romImage: memoryMap{make([]byte, ROM_SIZE)},
-		ram:      memoryMap{make([]byte, 0xFF00-0x8000)},
-		stack:    memoryMap{make([]byte, 0xFFFE-0xFF00)},
+		ram:      memoryMap{make([]byte, STACK_START-ROM_SIZE)},
+		stack:    memoryMap{make([]byte, STACK_END-STACK_START+1)},
 	}
 }
 
@@ -37,8 +37,8 @@ func NewControllerWithBytes(bytes []byte) Controller {
 
 func (c *Controller) getRegister(addr uint16) (ByteRegister, bool) {
 	switch addr {
-	case bootRomRegisterAddr:
-		return &c.BootRomRegister, true
+	case 0xFF00:
+		return &c.ControllerData, true
 	case 0xFF40:
 		return &c.LCDCFlags, true
 	case 0xFF41:
@@ -53,6 +53,8 @@ func (c *Controller) getRegister(addr uint16) (ByteRegister, bool) {
 		return &c.LYC, true
 	case 0xFF47:
 		return &c.BGP, true
+	case bootRomRegisterAddr:
+		return &c.BootRomRegister, true
 	default:
 		return nil, false
 	}
@@ -76,39 +78,58 @@ func (c *Controller) LoadRomImage(filename string) error {
 }
 
 func (c *Controller) ReadByte(addr uint16) byte {
-	if addr < 0x0100 && !c.BootRomRegister.isDisabled {
+	if c.isBootRoomAddr(addr) {
 		return bootRom[addr]
-	} else if addr < ROM_SIZE {
+	} else if c.isRomAddr(addr) {
 		return c.romImage.ReadByte(addr)
-	} else if addr >= 0x8000 && addr < 0xFF00 {
+	} else if c.isRamAddr(addr) {
 		// working ram (ish)
 		// todo: protect against access to forbidden areas?
-		return c.ram.ReadByte(addr - 0x8000)
+		return c.ram.ReadByte(addr - ROM_SIZE)
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		return reg.Read()
-	} else if addr >= 0xFF00 && addr < 0xFFFE {
-		return c.stack.ReadByte(addr - 0xFF00)
+	} else if c.isStackAddr(addr) {
+		return c.stack.ReadByte(addr - STACK_START)
 	} else {
 		return 0x00
 	}
 }
 
 func (c *Controller) WriteByte(addr uint16, value byte) {
-	if addr < 0x0100 && !c.BootRomRegister.isDisabled {
-		log.Printf("Ignoring request to write to boot rom")
-	} else if addr < ROM_SIZE {
-		log.Printf("Ignoring request to write to rom")
-	} else if addr >= 0x8000 && addr < 0xFF00 {
+	if c.isBootRoomAddr(addr) {
+		panic("Ignoring request to write to boot rom")
+	} else if c.isRomAddr(addr) {
+		if addr != 0x2000 {
+			panic("Ignoring request to write to rom")
+		}
+		// todo: rom bank switching?
+	} else if c.isRamAddr(addr) {
 		// working ram
 		// todo: protect against access to forbidden areas?
-		c.ram.WriteByte(addr-0x8000, value)
+		c.ram.WriteByte(addr-ROM_SIZE, value)
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		reg.Write(value)
-	} else if addr >= 0xFF00 && addr < 0xFFFE {
-		c.stack.WriteByte(addr-0xFF00, value)
+	} else if c.isStackAddr(addr) {
+		c.stack.WriteByte(addr-STACK_START, value)
 	} else {
 		panic("Unhandled memory location!")
 	}
+}
+
+func (c *Controller) isStackAddr(addr uint16) bool {
+	return addr >= STACK_START
+}
+
+func (c *Controller) isRamAddr(addr uint16) bool {
+	return addr >= ROM_SIZE && addr < STACK_START
+}
+
+func (c *Controller) isRomAddr(addr uint16) bool {
+	return addr < ROM_SIZE
+}
+
+func (c *Controller) isBootRoomAddr(addr uint16) bool {
+	return addr < BOOT_ROM_SIZE && !c.BootRomRegister.isDisabled
 }
 
 func (c *Controller) ReadU16(addr uint16) uint16 {

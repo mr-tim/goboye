@@ -17,8 +17,11 @@ package memory
 		0xFFFF - Interrupt Enable Register
 */
 
+const BOOT_ROM_SIZE = 0x0100
 const ROM_SIZE = 0x08000
 const MEM_SIZE = 0x10000
+const STACK_START = 0xFF00
+const STACK_END = 0xFFFF
 
 const bootRomRegisterAddr uint16 = 0xff50
 const bootRomDisabledValue byte = 0x01
