@@ -29,10 +29,10 @@ func (d *Disassembler) GetNextInstruction() (uint16, OpcodeAndPayload) {
 	argWidth := o.PayloadLength()
 	var payload = make([]byte, argWidth)
 	if argWidth == 1 {
-		payload = append(payload, d.m.ReadByte(d.pos))
+		payload[0] = d.m.ReadByte(d.pos)
 	} else if argWidth == 2 {
-		payload = append(payload, d.m.ReadByte(d.pos))
-		payload = append(payload, d.m.ReadByte(d.pos+1))
+		payload[0] = d.m.ReadByte(d.pos)
+		payload[1] = d.m.ReadByte(d.pos+1)
 	}
 
 	op := OpcodeAndPayload{
