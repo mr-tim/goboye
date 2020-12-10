@@ -11,7 +11,7 @@ import (
 )
 
 type Emulator struct {
-	memory   	memory.Controller
+	memory   	*memory.Controller
 	processor   cpu.Processor
 	display     display.Display
 	breakpoints map[uint16]bool
@@ -26,7 +26,8 @@ func NewEmulator() *Emulator {
 }
 
 func (e *Emulator) LoadRomImage(filename string) {
-	e.memory = memory.NewController()
+	m := memory.NewController()
+	e.memory = &m
 
 	log.Printf("Loading rom: %s", filename)
 	err := e.memory.LoadRomImage(filename)
@@ -38,7 +39,7 @@ func (e *Emulator) LoadRomImage(filename string) {
 	e.display = display.NewDisplay(e.memory)
 }
 
-func (e *Emulator) GetDisassembler() *cpu.Disassembler {
+func (e *Emulator) GetDisassembler() cpu.Disassembler {
 	return cpu.NewDisassembler(e.memory)
 }
 

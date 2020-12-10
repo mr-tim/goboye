@@ -18,12 +18,12 @@ type Processor interface {
 type processor struct {
 	registers         *Registers
 	savedRegisters    *Registers
-	memory            memory.Controller
+	memory            *memory.Controller
 	cycles            uint
 	interruptsEnabled bool
 }
 
-func NewProcessor(memory memory.Controller) Processor {
+func NewProcessor(memory *memory.Controller) Processor {
 	p := processor{
 		registers: &Registers{},
 		memory:    memory,

@@ -119,14 +119,14 @@ const VBLANK_ROWS = 10
 const TOTAL_ROWS = ROWS + VBLANK_ROWS
 const CYCLES_PER_LINE = CYCLES_PER_FRAME / TOTAL_ROWS
 
-func NewDisplay(m memory.Controller) Display {
+func NewDisplay(m *memory.Controller) Display {
 	return Display{
 		m: m,
 	}
 }
 
 type Display struct {
-	m      memory.Controller
+	m      *memory.Controller
 	cycles int
 }
 

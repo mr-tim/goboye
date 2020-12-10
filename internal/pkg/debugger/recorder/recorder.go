@@ -23,12 +23,10 @@ type Recorder struct {
 	currentIndex int
 }
 
-func (r *Recorder) TakeSnapshot(processor cpu.Processor, memoryMap memory.Controller) {
+func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controller) {
 	if r.maxSnapshots > 0 {
 		registers := processor.DebugRegisters()
-		d := cpu.NewDisassembler(memoryMap)
-		d.SetPos(processor.GetRegisterPair(cpu.RegisterPairPC))
-		addr, op := d.GetNextInstruction()
+		addr, op, _ := cpu.Disassemble(memory, processor.GetRegisterPair(cpu.RegisterPairPC))
 		r.snapshots[r.currentIndex] = Snapshot{
 			registers: registers,
 			address:   addr,

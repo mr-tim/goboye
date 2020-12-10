@@ -13,7 +13,7 @@ func setupHandlerTest(bytes []byte) *processor {
 	rs := &Registers{}
 	return &processor{
 		registers: rs,
-		memory:    m,
+		memory:    &m,
 	}
 }
 
