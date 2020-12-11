@@ -63,15 +63,12 @@ func (e *Emulator) Step() uint8 {
 }
 
 func (e *Emulator) StepFrame() {
-	cycles := 0
-	for cycles < display.CYCLES_PER_FRAME {
-		c := e.Step()
-		cycles += int(c)
-	}
+	e.ContinueDebugging(true)
 }
 
-func (e *Emulator) ContinueDebugging() {
+func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 	stepCount := 0
+	cycleCount := 0
 
 	defer func() {
 		r := recover()
@@ -85,8 +82,11 @@ func (e *Emulator) ContinueDebugging() {
 	}()
 
 	for {
-		e.Step()
+		cycleCount += int(e.Step())
 		if _, isBreakpoint := e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)]; isBreakpoint {
+			break
+		}
+		if stopOnFrame && cycleCount >= display.CYCLES_PER_FRAME {
 			break
 		}
 		stepCount += 1

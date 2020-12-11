@@ -163,7 +163,7 @@ func (c *Client) handleMessages() {
 				c.refreshState()
 			} else if cmd.Continue != nil {
 				log.Print("Received continue command")
-				c.emulator.ContinueDebugging()
+				c.emulator.ContinueDebugging(false)
 				c.refreshState()
 			}
 		}
@@ -182,12 +182,12 @@ func (c *Client) close() {
 
 func (c *Client) refreshState() {
 	log.Printf("Refreshing state...")
-	disassemblyPos := uint16(0x0000)
+	disassemblyPos := c.emulator.GetPC()
 	disassembly := c.emulator.GetDisassembler()
 	disassembly.SetPos(disassemblyPos)
 
 	instructions := make([]Instruction, 0)
-	for i := 0; i < 1000; i += 1 {
+	for i := 0; i < 100; i += 1 {
 		addr, o := disassembly.GetNextInstruction()
 		instructions = append(instructions, Instruction{
 			Address:     int(addr),
