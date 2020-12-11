@@ -97,11 +97,8 @@ func (c *Controller) ReadByte(addr uint16) byte {
 
 func (c *Controller) WriteByte(addr uint16, value byte) {
 	if c.isBootRoomAddr(addr) {
-		panic("Ignoring request to write to boot rom")
+		//panic("Ignoring request to write to boot rom")
 	} else if c.isRomAddr(addr) {
-		if addr != 0x2000 {
-			panic("Ignoring request to write to rom")
-		}
 		// todo: rom bank switching?
 	} else if c.isRamAddr(addr) {
 		// working ram
