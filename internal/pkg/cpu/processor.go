@@ -84,14 +84,14 @@ func (p *processor) Cycles() uint {
 
 func (p *processor) HandleInterrupts() {
 	if p.interruptsEnabled {
-		eif := interruptRegister(p.memory.ReadByte(interruptsEnabledAddress) & p.memory.ReadByte(interruptFlagsAddress))
-		addr, flagIndex := eif.GetIsrAddress()
-		p.memory.WriteByte(interruptFlagsAddress, utils.UnsetBit(byte(eif), flagIndex))
+		eif := p.memory.InterruptEnabled.Read() & p.memory.InterruptFlags.Read()
+		addr, flagIndex := memory.GetIsrAddress(eif)
+		p.memory.InterruptFlags.Write(utils.UnsetBit(eif, flagIndex))
 		p.serviceInterrupt(addr)
 	}
 }
 
-func (p *processor) serviceInterrupt(address interruptAddress) {
+func (p *processor) serviceInterrupt(address memory.InterruptAddress) {
 	//save Registers
 	p.savedRegisters = p.registers
 	//disable interrupts

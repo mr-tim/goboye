@@ -208,6 +208,7 @@ func (d *Display) Update(cycles uint8) {
 			if d.m.LY.Read() >= ROWS {
 				// set v-blank flag
 				d.m.StatFlags.SetMode(register.VerticalBlank)
+				d.m.InterruptFlags.VBlankInterrupt()
 			} else {
 				d.m.StatFlags.SetMode(register.EnableCPUAccessToDisplayRAM)
 			}

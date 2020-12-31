@@ -9,16 +9,18 @@ import (
 type Controller struct {
 	romImage        memoryMap
 	ram             memoryMap
-	stack           memoryMap
-	ControllerData  controllerRegister
-	BootRomRegister bootRomByteRegister
-	LCDCFlags       register.LCDCFlags
-	StatFlags       register.StatFlags
-	SCY             simpleByteRegister
-	SCX             simpleByteRegister
-	LY              simpleByteRegister
-	LYC             simpleByteRegister
-	BGP             simpleByteRegister
+	stack            memoryMap
+	ControllerData   controllerRegister
+	BootRomRegister  bootRomByteRegister
+	LCDCFlags        register.LCDCFlags
+	StatFlags        register.StatFlags
+	SCY              simpleByteRegister
+	SCX              simpleByteRegister
+	LY               simpleByteRegister
+	LYC              simpleByteRegister
+	BGP              simpleByteRegister
+	InterruptFlags   InterruptFlagsRegister
+	InterruptEnabled InterruptEnabledRegister
 }
 
 func NewController() Controller {
@@ -39,6 +41,8 @@ func (c *Controller) getRegister(addr uint16) (ByteRegister, bool) {
 	switch addr {
 	case 0xFF00:
 		return &c.ControllerData, true
+	case 0xFF0F:
+		return &c.InterruptFlags, true
 	case 0xFF40:
 		return &c.LCDCFlags, true
 	case 0xFF41:
@@ -55,6 +59,8 @@ func (c *Controller) getRegister(addr uint16) (ByteRegister, bool) {
 		return &c.BGP, true
 	case bootRomRegisterAddr:
 		return &c.BootRomRegister, true
+	case 0xFFFF:
+		return &c.InterruptEnabled, true
 	default:
 		return nil, false
 	}

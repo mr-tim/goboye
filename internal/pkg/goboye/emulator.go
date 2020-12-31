@@ -20,8 +20,14 @@ type Emulator struct {
 
 func NewEmulator() *Emulator {
 	return &(Emulator{
-		breakpoints: make(map[uint16]bool),
-		recorder:    recorder.NewRecorder(100),
+		breakpoints: map[uint16]bool{
+			0x0100: true,
+			0x0150: true,
+			0x0343: true,
+			0x0346: true,
+			0x0349: true,
+		},
+		recorder:    recorder.NewRecorder(1000),
 	})
 }
 
