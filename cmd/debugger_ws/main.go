@@ -66,12 +66,20 @@ type UpdateMessage struct {
 	MemoryUpdates []MemoryUpdate `json:"memory_updates"`
 	Breakpoints   []uint16       `json:"breakpoints"`
 	DebugImage    string         `json:"debug_image"`
+	Flags         Flags          `json:"flags"`
 }
 
 type MemoryUpdate struct {
 	Start        uint16 `json:"start"`
 	Length       uint16 `json:"length"`
 	MemoryBase64 string `json:"memory_base64"`
+}
+
+type Flags struct {
+	Z bool `json:"Z"`
+	N bool `json:"N"`
+	H bool `json:"H"`
+	C bool `json:"C"`
 }
 
 type InboundMessage struct {
@@ -223,6 +231,12 @@ func (c *Client) refreshState() {
 			},
 			Breakpoints: c.emulator.GetBreakpoints(),
 			DebugImage:  base64debugImage,
+			Flags: Flags{
+				Z: c.emulator.GetFlagValue(cpu.FlagZ),
+				N: c.emulator.GetFlagValue(cpu.FlagN),
+				H: c.emulator.GetFlagValue(cpu.FlagH),
+				C: c.emulator.GetFlagValue(cpu.FlagC),
+			},
 		},
 	}
 

@@ -3,7 +3,13 @@ import styled from "styled-components";
 import {toHex} from "../util/hex";
 
 interface RegisterProps {
-  registers: { [registerName: string]: number }
+  registers: { [registerName: string]: number },
+  flags: {
+    Z: boolean,
+    N: boolean,
+    H: boolean,
+    C: boolean,
+  }
 }
 
 const SidebarCell = styled.div`
@@ -27,10 +33,10 @@ const Registers: React.FC<RegisterProps> = (props) => {
     ))}
     <SidebarCell/>
     <SidebarCell>Flags</SidebarCell>
-    <SidebarCell className="monospaced"><b>Z</b> {flag(false)}</SidebarCell>
-    <SidebarCell className="monospaced"><b>N</b> {flag(false)}</SidebarCell>
-    <SidebarCell className="monospaced"><b>H</b> {flag(false)}</SidebarCell>
-    <SidebarCell className="monospaced"><b>C</b> {flag(false)}</SidebarCell>
+    <SidebarCell className="monospaced"><b>Z</b> {flag(props.flags.Z)}</SidebarCell>
+    <SidebarCell className="monospaced"><b>N</b> {flag(props.flags.N)}</SidebarCell>
+    <SidebarCell className="monospaced"><b>H</b> {flag(props.flags.H)}</SidebarCell>
+    <SidebarCell className="monospaced"><b>C</b> {flag(props.flags.C)}</SidebarCell>
   </div>);
 }
 
