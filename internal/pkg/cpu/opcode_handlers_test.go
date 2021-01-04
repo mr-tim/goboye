@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -434,19 +435,19 @@ func TestJR(t *testing.T) {
 }
 
 func TestJRNZ(t *testing.T) {
-	doTestJRFlag(t, 0x20, FlagZ, FlagNoFlags)
+	doTestJRFlag(t, OpcodeJrNzn.code, FlagZ, FlagNoFlags)
 }
 
 func TestJRZ(t *testing.T) {
-	doTestJRFlag(t, 0x28, FlagNoFlags, FlagZ)
+	doTestJRFlag(t, OpcodeJrZn.code, FlagNoFlags, FlagZ)
 }
 
 func TestJRNC(t *testing.T) {
-	doTestJRFlag(t, 0x30, FlagC, FlagNoFlags)
+	doTestJRFlag(t, OpcodeJrNcn.code, FlagC, FlagNoFlags)
 }
 
 func TestJRC(t *testing.T) {
-	doTestJRFlag(t, 0x38, FlagNoFlags, FlagC)
+	doTestJRFlag(t, OpcodeJrCn.code, FlagNoFlags, FlagC)
 }
 
 func doTestJRFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
@@ -683,4 +684,91 @@ func doTestXorReg(t *testing.T, reg register, opcode byte) {
 		expected = 0xC3
 	}
 	assert.Equal(t, expected, p.GetRegister(RegisterA))
+}
+
+func TestLoadRegToReg(t *testing.T) {
+	var bases = map[register]uint8{
+		RegisterA: 0x78,
+	}
+
+	regs := []register{RegisterB, RegisterC, RegisterD, RegisterE, RegisterH, RegisterL, RegisterF, RegisterA}
+
+	for to, baseAddr := range bases {
+		for i, from := range regs {
+			if from != RegisterF {
+				opcode := baseAddr + uint8(i)
+				t.Run(fmt.Sprintf("%x02: %s <- %s", opcode, to, from), func (t *testing.T) {
+					doRegToRegTest(t, opcode, to, from)
+				})
+			}
+		}
+	}
+}
+
+func doRegToRegTest(t *testing.T, opcode uint8, to register, from register) {
+	p := setupHandlerTest([]byte{opcode})
+	p.registers.setRegister(from, 0x53)
+	p.DoNextInstruction()
+
+	assert.Equal(t, uint8(0x53), p.GetRegister(to))
+}
+
+func TestLoadHLAddrToReg(t *testing.T) {
+	base := uint8(0x46)
+	registers := []register{RegisterB, RegisterC, RegisterD, RegisterE, RegisterH, RegisterL, RegisterF, RegisterA}
+
+	for i, to := range registers {
+		opcode := base + uint8(i * 8)
+		if to == RegisterF {
+			continue
+		}
+		t.Run(fmt.Sprintf("%02x: %s < $HL", opcode, to), func (t *testing.T) {
+			doHLAddrToRegTest(t, opcode, to)
+		})
+	}
+}
+
+func doHLAddrToRegTest(t *testing.T, opcode uint8, to register) {
+	addr := uint16(0x89ab)
+	value := uint8(0x79)
+
+	p := setupHandlerTest([]byte{opcode})
+	p.memory.WriteByte(addr, value)
+	assert.Equal(t, value, p.memory.ReadByte(addr))
+	p.registers.hl = addr
+	p.DoNextInstruction()
+	assert.Equal(t, value, p.GetRegister(to))
+}
+
+func TestLoadRegToHLAddr(t *testing.T) {
+	base := uint8(0x70)
+	registers := []register{RegisterB, RegisterC, RegisterD, RegisterE, RegisterH, RegisterL, RegisterF, RegisterA}
+
+	for i, from := range registers {
+		opcode := base + uint8(i)
+		if from == RegisterF {
+			continue
+		}
+		t.Run(fmt.Sprintf("%02x: %s> $HL", opcode, from), func(t *testing.T) {
+			doRegToHLAddrTest(t, opcode, from)
+		})
+	}
+}
+
+func doRegToHLAddrTest(t *testing.T, opcode uint8, from register) {
+	addr := uint16(0x89ac)
+	value := uint8(0x96)
+
+	p := setupHandlerTest([]byte{opcode})
+	p.registers.setRegister(from, value)
+	p.registers.hl = addr
+	p.DoNextInstruction()
+	actual := p.memory.ReadByte(addr)
+	if from == RegisterH {
+		assert.Equal(t, uint8(0x89), actual)
+	} else if from == RegisterL {
+		assert.Equal(t, uint8(0xac), actual)
+	} else {
+		assert.Equal(t, value, actual)
+	}
 }
