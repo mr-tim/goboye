@@ -275,6 +275,7 @@ func doSubtractValueFromA(p *processor, toSubtract uint8) {
 	if newValue > oldValue {
 		flags |= uint8(FlagC)
 	}
+	flags |= uint8(FlagN)
 	p.registers.setRegister(RegisterF, flags)
 }
 
@@ -501,26 +502,11 @@ func addCImmediate(op opcode, p *processor) {
 }
 
 func subCImmediate(op opcode, p *processor) {
-	original := p.registers.getRegister(RegisterA)
 	other := p.Read8BitImmediate()
 	if p.registers.getFlagValue(FlagC) {
-		other += 1
+		other++
 	}
-	result := original - other
-	p.registers.setRegister(RegisterA, result)
-
-	flags := p.registers.getRegister(RegisterF) & 0x0F
-	if result == 0 {
-		flags |= uint8(FlagZ)
-	}
-	if isHalfCarrySubtract(original, other) {
-		flags |= uint8(FlagH)
-	}
-	if result > original {
-		flags |= uint8(FlagC)
-	}
-	flags |= uint8(FlagN)
-	p.registers.setRegister(RegisterF, flags)
+	doSubtractValueFromA(p, other)
 }
 
 func logicalXorImmediate(op opcode, p *processor) {
