@@ -64,6 +64,10 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 func (e *Emulator) Step() uint8 {
 	e.recorder.TakeSnapshot(e.processor, e.memory)
 	c := e.processor.DoNextInstruction()
+	if e.processor.NextInstruction().Code() == cpu.OpcodeJrN.Code() && e.memory.ReadByte(e.GetPC()+1) == 0xFE {
+		// infinite loop
+		e.breakpoints[e.GetPC()] = true
+	}
 	e.display.Update(c)
 	return c
 }
