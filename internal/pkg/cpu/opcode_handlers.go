@@ -559,8 +559,7 @@ func relativeJumpImmediateIfFlag(f OpResultFlag, value bool) opcodeHandler {
 }
 
 func jumpToHLAddr(op opcode, p *processor) {
-	newAddr := p.memory.ReadU16(p.registers.hl)
-	p.registers.pc = newAddr
+	p.registers.pc = p.registers.hl
 }
 
 func jumpTo16BitAddress(op opcode, p *processor) {
