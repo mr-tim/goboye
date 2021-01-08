@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
+	"github.com/rs/zerolog"
 )
 
 type Snapshot struct {
@@ -11,28 +12,33 @@ type Snapshot struct {
 	address   uint16
 	op        cpu.OpcodeAndPayload
 	payload   string
+	cycles    uint
 }
 
 func (s Snapshot) String() string {
-	return fmt.Sprintf("%s 0x%04x: %s", s.registers.String(), s.address, s.op.Disassembly())
+	return fmt.Sprintf("%d %s 0x%04x: %s", s.cycles, s.registers.String(), s.address, s.op.Disassembly())
 }
 
 type Recorder struct {
 	snapshots    []Snapshot
 	maxSnapshots int
 	currentIndex int
+	logger       zerolog.Logger
 }
 
 func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controller) {
 	if r.maxSnapshots > 0 {
 		registers := processor.DebugRegisters()
 		addr, op, _ := cpu.Disassemble(memory, processor.GetRegisterPair(cpu.RegisterPairPC))
-		r.snapshots[r.currentIndex] = Snapshot{
+		s := Snapshot{
+			cycles:    processor.Cycles(),
 			registers: registers,
 			address:   addr,
 			op:        op,
 		}
+		r.snapshots[r.currentIndex] = s
 		r.currentIndex = (r.currentIndex + 1) % r.maxSnapshots
+		r.logger.Info().Msgf("%d %s 0x%04x: %s", s.cycles, s.registers.String(), s.address, s.op.Disassembly())
 	}
 }
 
@@ -51,9 +57,16 @@ func (r *Recorder) GetSnapshots() []*Snapshot {
 }
 
 func NewRecorder(maxSnapshots int) *Recorder {
+	//f, err := os.Create("flight-recorder.log")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//logger := zerolog.New(f).With().Timestamp().Logger()
+	logger := zerolog.Nop()
 	return &(Recorder{
 		maxSnapshots: maxSnapshots,
 		snapshots:    make([]Snapshot, maxSnapshots),
 		currentIndex: 0,
+		logger:       logger,
 	})
 }
