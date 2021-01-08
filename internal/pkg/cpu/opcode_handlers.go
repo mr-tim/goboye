@@ -694,7 +694,27 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 	} else {
 		result -= uint16(-v)
 	}
+
+	flags := p.registers.getRegister(RegisterF) & 0x0F
+	if v > 0 && isHalfCarryAdd16Bit(p.registers.sp, int8(v)) {
+		flags |= uint8(FlagH)
+	}
+	if v > 0 && isCarryAdd16Bit(p.registers.sp, int8(v)) {
+		flags |= uint8(FlagC)
+	}
+	p.registers.setRegister(RegisterF, flags)
+
 	p.registers.setRegisterPair(rp, result)
+}
+
+func isHalfCarryAdd16Bit(originalValue uint16, operand int8) bool {
+	return ((originalValue & 0x0FFF) + uint16(operand)) & 0x1000 == 0x1000
+}
+
+func isCarryAdd16Bit(originalValue uint16, operand int8) bool {
+	highSet := originalValue & 0x8000 == 0x8000
+	highUnsetAfter := (originalValue + uint16(operand)) & 0x8000 == 0x0000
+	return highSet && highUnsetAfter
 }
 
 func copyHLToSP(op opcode, p *processor) {

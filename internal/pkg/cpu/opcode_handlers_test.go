@@ -772,3 +772,22 @@ func doRegToHLAddrTest(t *testing.T, opcode uint8, from register) {
 		assert.Equal(t, value, actual)
 	}
 }
+
+func TestAdd8BitSignedToSPSaveInHL(t *testing.T) {
+	doTestAdd8BitSignedToSpSaveInHL(t, 0x0001, 0x01, 0x0002, false, false)
+	doTestAdd8BitSignedToSpSaveInHL(t, 0x0001, 0xFF, 0x0000, false, false)
+	doTestAdd8BitSignedToSpSaveInHL(t, 0x0FFF, 0x01, 0x1000, false, true)
+	doTestAdd8BitSignedToSpSaveInHL(t, 0xFFFF, 0x01, 0x0000, true, true)
+}
+
+func doTestAdd8BitSignedToSpSaveInHL(t *testing.T, spValue uint16, operand uint8, expected uint16,
+	carry bool, halfCarry bool) {
+	p := setupHandlerTest([]byte{0xF8, operand})
+	p.registers.sp = spValue
+	p.DoNextInstruction()
+	assert.Equal(t, expected, p.registers.hl)
+	assert.Equal(t, false, p.GetFlagValue(FlagZ))
+	assert.Equal(t, false, p.GetFlagValue(FlagN))
+	assert.Equal(t, halfCarry, p.GetFlagValue(FlagH))
+	assert.Equal(t, carry, p.GetFlagValue(FlagC))
+}
