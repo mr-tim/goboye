@@ -107,15 +107,15 @@ func incrementHLAddr(op opcode, p *processor) {
 	newValue := originalValue + 1
 	p.memory.WriteByte(p.registers.hl, newValue)
 
-	flags := uint8(FlagC) & p.registers.getRegister(RegisterF)
+	flags := FlagC & p.registers.getFlags()
 	if newValue == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarryAdd(originalValue, 1) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func decrementHLAddr(op opcode, p *processor) {
@@ -123,15 +123,15 @@ func decrementHLAddr(op opcode, p *processor) {
 	newValue := originalValue - 1
 	p.memory.WriteByte(p.registers.hl, newValue)
 
-	flags := uint8(FlagC)&p.registers.getRegister(RegisterF) | uint8(FlagN)
+	flags := FlagC & p.registers.getFlags() | FlagN
 	if newValue == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarrySubtract(originalValue, 1) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func incrementReg(reg register) opcodeHandler {
@@ -150,14 +150,14 @@ func doIncrementRegister(p *processor, reg register) {
 	oldValue := p.registers.getRegister(reg)
 	newValue := oldValue + 1
 	p.registers.setRegister(reg, newValue)
-	flags := uint8(0)
+	flags := FlagNoFlags
 	if newValue == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarryAdd(oldValue, 1) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func doDecrementRegister(p *processor, reg register) {
@@ -165,14 +165,14 @@ func doDecrementRegister(p *processor, reg register) {
 	newValue := oldValue - 1
 	p.registers.setRegister(reg, newValue)
 	// set the n flag to 1
-	flags := uint8(FlagN)
+	flags := FlagN
 	if newValue == 0 {
-		flags = flags | uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarrySubtract(oldValue, 1) {
-		flags = flags | uint8(FlagH)
+		flags |= FlagH
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 
 }
 
@@ -218,17 +218,17 @@ func doAddValueToA(p *processor, toAdd uint8) {
 	oldValue := p.registers.getRegister(RegisterA)
 	newValue := oldValue + toAdd
 	p.registers.setRegister(RegisterA, newValue)
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags := FlagNoFlags
 	if newValue == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarryAdd(oldValue, toAdd) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 	if newValue < oldValue {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func subtractRegFromA(reg register) opcodeHandler {
@@ -265,18 +265,17 @@ func doSubtractValueFromA(p *processor, toSubtract uint8) {
 	oldValue := p.registers.getRegister(RegisterA)
 	newValue := oldValue - toSubtract
 	p.registers.setRegister(RegisterA, newValue)
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags := FlagN
 	if newValue == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarrySubtract(oldValue, toSubtract) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 	if newValue > oldValue {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	flags |= uint8(FlagN)
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func logicalAndRegAgainstA(reg register) opcodeHandler {
@@ -293,8 +292,8 @@ func logicalAndHLAddrAgainstA(op opcode, p *processor) {
 
 func doLogicalAndAgainstA(p *processor, other uint8) {
 	flags := doLogicalOpAgainstA(p, other, and)
-	flags |= uint8(FlagH)
-	p.registers.setRegister(RegisterF, flags)
+	flags |= FlagH
+	p.registers.setFlags(flags)
 }
 
 func logicalXorRegAgainstA(reg register) opcodeHandler {
@@ -311,7 +310,7 @@ func logicalXorHLAddrAgainstA(op opcode, p *processor) {
 
 func doLogicalXorAgainstA(p *processor, other uint8) {
 	flags := doLogicalOpAgainstA(p, other, xor)
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func logicalOrRegAgainstA(reg register) opcodeHandler {
@@ -328,7 +327,7 @@ func logicalOrHLAddrAgainstA(op opcode, p *processor) {
 
 func doLogicalOrAgainstA(p *processor, other uint8) {
 	flags := doLogicalOpAgainstA(p, other, or)
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func and(a, b uint8) uint8 {
@@ -343,13 +342,13 @@ func or(a, b uint8) uint8 {
 	return a | b
 }
 
-func doLogicalOpAgainstA(p *processor, other uint8, op func(a, b uint8) uint8) uint8 {
+func doLogicalOpAgainstA(p *processor, other uint8, op func(a, b uint8) uint8) OpResultFlag {
 	oldValue := p.registers.getRegister(RegisterA)
 	newValue := op(oldValue, other)
 	p.registers.setRegister(RegisterA, newValue)
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags := FlagNoFlags
 	if newValue == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	return flags
 }
@@ -368,16 +367,15 @@ func compareHLAddrAgainstA(op opcode, p *processor) {
 
 func doCompareValueAgainstA(p *processor, value uint8) {
 	regAValue := p.registers.getRegister(RegisterA)
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
-	flags |= uint8(FlagN)
+	flags := FlagN
 	if value < regAValue {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	} else if value == regAValue {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	} else if value > regAValue {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func addRegPairToHL(rp RegisterPair) opcodeHandler {
@@ -407,11 +405,13 @@ func complementOnA(op opcode, p *processor) {
 }
 
 func setCarryFlag(op opcode, p *processor) {
-	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(FlagC))
+	flags := p.registers.getFlags() | FlagC
+	p.registers.setFlags(flags)
 }
 
 func clearCarryFlag(op opcode, p *processor) {
-	p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|^uint8(FlagC))
+	flags := p.registers.getFlags() | ^FlagC
+	p.registers.setFlags(flags)
 }
 
 func addImmediate(op opcode, p *processor) {
@@ -420,17 +420,17 @@ func addImmediate(op opcode, p *processor) {
 	result := original + other
 	p.registers.setRegister(RegisterA, result)
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarryAdd(original, other) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 	if result < original {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func subtractImmediate(op opcode, p *processor) {
@@ -439,18 +439,17 @@ func subtractImmediate(op opcode, p *processor) {
 	result := original - other
 	p.registers.setRegister(RegisterA, result)
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagN
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarrySubtract(original, other) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 	if result > original {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	flags |= uint8(FlagN)
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func logicalAndImmediate(op opcode, p *processor) {
@@ -458,12 +457,11 @@ func logicalAndImmediate(op opcode, p *processor) {
 	result := p.registers.getRegister(RegisterA) & other
 	p.registers.setRegister(RegisterA, result)
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagH
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
-	flags |= uint8(FlagH)
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 
 }
 
@@ -472,11 +470,11 @@ func logicalOrImmediate(op opcode, p *processor) {
 	result := p.registers.getRegister(RegisterA) | other
 	p.registers.setRegister(RegisterA, result)
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func addCImmediate(op opcode, p *processor) {
@@ -488,17 +486,17 @@ func addCImmediate(op opcode, p *processor) {
 	result := original + other
 	p.registers.setRegister(RegisterA, result)
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if isHalfCarryAdd(original, other) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 	if result < original {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func subCImmediate(op opcode, p *processor) {
@@ -514,11 +512,11 @@ func logicalXorImmediate(op opcode, p *processor) {
 	result := p.registers.getRegister(RegisterA) | other
 	p.registers.setRegister(RegisterA, result)
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func compareImmediate(op opcode, p *processor) {
@@ -695,14 +693,14 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 		result -= uint16(-v)
 	}
 
-	flags := p.registers.getRegister(RegisterF) & 0x0F
+	flags := FlagNoFlags
 	if v > 0 && isHalfCarryAdd16Bit(p.registers.sp, int8(v)) {
-		flags |= uint8(FlagH)
+		flags |= FlagH
 	}
 	if v > 0 && isCarryAdd16Bit(p.registers.sp, int8(v)) {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 
 	p.registers.setRegisterPair(rp, result)
 }

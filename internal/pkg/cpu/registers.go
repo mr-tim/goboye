@@ -61,6 +61,9 @@ func (r *Registers) getRegister(reg register) uint8 {
 func (r *Registers) setRegister(reg register, value uint8) {
 	shift := r.getShift(reg)
 	ptr := r.getRegisterPointer(reg)
+	if reg == RegisterF {
+		value &= 0xF0
+	}
 	orig := *ptr
 	var x, y uint16
 	if shift == 8 {
@@ -74,6 +77,15 @@ func (r *Registers) setRegister(reg register, value uint8) {
 	}
 
 	*ptr = x | y
+}
+
+func (r *Registers) setFlags(flags OpResultFlag) {
+	updated := (r.af & 0xFF0F) | (uint16(flags) & 0x00F0)
+	r.af = updated
+}
+
+func (r *Registers) getFlags() OpResultFlag {
+	return OpResultFlag(r.getRegister(RegisterF) & 0xF0)
 }
 
 func (r *Registers) getShift(reg register) uint8 {
@@ -102,6 +114,7 @@ func (r *Registers) getRegisterPair(regPair RegisterPair) uint16 {
 
 func (r *Registers) setRegisterPair(regPair RegisterPair, value uint16) {
 	if regPair == RegisterPairAF {
+		value &= 0xFFF0
 		r.af = value
 	} else if regPair == RegisterPairBC {
 		r.bc = value

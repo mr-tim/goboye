@@ -453,7 +453,7 @@ func TestJRC(t *testing.T) {
 func doTestJRFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x05})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		setFlag(p, noActionFlag)
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint(8), p.Cycles())
@@ -461,7 +461,7 @@ func doTestJRFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFl
 	})
 	t.Run("Action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x05})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		setFlag(p, actionFlag)
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint(12), p.Cycles())
@@ -496,7 +496,7 @@ func TestJC(t *testing.T) {
 func doTestJFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0xCD, 0xAB})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		setFlag(p, noActionFlag)
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint(12), p.Cycles())
@@ -504,7 +504,7 @@ func doTestJFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFla
 	})
 	t.Run("Action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0xCD, 0xAB})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		setFlag(p, actionFlag)
 		p.DoNextInstruction()
 
 		assert.Equal(t, uint(16), p.Cycles())
@@ -542,7 +542,7 @@ func TestCallC(t *testing.T) {
 func doTestCallFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x34, 0x12})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		setFlag(p, noActionFlag)
 		p.registers.setRegisterPair(RegisterPairSP, uint16(0xFFFE))
 		p.DoNextInstruction()
 
@@ -553,7 +553,7 @@ func doTestCallFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, action
 
 	t.Run("Action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x34, 0x12})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		setFlag(p, actionFlag)
 		p.registers.setRegisterPair(RegisterPairSP, 0xFFFE)
 		p.DoNextInstruction()
 
@@ -606,7 +606,7 @@ func TestRetC(t *testing.T) {
 func doTestRetFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionFlag OpResultFlag) {
 	t.Run("No action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x83, 0x45, 0x67})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(noActionFlag))
+		setFlag(p, noActionFlag)
 		p.registers.setRegisterPair(RegisterPairSP, uint16(6))
 		p.DoNextInstruction()
 
@@ -617,7 +617,7 @@ func doTestRetFlag(t *testing.T, opcode byte, noActionFlag OpResultFlag, actionF
 
 	t.Run("Action taken", func(t *testing.T) {
 		p := setupHandlerTest([]byte{opcode, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x83, 0x45, 0x67})
-		p.registers.setRegister(RegisterF, p.registers.getRegister(RegisterF)|uint8(actionFlag))
+		setFlag(p, actionFlag)
 		p.registers.setRegisterPair(RegisterPairSP, uint16(6))
 		p.DoNextInstruction()
 
@@ -790,4 +790,60 @@ func doTestAdd8BitSignedToSpSaveInHL(t *testing.T, spValue uint16, operand uint8
 	assert.Equal(t, false, p.GetFlagValue(FlagN))
 	assert.Equal(t, halfCarry, p.GetFlagValue(FlagH))
 	assert.Equal(t, carry, p.GetFlagValue(FlagC))
+}
+
+func TestPop(t *testing.T) {
+	p := setupHandlerTest([]byte{0xC1})
+	p.registers.sp = 0xFFFC
+	p.memory.WriteByte(0xFFFC, 0x5F)
+	p.memory.WriteByte(0xFFFD, 0x3C)
+	p.DoNextInstruction()
+	assert.Equal(t, uint8(0x3C), p.registers.getRegister(RegisterB))
+	assert.Equal(t, uint8(0x5F), p.registers.getRegister(RegisterC))
+	assert.Equal(t, uint16(0xFFFE), p.registers.getRegisterPair(RegisterPairSP))
+}
+
+func TestPopAF(t *testing.T) {
+	p := setupHandlerTest([]byte{0xF1})
+	p.registers.sp = 0xFFFC
+	p.memory.WriteByte(0xFFFC, 0xFF)
+	p.memory.WriteByte(0xFFFD, 0xFF)
+	p.DoNextInstruction()
+
+	assert.Equal(t, uint8(0xFF), p.registers.getRegister(RegisterA))
+	assert.Equal(t, uint8(0xF0), p.registers.getRegister(RegisterF))
+	assert.Equal(t, uint16(0xFFFE), p.registers.getRegisterPair(RegisterPairSP))
+}
+
+func TestCompareReg(t *testing.T) {
+	p := setupHandlerTest([]byte{0xB8})
+	p.registers.setRegister(RegisterA, 0x3C)
+	p.registers.setRegister(RegisterB, 0x2F)
+	p.DoNextInstruction()
+	assert.False(t, p.GetFlagValue(FlagZ))
+	assert.True(t, p.GetFlagValue(FlagH))
+	assert.True(t, p.GetFlagValue(FlagN))
+	assert.False(t, p.GetFlagValue(FlagC))
+}
+
+func TestCompareImmediate(t *testing.T) {
+	p := setupHandlerTest([]byte{0xFE, 0x3C})
+	p.registers.setRegister(RegisterA, 0x3C)
+	p.DoNextInstruction()
+	assert.True(t, p.GetFlagValue(FlagZ))
+	assert.False(t, p.GetFlagValue(FlagH))
+	assert.True(t, p.GetFlagValue(FlagN))
+	assert.False(t, p.GetFlagValue(FlagC))
+}
+
+func TestCompareHL(t *testing.T) {
+	p := setupHandlerTest([]byte{0xBE})
+	p.registers.setRegister(RegisterA, 0x3C)
+	p.registers.setRegisterPair(RegisterPairHL, 0x8004)
+	p.memory.WriteByte(0x8004, 0x40)
+	p.DoNextInstruction()
+	assert.False(t, p.GetFlagValue(FlagZ))
+	assert.False(t, p.GetFlagValue(FlagH))
+	assert.True(t, p.GetFlagValue(FlagN))
+	assert.True(t, p.GetFlagValue(FlagC))
 }

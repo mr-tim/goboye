@@ -22,13 +22,13 @@ func testBitOfHLAddr(bit uint8) opcodeHandler {
 }
 
 func doTestBit(p *processor, bit, value uint8) {
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
-	flags |= uint8(FlagH)
+	flags := FlagNoFlags
+	flags |= FlagH
 	mask := uint8(0x01 << bit)
 	if value&mask == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func clearBitOfReg(bit uint8, reg register) opcodeHandler {
@@ -81,14 +81,14 @@ func doRotateLeft(p *processor, value uint8, carry bool) uint8 {
 }
 
 func setLeftShiftFlags(p *processor, result uint8, value uint8) {
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if value&uint8(0x80) != 0 {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func rotateRegRightWithCarry(reg register) opcodeHandler {
@@ -114,14 +114,14 @@ func doRotateRight(p *processor, value uint8, carry bool) uint8 {
 }
 
 func setRightShiftFlags(p *processor, result uint8, value uint8) {
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
 	if value&uint8(0x01) != 0 {
-		flags |= uint8(FlagC)
+		flags |= FlagC
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 }
 
 func rotateRegLeft(reg register) opcodeHandler {
@@ -214,10 +214,10 @@ func doSwapNybbles(p *processor, value uint8) uint8 {
 	h := 0xF0 & value
 	l := 0x0F & value
 	result := (l << 4) | (h >> 4)
-	flags := p.registers.getRegister(RegisterF) & uint8(0x0F)
+	flags := FlagNoFlags
 	if result == 0 {
-		flags |= uint8(FlagZ)
+		flags |= FlagZ
 	}
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(flags)
 	return result
 }

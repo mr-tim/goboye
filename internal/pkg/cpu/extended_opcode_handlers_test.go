@@ -198,8 +198,7 @@ func doTestRotateLeft(t *testing.T, opcode uint8, get byteGetter, set byteSetter
 }
 
 func setFlag(p *processor, flag OpResultFlag) {
-	flags := p.registers.getRegister(RegisterF) | uint8(flag)
-	p.registers.setRegister(RegisterF, flags)
+	p.registers.setFlags(p.registers.getFlags() | flag)
 }
 
 func TestRotateRight(t *testing.T) {
