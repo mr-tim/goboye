@@ -1,13 +1,17 @@
 package goboye
 
 import (
+	"bufio"
 	"encoding/base64"
+	"encoding/hex"
+	"errors"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/debugger/recorder"
 	"github.com/mr-tim/goboye/internal/pkg/display"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"image"
 	"log"
+	"os"
 )
 
 type Emulator struct {
@@ -19,16 +23,37 @@ type Emulator struct {
 }
 
 func NewEmulator() *Emulator {
+	breakpoints := loadBreakpoints()
 	return &(Emulator{
-		breakpoints: map[uint16]bool{
-			0x0100: true,
-			0x0150: true,
-			0x0343: true,
-			0x0346: true,
-			0x0349: true,
-		},
+		breakpoints: breakpoints,
 		recorder:    recorder.NewRecorder(1000),
 	})
+}
+
+func loadBreakpoints() map[uint16]bool {
+	f, err := os.Open("breakpoints.txt")
+
+	breakpoints := make(map[uint16]bool)
+
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			panic(err)
+		}
+	} else {
+		s := bufio.NewScanner(f)
+		for s.Scan() {
+			line := s.Text()
+			bs, err := hex.DecodeString(line[2:])
+			if err == nil && len(bs) == 2 {
+				addr := uint16(0)
+				addr |= uint16(bs[0]) << 8
+				addr |= uint16(bs[1])
+				breakpoints[addr] = true
+			}
+		}
+	}
+
+	return breakpoints
 }
 
 func (e *Emulator) LoadRomImage(filename string) {
