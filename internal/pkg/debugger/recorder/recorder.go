@@ -5,6 +5,7 @@ import (
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"github.com/rs/zerolog"
+	"os"
 )
 
 type Snapshot struct {
@@ -57,16 +58,23 @@ func (r *Recorder) GetSnapshots() []*Snapshot {
 }
 
 func NewRecorder(maxSnapshots int) *Recorder {
-	//f, err := os.Create("flight-recorder.log")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//logger := zerolog.New(f).With().Timestamp().Logger()
-	logger := zerolog.Nop()
+	logger := createLogger(true)
 	return &(Recorder{
 		maxSnapshots: maxSnapshots,
 		snapshots:    make([]Snapshot, maxSnapshots),
 		currentIndex: 0,
 		logger:       logger,
 	})
+}
+
+func createLogger(enabled bool) zerolog.Logger {
+	if enabled {
+		f, err := os.Create("flight-recorder.log")
+		if err != nil {
+			panic(err)
+		}
+		return zerolog.New(f).With().Timestamp().Logger()
+	} else {
+		return zerolog.Nop()
+	}
 }
