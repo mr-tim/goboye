@@ -847,3 +847,108 @@ func TestCompareHL(t *testing.T) {
 	assert.True(t, p.GetFlagValue(FlagN))
 	assert.True(t, p.GetFlagValue(FlagC))
 }
+
+func TestAdjustAForBCDAddition(t *testing.T) {
+	t.Run("Add register to A then DAA", func(t *testing.T) {
+		doDAAAdditionTests(t, func(a, b uint8) *processor {
+			p := setupHandlerTest([]byte{0x80, 0x27})
+			p.registers.setRegister(RegisterA, a)
+			p.registers.setRegister(RegisterB, b)
+			return p
+		})
+	})
+
+	t.Run("Add immediate to A then DAA", func(t *testing.T) {
+		doDAAAdditionTests(t, func(a, b uint8) *processor {
+			p := setupHandlerTest([]byte{0xC6, b, 0x27})
+			p.registers.setRegister(RegisterA, a)
+			return p
+		})
+	})
+
+	t.Run("Subtract register from A then DAA", func(t *testing.T) {
+		doDAASubtractionTests(t, func(a, b uint8) *processor {
+			p := setupHandlerTest([]byte{0x90, 0x27})
+			p.registers.setRegister(RegisterA, a)
+			p.registers.setRegister(RegisterB, b)
+			return p
+		})
+	})
+}
+
+func doDAAAdditionTests(t *testing.T, init func(a, b uint8) *processor) {
+	doDAATest(t, init, 0x66, 0x11, 0x77, false)
+	doDAATest(t, init, 0x74, 0x17, 0x91, false)
+	doDAATest(t, init, 0x99, 0x01, 0x00, true)
+}
+
+func doDAASubtractionTests(t *testing.T, init func(a, b uint8) *processor) {
+	doDAATest(t, init, 0x66, 0x11, 0x55, false)
+	doDAATest(t, init, 0x83, 0x38, 0x45, false)
+	doDAATest(t, init, 0x30, 0x01, 0x29, false)
+	doDAATest(t, init, 0x03, 0x04, 0x99, true)
+}
+
+func doDAATest(t *testing.T, init func(a, b uint8) *processor, a uint8, b uint8,
+	expectedValue uint8, expectCarry bool) {
+	p := init(a, b)
+	p.DoNextInstruction()
+	p.DoNextInstruction()
+	assert.Equal(t, expectedValue, p.GetRegister(RegisterA))
+	assert.Equal(t, expectedValue == 0x00, p.GetFlagValue(FlagZ))
+	assert.Equal(t, expectCarry, p.GetFlagValue(FlagC))
+}
+
+func TestDAAExhaustive(t *testing.T) {
+	var cases = []struct {
+		nBefore bool
+		cBefore bool
+		hBefore bool
+		before uint8
+		after uint8
+		cAfter bool
+	}{
+		// post additions
+		{false, false, false, 0x99, 0x99, false},
+		{false, false, false, 0x7B, 0x81, false},
+		{false, false, true, 0x63, 0x69, false},
+		{false, false, false, 0xB8, 0x18, true},
+		{false, false, false, 0xCC, 0x32, true},
+		{false, false, true, 0xA3, 0x09, true},
+		{false, true, false, 0x28, 0x88, true},
+		{false, true, false, 0x1C, 0x82, true},
+		{false, true, true, 0x32, 0x98, true},
+
+		// post subtractions
+		{true, false, false, 0x11, 0x11, false},
+		{true, false, true, 0x76, 0x70, false},
+		{true, true, false, 0xD3, 0x73, true},
+		{true, true, true, 0xBB, 0x55, true},
+	}
+	for _, c := range cases {
+		t.Run(fmt.Sprintf("n=%#v,c=%#v,h=%#v,value=0x%02X", c.nBefore, c.cBefore, c.hBefore, c.before),
+			func (t *testing.T) {
+			p := setupHandlerTest([]byte{0x27})
+			f := FlagNoFlags
+			if c.nBefore {
+				f |= FlagN
+			}
+			if c.cBefore {
+				f |= FlagC
+			}
+			if c.hBefore {
+				f |= FlagH
+			}
+			p.registers.setRegister(RegisterA, c.before)
+			p.registers.setFlags(f)
+			p.DoNextInstruction()
+
+			assert.Equal(t, c.after, p.registers.getRegister(RegisterA))
+			assert.Equal(t, c.cAfter, p.registers.getFlagValue(FlagC))
+			assert.Equal(t, false, p.registers.getFlagValue(FlagH))
+			assert.Equal(t, c.nBefore, p.registers.getFlagValue(FlagN))
+			assert.Equal(t, c.after == 0x00, p.registers.getFlagValue(FlagZ))
+		})
+	}
+}
+

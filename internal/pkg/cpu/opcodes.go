@@ -119,7 +119,7 @@ var (
 	OpcodeIncH      = opcode{0x24, "INC H", "Increment H", 0, 4, incrementReg(RegisterH)}
 	OpcodeDecH      = opcode{0x25, "DEC H", "Decrement H", 0, 4, decrementReg(RegisterH)}
 	OpcodeLdHn      = opcode{0x26, "LD H,n", "Load 8-bit immediate into H", 1, 8, load8BitToReg(RegisterH)}
-	OpcodeDaa       = opcode{0x27, "DAA", "Adjust A for BCD addition", 0, 4, unimplementedHandler}
+	OpcodeDaa       = opcode{0x27, "DAA", "Adjust A for BCD addition", 0, 4, adjustAForBCDAddition}
 	OpcodeJrZn      = opcode{0x28, "JR Z,n", "Relative jump by signed immediate if last result was zero", 1, 8, relativeJumpImmediateIfFlag(FlagZ, true)}
 	OpcodeAddHlhl   = opcode{0x29, "ADD HL,HL", "Add 16-bit HL to HL", 0, 8, addRegPairToHL(RegisterPairHL)}
 	OpcodeLdiAhl    = opcode{0x2A, "LDI A,(HL)", "Load A from address pointed to by HL, and increment HL", 0, 8, loadAFromHLAddrInc}

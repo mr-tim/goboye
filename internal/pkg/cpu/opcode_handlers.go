@@ -726,3 +726,36 @@ func disableInterrupts(op opcode, p *processor) {
 func enableInterrupts(op opcode, p *processor) {
 	p.interruptsEnabled = true
 }
+
+func adjustAForBCDAddition(op opcode, p *processor) {
+	var correction uint8
+
+	flags := FlagNoFlags
+	if p.GetFlagValue(FlagN) {
+		flags |= FlagN
+	}
+
+	if p.GetFlagValue(FlagH) || (!p.GetFlagValue(FlagN) && (p.GetRegister(RegisterA) & 0x0F) > 9) {
+		correction |= 0x06
+	}
+
+	if p.GetFlagValue(FlagC) || (!p.GetFlagValue(FlagN) && (p.GetRegister(RegisterA) > 0x99)) {
+		correction |= 0x60
+		flags |= FlagC
+	}
+
+	var corrected uint8
+	if !p.GetFlagValue(FlagN) {
+		corrected = p.GetRegister(RegisterA) + correction
+		p.registers.setRegister(RegisterA, corrected)
+	} else {
+		corrected = p.GetRegister(RegisterA) - correction
+		p.registers.setRegister(RegisterA, corrected)
+	}
+
+	if corrected == 0 {
+		flags |= FlagZ
+	}
+
+	p.registers.setFlags(flags)
+}
