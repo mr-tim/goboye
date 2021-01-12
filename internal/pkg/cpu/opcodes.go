@@ -94,7 +94,7 @@ var (
 	OpcodeLdCn    = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 1, 8, load8BitToReg(RegisterC)}
 	//TODO: should this one also reset FlagZ?
 	OpcodeRrcA   = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 4, rotateRegRightWithCarry(RegisterA)}
-	OpcodeStop   = opcode{0x10, "STOP", "Stop processor", 0, 4, unimplementedHandler}
+	OpcodeStop   = opcode{0x10, "STOP", "Stop processor", 0, 4, stop}
 	OpcodeLdDenn = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 2, 12, load16BitToRegPair(RegisterPairDE)}
 	OpcodeLdDea  = opcode{0x12, "LD (DE),A", "Save A to address pointed by DE", 0, 8, saveAToDEAddr}
 	OpcodeIncDe  = opcode{0x13, "INC DE", "Increment 16-bit DE", 0, 8, incrementRegPair(RegisterPairDE)}
@@ -198,7 +198,7 @@ var (
 	OpcodeLdHle     = opcode{0x73, "LD (HL),E", "Copy E to address pointed by HL", 0, 8, loadRegToHLAddr(RegisterE)}
 	OpcodeLdHlh     = opcode{0x74, "LD (HL),H", "Copy H to address pointed by HL", 0, 8, loadRegToHLAddr(RegisterH)}
 	OpcodeLdHll     = opcode{0x75, "LD (HL),L", "Copy L to address pointed by HL", 0, 8, loadRegToHLAddr(RegisterL)}
-	OpcodeHalt      = opcode{0x76, "HALT", "Halt processor", 0, 4, unimplementedHandler}
+	OpcodeHalt      = opcode{0x76, "HALT", "Halt processor", 0, 4, halt}
 	OpcodeLdHla     = opcode{0x77, "LD (HL),A", "Copy A to address pointed by HL", 0, 8, loadRegToHLAddr(RegisterA)}
 	OpcodeLdAb      = opcode{0x78, "LD A,B", "Copy B to A", 0, 4, loadRegToReg(RegisterA, RegisterB)}
 	OpcodeLdAc      = opcode{0x79, "LD A,C", "Copy C to A", 0, 4, loadRegToReg(RegisterA, RegisterC)}

@@ -87,6 +87,9 @@ func (e *Emulator) GetFlagValue(flagName cpu.OpResultFlag) bool {
 }
 
 func (e *Emulator) Step() uint8 {
+	if e.processor.IsStopped() || e.processor.IsHalted() {
+		return 0
+	}
 	e.recorder.TakeSnapshot(e.processor, e.memory)
 	c := e.processor.DoNextInstruction()
 	if e.processor.NextInstruction().Code() == cpu.OpcodeJrN.Code() && e.memory.ReadByte(e.GetPC()+1) == 0xFE {
@@ -118,6 +121,9 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 
 	for {
 		cycleCount += int(e.Step())
+		if e.processor.IsHalted() || e.processor.IsStopped() {
+			break
+		}
 		if _, isBreakpoint := e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)]; isBreakpoint {
 			break
 		}

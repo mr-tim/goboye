@@ -759,3 +759,11 @@ func adjustAForBCDAddition(op opcode, p *processor) {
 
 	p.registers.setFlags(flags)
 }
+
+func stop(op opcode, p *processor) {
+	p.isStopped = true
+}
+
+func halt(op opcode, p *processor) {
+	p.isHalted = true
+}

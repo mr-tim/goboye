@@ -13,6 +13,8 @@ type Processor interface {
 	GetRegisterPair(pair RegisterPair) uint16
 	GetFlagValue(flagName OpResultFlag) bool
 	Cycles() uint
+	IsStopped() bool
+	IsHalted() bool
 }
 
 type processor struct {
@@ -21,6 +23,8 @@ type processor struct {
 	memory            *memory.Controller
 	cycles            uint
 	interruptsEnabled bool
+	isHalted          bool
+	isStopped         bool
 }
 
 func NewProcessor(memory *memory.Controller) Processor {
@@ -98,4 +102,12 @@ func (p *processor) serviceInterrupt(address memory.InterruptAddress) {
 	p.interruptsEnabled = false
 	//call isr
 	doCall16BitAddress(p, uint16(address))
+}
+
+func (p *processor) IsHalted() bool {
+	return p.isHalted
+}
+
+func (p *processor) IsStopped() bool {
+	return p.isStopped
 }
