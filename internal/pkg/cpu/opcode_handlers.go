@@ -509,7 +509,7 @@ func subCImmediate(op opcode, p *processor) {
 
 func logicalXorImmediate(op opcode, p *processor) {
 	other := p.Read8BitImmediate()
-	result := p.registers.getRegister(RegisterA) | other
+	result := p.registers.getRegister(RegisterA) ^ other
 	p.registers.setRegister(RegisterA, result)
 
 	flags := FlagNoFlags
