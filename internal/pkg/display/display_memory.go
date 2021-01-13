@@ -260,7 +260,8 @@ func (d *Display) Update(cycles uint8) {
 				d.m.LY.Write(0)
 			}
 
-			if d.m.LY.Read() >= ROWS {
+			// TODO: should this be ROWS-1?
+			if d.m.LY.Read() == ROWS {
 				// set v-blank flag
 				d.m.StatFlags.SetMode(register.VerticalBlank)
 				d.m.InterruptFlags.VBlankInterrupt()
