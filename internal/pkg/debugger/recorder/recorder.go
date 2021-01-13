@@ -8,6 +8,9 @@ import (
 	"os"
 )
 
+const maxSnapshots = 1000
+const logToFile = false
+
 type Snapshot struct {
 	registers cpu.Registers
 	address   uint16
@@ -22,13 +25,12 @@ func (s Snapshot) String() string {
 
 type Recorder struct {
 	snapshots    []Snapshot
-	maxSnapshots int
 	currentIndex int
 	logger       zerolog.Logger
 }
 
 func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controller) {
-	if r.maxSnapshots > 0 {
+	if maxSnapshots > 0 {
 		registers := processor.DebugRegisters()
 		addr, op, _ := cpu.Disassemble(memory, processor.GetRegisterPair(cpu.RegisterPairPC))
 		s := Snapshot{
@@ -38,15 +40,15 @@ func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controll
 			op:        op,
 		}
 		r.snapshots[r.currentIndex] = s
-		r.currentIndex = (r.currentIndex + 1) % r.maxSnapshots
+		r.currentIndex = (r.currentIndex + 1) % maxSnapshots
 		r.logger.Info().Msgf("%d %s 0x%04x: %s", s.cycles, s.registers, s.address, s.op)
 	}
 }
 
 func (r *Recorder) GetSnapshots() []*Snapshot {
-	result := make([]*Snapshot, r.maxSnapshots)
+	result := make([]*Snapshot, maxSnapshots)
 	idx := 0
-	for i := r.currentIndex; i < r.maxSnapshots; i += 1 {
+	for i := r.currentIndex; i < maxSnapshots; i += 1 {
 		result[idx] = &r.snapshots[i]
 		idx += 1
 	}
@@ -57,10 +59,9 @@ func (r *Recorder) GetSnapshots() []*Snapshot {
 	return result
 }
 
-func NewRecorder(maxSnapshots int) *Recorder {
-	logger := createLogger(false)
+func NewRecorder() *Recorder {
+	logger := createLogger(logToFile)
 	return &(Recorder{
-		maxSnapshots: maxSnapshots,
 		snapshots:    make([]Snapshot, maxSnapshots),
 		currentIndex: 0,
 		logger:       logger,

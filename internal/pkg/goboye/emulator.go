@@ -28,7 +28,7 @@ func NewEmulator() *Emulator {
 	breakpoints := loadBreakpoints()
 	return &(Emulator{
 		breakpoints: breakpoints,
-		recorder:    recorder.NewRecorder(1000),
+		recorder:    recorder.NewRecorder(),
 	})
 }
 
