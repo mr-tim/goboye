@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/debugger/recorder"
 	"github.com/mr-tim/goboye/internal/pkg/display"
@@ -12,6 +13,7 @@ import (
 	"image"
 	"log"
 	"os"
+	"time"
 )
 
 type Emulator struct {
@@ -119,6 +121,8 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		}
 	}()
 
+	start := time.Now()
+
 	for {
 		cycleCount += int(e.Step())
 		if e.processor.IsHalted() || e.processor.IsStopped() {
@@ -133,6 +137,9 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		stepCount += 1
 	}
 
+	elapsed := time.Since(start)
+	rate := float64(stepCount)/elapsed.Seconds()
+	fmt.Printf("%d steps in %s -> %0.3f ops/s\n", stepCount, elapsed, rate)
 }
 
 func (e *Emulator) AddBreakpoint(addr uint16) {

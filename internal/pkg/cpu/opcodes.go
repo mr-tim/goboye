@@ -39,6 +39,10 @@ func (o *OpcodeAndPayload) FormatPayload() string {
 	return ""
 }
 
+func (o *OpcodeAndPayload) String() string {
+	return o.Disassembly()
+}
+
 type opcode struct {
 	code          uint8
 	disassembly   string
