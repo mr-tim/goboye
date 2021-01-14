@@ -5,13 +5,14 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
-	"github.com/pkg/profile"
 	"github.com/gorilla/websocket"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/goboye"
+	"github.com/pkg/profile"
 	"image/png"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"strings"
 	"sync"
 )
@@ -247,7 +248,7 @@ func (c *Client) refreshState() {
 func main() {
 	flag.Parse()
 
-	defer profile.Start(profile.CPUProfile).Stop()
+	defer profile.Start(profile.CPUProfile, profile.ProfilePath(".")).Stop()
 
 	http.HandleFunc("/ws", serveWs)
 	log.Printf("Listening on %s...", *addr)
