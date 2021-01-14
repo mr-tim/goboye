@@ -20,7 +20,7 @@ type Emulator struct {
 	memory      *memory.Controller
 	processor   cpu.Processor
 	display     display.Display
-	breakpoints map[uint16]bool
+	breakpoints [0xFFFF]bool
 	recorder    *recorder.Recorder
 }
 
@@ -32,10 +32,10 @@ func NewEmulator() *Emulator {
 	})
 }
 
-func loadBreakpoints() map[uint16]bool {
+func loadBreakpoints() [0xFFFF]bool {
 	f, err := os.Open("breakpoints.txt")
 
-	breakpoints := make(map[uint16]bool)
+	breakpoints := [0xFFFF]bool{}
 
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -132,7 +132,7 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		if e.processor.IsHalted() || e.processor.IsStopped() {
 			break
 		}
-		if _, isBreakpoint := e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)]; isBreakpoint {
+		if e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)] {
 			break
 		}
 		if stopOnFrame && cycleCount >= display.CYCLES_PER_FRAME {
@@ -151,7 +151,7 @@ func (e *Emulator) AddBreakpoint(addr uint16) {
 }
 
 func (e *Emulator) RemoveBreakpoint(addr uint16) {
-	delete(e.breakpoints, addr)
+	e.breakpoints[addr] = false
 }
 
 func (e *Emulator) MemoryBase64() string {
@@ -161,8 +161,10 @@ func (e *Emulator) MemoryBase64() string {
 
 func (e *Emulator) GetBreakpoints() []uint16 {
 	breakpoints := make([]uint16, 0)
-	for k := range e.breakpoints {
-		breakpoints = append(breakpoints, k)
+	for i := range e.breakpoints {
+		if e.breakpoints[i] {
+			breakpoints = append(breakpoints, uint16(i))
+		}
 	}
 	return breakpoints
 }
