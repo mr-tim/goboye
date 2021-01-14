@@ -119,6 +119,8 @@ const VBLANK_ROWS = 10
 const TOTAL_ROWS = ROWS + VBLANK_ROWS
 const CYCLES_PER_LINE = CYCLES_PER_FRAME / TOTAL_ROWS
 
+const outputBgChars = false
+
 func NewDisplay(m *memory.Controller) Display {
 	return Display{
 		m: m,
@@ -167,17 +169,19 @@ func (d *Display) DebugRenderMemory() image.Image {
 		bgChars = append(bgChars, charImage)
 	}
 
-	for idx, bgChar := range bgChars {
-		err := os.MkdirAll("../chars", 0755)
-		if err != nil {
-			panic(err)
+	if outputBgChars {
+		for idx, bgChar := range bgChars {
+			err := os.MkdirAll("../chars", 0755)
+			if err != nil {
+				panic(err)
+			}
+			f, err := os.Create(fmt.Sprintf("../chars/bgchar%000d.png", idx))
+			if err != nil {
+				panic(err)
+			}
+			png.Encode(f, bgChar)
+			f.Close()
 		}
-		f, err := os.Create(fmt.Sprintf("../chars/bgchar%000d.png", idx))
-		if err != nil {
-			panic(err)
-		}
-		png.Encode(f, bgChar)
-		f.Close()
 	}
 
 	// position of character codes
