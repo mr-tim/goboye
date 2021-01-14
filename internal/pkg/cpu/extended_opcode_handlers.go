@@ -3,7 +3,7 @@ package cpu
 func extendedOps(op opcode, p *processor) {
 	opCodeByte := p.memory.ReadByte(p.registers.pc)
 	p.registers.pc++
-	extendedOpcode := opcodeMapExt[opCodeByte]
+	extendedOpcode := LookupExtOpcode(opCodeByte)
 	extendedOpcode.handler(extendedOpcode, p)
 }
 

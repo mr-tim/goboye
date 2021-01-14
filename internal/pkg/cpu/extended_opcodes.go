@@ -259,267 +259,266 @@ var (
 	OpcodeExtSet7a  = opcode{0xFF, "SET 7,A", "Set bit 7 of A", 0, 8, setBitOfReg(7, RegisterA)}
 )
 
-var opcodeMapExt = map[uint8]opcode{
-	0x00: OpcodeExtRlcB,
-	0x01: OpcodeExtRlcC,
-	0x02: OpcodeExtRlcD,
-	0x03: OpcodeExtRlcE,
-	0x04: OpcodeExtRlcH,
-	0x05: OpcodeExtRlcL,
-	0x06: OpcodeExtRlcHl,
-	0x07: OpcodeExtRlcA,
-	0x08: OpcodeExtRrcB,
-	0x09: OpcodeExtRrcC,
-	0x0A: OpcodeExtRrcD,
-	0x0B: OpcodeExtRrcE,
-	0x0C: OpcodeExtRrcH,
-	0x0D: OpcodeExtRrcL,
-	0x0E: OpcodeExtRrcHl,
-	0x0F: OpcodeExtRrcA,
-	0x10: OpcodeExtRlB,
-	0x11: OpcodeExtRlC,
-	0x12: OpcodeExtRlD,
-	0x13: OpcodeExtRlE,
-	0x14: OpcodeExtRlH,
-	0x15: OpcodeExtRlL,
-	0x16: OpcodeExtRlHl,
-	0x17: OpcodeExtRlA,
-	0x18: OpcodeExtRrB,
-	0x19: OpcodeExtRrC,
-	0x1A: OpcodeExtRrD,
-	0x1B: OpcodeExtRrE,
-	0x1C: OpcodeExtRrH,
-	0x1D: OpcodeExtRrL,
-	0x1E: OpcodeExtRrHl,
-	0x1F: OpcodeExtRrA,
-	0x20: OpcodeExtSlaB,
-	0x21: OpcodeExtSlaC,
-	0x22: OpcodeExtSlaD,
-	0x23: OpcodeExtSlaE,
-	0x24: OpcodeExtSlaH,
-	0x25: OpcodeExtSlaL,
-	0x26: OpcodeExtSlaHl,
-	0x27: OpcodeExtSlaA,
-	0x28: OpcodeExtSraB,
-	0x29: OpcodeExtSraC,
-	0x2A: OpcodeExtSraD,
-	0x2B: OpcodeExtSraE,
-	0x2C: OpcodeExtSraH,
-	0x2D: OpcodeExtSraL,
-	0x2E: OpcodeExtSraHl,
-	0x2F: OpcodeExtSraA,
-	0x30: OpcodeExtSwapB,
-	0x31: OpcodeExtSwapC,
-	0x32: OpcodeExtSwapD,
-	0x33: OpcodeExtSwapE,
-	0x34: OpcodeExtSwapH,
-	0x35: OpcodeExtSwapL,
-	0x36: OpcodeExtSwapHl,
-	0x37: OpcodeExtSwapA,
-	0x38: OpcodeExtSrlB,
-	0x39: OpcodeExtSrlC,
-	0x3A: OpcodeExtSrlD,
-	0x3B: OpcodeExtSrlE,
-	0x3C: OpcodeExtSrlH,
-	0x3D: OpcodeExtSrlL,
-	0x3E: OpcodeExtSrlHl,
-	0x3F: OpcodeExtSrlA,
-	0x40: OpcodeExtBit0b,
-	0x41: OpcodeExtBit0c,
-	0x42: OpcodeExtBit0d,
-	0x43: OpcodeExtBit0e,
-	0x44: OpcodeExtBit0h,
-	0x45: OpcodeExtBit0l,
-	0x46: OpcodeExtBit0hl,
-	0x47: OpcodeExtBit0a,
-	0x48: OpcodeExtBit1b,
-	0x49: OpcodeExtBit1c,
-	0x4A: OpcodeExtBit1d,
-	0x4B: OpcodeExtBit1e,
-	0x4C: OpcodeExtBit1h,
-	0x4D: OpcodeExtBit1l,
-	0x4E: OpcodeExtBit1hl,
-	0x4F: OpcodeExtBit1a,
-	0x50: OpcodeExtBit2b,
-	0x51: OpcodeExtBit2c,
-	0x52: OpcodeExtBit2d,
-	0x53: OpcodeExtBit2e,
-	0x54: OpcodeExtBit2h,
-	0x55: OpcodeExtBit2l,
-	0x56: OpcodeExtBit2hl,
-	0x57: OpcodeExtBit2a,
-	0x58: OpcodeExtBit3b,
-	0x59: OpcodeExtBit3c,
-	0x5A: OpcodeExtBit3d,
-	0x5B: OpcodeExtBit3e,
-	0x5C: OpcodeExtBit3h,
-	0x5D: OpcodeExtBit3l,
-	0x5E: OpcodeExtBit3hl,
-	0x5F: OpcodeExtBit3a,
-	0x60: OpcodeExtBit4b,
-	0x61: OpcodeExtBit4c,
-	0x62: OpcodeExtBit4d,
-	0x63: OpcodeExtBit4e,
-	0x64: OpcodeExtBit4h,
-	0x65: OpcodeExtBit4l,
-	0x66: OpcodeExtBit4hl,
-	0x67: OpcodeExtBit4a,
-	0x68: OpcodeExtBit5b,
-	0x69: OpcodeExtBit5c,
-	0x6A: OpcodeExtBit5d,
-	0x6B: OpcodeExtBit5e,
-	0x6C: OpcodeExtBit5h,
-	0x6D: OpcodeExtBit5l,
-	0x6E: OpcodeExtBit5hl,
-	0x6F: OpcodeExtBit5a,
-	0x70: OpcodeExtBit6b,
-	0x71: OpcodeExtBit6c,
-	0x72: OpcodeExtBit6d,
-	0x73: OpcodeExtBit6e,
-	0x74: OpcodeExtBit6h,
-	0x75: OpcodeExtBit6l,
-	0x76: OpcodeExtBit6hl,
-	0x77: OpcodeExtBit6a,
-	0x78: OpcodeExtBit7b,
-	0x79: OpcodeExtBit7c,
-	0x7A: OpcodeExtBit7d,
-	0x7B: OpcodeExtBit7e,
-	0x7C: OpcodeExtBit7h,
-	0x7D: OpcodeExtBit7l,
-	0x7E: OpcodeExtBit7hl,
-	0x7F: OpcodeExtBit7a,
-	0x80: OpcodeExtRes0b,
-	0x81: OpcodeExtRes0c,
-	0x82: OpcodeExtRes0d,
-	0x83: OpcodeExtRes0e,
-	0x84: OpcodeExtRes0h,
-	0x85: OpcodeExtRes0l,
-	0x86: OpcodeExtRes0hl,
-	0x87: OpcodeExtRes0a,
-	0x88: OpcodeExtRes1b,
-	0x89: OpcodeExtRes1c,
-	0x8A: OpcodeExtRes1d,
-	0x8B: OpcodeExtRes1e,
-	0x8C: OpcodeExtRes1h,
-	0x8D: OpcodeExtRes1l,
-	0x8E: OpcodeExtRes1hl,
-	0x8F: OpcodeExtRes1a,
-	0x90: OpcodeExtRes2b,
-	0x91: OpcodeExtRes2c,
-	0x92: OpcodeExtRes2d,
-	0x93: OpcodeExtRes2e,
-	0x94: OpcodeExtRes2h,
-	0x95: OpcodeExtRes2l,
-	0x96: OpcodeExtRes2hl,
-	0x97: OpcodeExtRes2a,
-	0x98: OpcodeExtRes3b,
-	0x99: OpcodeExtRes3c,
-	0x9A: OpcodeExtRes3d,
-	0x9B: OpcodeExtRes3e,
-	0x9C: OpcodeExtRes3h,
-	0x9D: OpcodeExtRes3l,
-	0x9E: OpcodeExtRes3hl,
-	0x9F: OpcodeExtRes3a,
-	0xA0: OpcodeExtRes4b,
-	0xA1: OpcodeExtRes4c,
-	0xA2: OpcodeExtRes4d,
-	0xA3: OpcodeExtRes4e,
-	0xA4: OpcodeExtRes4h,
-	0xA5: OpcodeExtRes4l,
-	0xA6: OpcodeExtRes4hl,
-	0xA7: OpcodeExtRes4a,
-	0xA8: OpcodeExtRes5b,
-	0xA9: OpcodeExtRes5c,
-	0xAA: OpcodeExtRes5d,
-	0xAB: OpcodeExtRes5e,
-	0xAC: OpcodeExtRes5h,
-	0xAD: OpcodeExtRes5l,
-	0xAE: OpcodeExtRes5hl,
-	0xAF: OpcodeExtRes5a,
-	0xB0: OpcodeExtRes6b,
-	0xB1: OpcodeExtRes6c,
-	0xB2: OpcodeExtRes6d,
-	0xB3: OpcodeExtRes6e,
-	0xB4: OpcodeExtRes6h,
-	0xB5: OpcodeExtRes6l,
-	0xB6: OpcodeExtRes6hl,
-	0xB7: OpcodeExtRes6a,
-	0xB8: OpcodeExtRes7b,
-	0xB9: OpcodeExtRes7c,
-	0xBA: OpcodeExtRes7d,
-	0xBB: OpcodeExtRes7e,
-	0xBC: OpcodeExtRes7h,
-	0xBD: OpcodeExtRes7l,
-	0xBE: OpcodeExtRes7hl,
-	0xBF: OpcodeExtRes7a,
-	0xC0: OpcodeExtSet0b,
-	0xC1: OpcodeExtSet0c,
-	0xC2: OpcodeExtSet0d,
-	0xC3: OpcodeExtSet0e,
-	0xC4: OpcodeExtSet0h,
-	0xC5: OpcodeExtSet0l,
-	0xC6: OpcodeExtSet0hl,
-	0xC7: OpcodeExtSet0a,
-	0xC8: OpcodeExtSet1b,
-	0xC9: OpcodeExtSet1c,
-	0xCA: OpcodeExtSet1d,
-	0xCB: OpcodeExtSet1e,
-	0xCC: OpcodeExtSet1h,
-	0xCD: OpcodeExtSet1l,
-	0xCE: OpcodeExtSet1hl,
-	0xCF: OpcodeExtSet1a,
-	0xD0: OpcodeExtSet2b,
-	0xD1: OpcodeExtSet2c,
-	0xD2: OpcodeExtSet2d,
-	0xD3: OpcodeExtSet2e,
-	0xD4: OpcodeExtSet2h,
-	0xD5: OpcodeExtSet2l,
-	0xD6: OpcodeExtSet2hl,
-	0xD7: OpcodeExtSet2a,
-	0xD8: OpcodeExtSet3b,
-	0xD9: OpcodeExtSet3c,
-	0xDA: OpcodeExtSet3d,
-	0xDB: OpcodeExtSet3e,
-	0xDC: OpcodeExtSet3h,
-	0xDD: OpcodeExtSet3l,
-	0xDE: OpcodeExtSet3hl,
-	0xDF: OpcodeExtSet3a,
-	0xE0: OpcodeExtSet4b,
-	0xE1: OpcodeExtSet4c,
-	0xE2: OpcodeExtSet4d,
-	0xE3: OpcodeExtSet4e,
-	0xE4: OpcodeExtSet4h,
-	0xE5: OpcodeExtSet4l,
-	0xE6: OpcodeExtSet4hl,
-	0xE7: OpcodeExtSet4a,
-	0xE8: OpcodeExtSet5b,
-	0xE9: OpcodeExtSet5c,
-	0xEA: OpcodeExtSet5d,
-	0xEB: OpcodeExtSet5e,
-	0xEC: OpcodeExtSet5h,
-	0xED: OpcodeExtSet5l,
-	0xEE: OpcodeExtSet5hl,
-	0xEF: OpcodeExtSet5a,
-	0xF0: OpcodeExtSet6b,
-	0xF1: OpcodeExtSet6c,
-	0xF2: OpcodeExtSet6d,
-	0xF3: OpcodeExtSet6e,
-	0xF4: OpcodeExtSet6h,
-	0xF5: OpcodeExtSet6l,
-	0xF6: OpcodeExtSet6hl,
-	0xF7: OpcodeExtSet6a,
-	0xF8: OpcodeExtSet7b,
-	0xF9: OpcodeExtSet7c,
-	0xFA: OpcodeExtSet7d,
-	0xFB: OpcodeExtSet7e,
-	0xFC: OpcodeExtSet7h,
-	0xFD: OpcodeExtSet7l,
-	0xFE: OpcodeExtSet7hl,
-	0xFF: OpcodeExtSet7a,
-}
-
 func LookupExtOpcode(opcodeByte byte) opcode {
-	return opcodeMapExt[opcodeByte]
+	switch opcodeByte {
+		case 0x00: return OpcodeExtRlcB 
+		case 0x01: return OpcodeExtRlcC 
+		case 0x02: return OpcodeExtRlcD 
+		case 0x03: return OpcodeExtRlcE 
+		case 0x04: return OpcodeExtRlcH 
+		case 0x05: return OpcodeExtRlcL 
+		case 0x06: return OpcodeExtRlcHl 
+		case 0x07: return OpcodeExtRlcA 
+		case 0x08: return OpcodeExtRrcB 
+		case 0x09: return OpcodeExtRrcC 
+		case 0x0A: return OpcodeExtRrcD 
+		case 0x0B: return OpcodeExtRrcE 
+		case 0x0C: return OpcodeExtRrcH 
+		case 0x0D: return OpcodeExtRrcL 
+		case 0x0E: return OpcodeExtRrcHl 
+		case 0x0F: return OpcodeExtRrcA 
+		case 0x10: return OpcodeExtRlB 
+		case 0x11: return OpcodeExtRlC 
+		case 0x12: return OpcodeExtRlD 
+		case 0x13: return OpcodeExtRlE 
+		case 0x14: return OpcodeExtRlH 
+		case 0x15: return OpcodeExtRlL 
+		case 0x16: return OpcodeExtRlHl 
+		case 0x17: return OpcodeExtRlA 
+		case 0x18: return OpcodeExtRrB 
+		case 0x19: return OpcodeExtRrC 
+		case 0x1A: return OpcodeExtRrD 
+		case 0x1B: return OpcodeExtRrE 
+		case 0x1C: return OpcodeExtRrH 
+		case 0x1D: return OpcodeExtRrL 
+		case 0x1E: return OpcodeExtRrHl 
+		case 0x1F: return OpcodeExtRrA 
+		case 0x20: return OpcodeExtSlaB 
+		case 0x21: return OpcodeExtSlaC 
+		case 0x22: return OpcodeExtSlaD 
+		case 0x23: return OpcodeExtSlaE 
+		case 0x24: return OpcodeExtSlaH 
+		case 0x25: return OpcodeExtSlaL 
+		case 0x26: return OpcodeExtSlaHl 
+		case 0x27: return OpcodeExtSlaA 
+		case 0x28: return OpcodeExtSraB 
+		case 0x29: return OpcodeExtSraC 
+		case 0x2A: return OpcodeExtSraD 
+		case 0x2B: return OpcodeExtSraE 
+		case 0x2C: return OpcodeExtSraH 
+		case 0x2D: return OpcodeExtSraL 
+		case 0x2E: return OpcodeExtSraHl 
+		case 0x2F: return OpcodeExtSraA 
+		case 0x30: return OpcodeExtSwapB 
+		case 0x31: return OpcodeExtSwapC 
+		case 0x32: return OpcodeExtSwapD 
+		case 0x33: return OpcodeExtSwapE 
+		case 0x34: return OpcodeExtSwapH 
+		case 0x35: return OpcodeExtSwapL 
+		case 0x36: return OpcodeExtSwapHl 
+		case 0x37: return OpcodeExtSwapA 
+		case 0x38: return OpcodeExtSrlB 
+		case 0x39: return OpcodeExtSrlC 
+		case 0x3A: return OpcodeExtSrlD 
+		case 0x3B: return OpcodeExtSrlE 
+		case 0x3C: return OpcodeExtSrlH 
+		case 0x3D: return OpcodeExtSrlL 
+		case 0x3E: return OpcodeExtSrlHl 
+		case 0x3F: return OpcodeExtSrlA 
+		case 0x40: return OpcodeExtBit0b 
+		case 0x41: return OpcodeExtBit0c 
+		case 0x42: return OpcodeExtBit0d 
+		case 0x43: return OpcodeExtBit0e 
+		case 0x44: return OpcodeExtBit0h 
+		case 0x45: return OpcodeExtBit0l 
+		case 0x46: return OpcodeExtBit0hl 
+		case 0x47: return OpcodeExtBit0a 
+		case 0x48: return OpcodeExtBit1b 
+		case 0x49: return OpcodeExtBit1c 
+		case 0x4A: return OpcodeExtBit1d 
+		case 0x4B: return OpcodeExtBit1e 
+		case 0x4C: return OpcodeExtBit1h 
+		case 0x4D: return OpcodeExtBit1l 
+		case 0x4E: return OpcodeExtBit1hl 
+		case 0x4F: return OpcodeExtBit1a 
+		case 0x50: return OpcodeExtBit2b 
+		case 0x51: return OpcodeExtBit2c 
+		case 0x52: return OpcodeExtBit2d 
+		case 0x53: return OpcodeExtBit2e 
+		case 0x54: return OpcodeExtBit2h 
+		case 0x55: return OpcodeExtBit2l 
+		case 0x56: return OpcodeExtBit2hl 
+		case 0x57: return OpcodeExtBit2a 
+		case 0x58: return OpcodeExtBit3b 
+		case 0x59: return OpcodeExtBit3c 
+		case 0x5A: return OpcodeExtBit3d 
+		case 0x5B: return OpcodeExtBit3e 
+		case 0x5C: return OpcodeExtBit3h 
+		case 0x5D: return OpcodeExtBit3l 
+		case 0x5E: return OpcodeExtBit3hl 
+		case 0x5F: return OpcodeExtBit3a 
+		case 0x60: return OpcodeExtBit4b 
+		case 0x61: return OpcodeExtBit4c 
+		case 0x62: return OpcodeExtBit4d 
+		case 0x63: return OpcodeExtBit4e 
+		case 0x64: return OpcodeExtBit4h 
+		case 0x65: return OpcodeExtBit4l 
+		case 0x66: return OpcodeExtBit4hl 
+		case 0x67: return OpcodeExtBit4a 
+		case 0x68: return OpcodeExtBit5b 
+		case 0x69: return OpcodeExtBit5c 
+		case 0x6A: return OpcodeExtBit5d 
+		case 0x6B: return OpcodeExtBit5e 
+		case 0x6C: return OpcodeExtBit5h 
+		case 0x6D: return OpcodeExtBit5l 
+		case 0x6E: return OpcodeExtBit5hl 
+		case 0x6F: return OpcodeExtBit5a 
+		case 0x70: return OpcodeExtBit6b 
+		case 0x71: return OpcodeExtBit6c 
+		case 0x72: return OpcodeExtBit6d 
+		case 0x73: return OpcodeExtBit6e 
+		case 0x74: return OpcodeExtBit6h 
+		case 0x75: return OpcodeExtBit6l 
+		case 0x76: return OpcodeExtBit6hl 
+		case 0x77: return OpcodeExtBit6a 
+		case 0x78: return OpcodeExtBit7b 
+		case 0x79: return OpcodeExtBit7c 
+		case 0x7A: return OpcodeExtBit7d 
+		case 0x7B: return OpcodeExtBit7e 
+		case 0x7C: return OpcodeExtBit7h 
+		case 0x7D: return OpcodeExtBit7l 
+		case 0x7E: return OpcodeExtBit7hl 
+		case 0x7F: return OpcodeExtBit7a 
+		case 0x80: return OpcodeExtRes0b 
+		case 0x81: return OpcodeExtRes0c 
+		case 0x82: return OpcodeExtRes0d 
+		case 0x83: return OpcodeExtRes0e 
+		case 0x84: return OpcodeExtRes0h 
+		case 0x85: return OpcodeExtRes0l 
+		case 0x86: return OpcodeExtRes0hl 
+		case 0x87: return OpcodeExtRes0a 
+		case 0x88: return OpcodeExtRes1b 
+		case 0x89: return OpcodeExtRes1c 
+		case 0x8A: return OpcodeExtRes1d 
+		case 0x8B: return OpcodeExtRes1e 
+		case 0x8C: return OpcodeExtRes1h 
+		case 0x8D: return OpcodeExtRes1l 
+		case 0x8E: return OpcodeExtRes1hl 
+		case 0x8F: return OpcodeExtRes1a 
+		case 0x90: return OpcodeExtRes2b 
+		case 0x91: return OpcodeExtRes2c 
+		case 0x92: return OpcodeExtRes2d 
+		case 0x93: return OpcodeExtRes2e 
+		case 0x94: return OpcodeExtRes2h 
+		case 0x95: return OpcodeExtRes2l 
+		case 0x96: return OpcodeExtRes2hl 
+		case 0x97: return OpcodeExtRes2a 
+		case 0x98: return OpcodeExtRes3b 
+		case 0x99: return OpcodeExtRes3c 
+		case 0x9A: return OpcodeExtRes3d 
+		case 0x9B: return OpcodeExtRes3e 
+		case 0x9C: return OpcodeExtRes3h 
+		case 0x9D: return OpcodeExtRes3l 
+		case 0x9E: return OpcodeExtRes3hl 
+		case 0x9F: return OpcodeExtRes3a 
+		case 0xA0: return OpcodeExtRes4b 
+		case 0xA1: return OpcodeExtRes4c 
+		case 0xA2: return OpcodeExtRes4d 
+		case 0xA3: return OpcodeExtRes4e 
+		case 0xA4: return OpcodeExtRes4h 
+		case 0xA5: return OpcodeExtRes4l 
+		case 0xA6: return OpcodeExtRes4hl 
+		case 0xA7: return OpcodeExtRes4a 
+		case 0xA8: return OpcodeExtRes5b 
+		case 0xA9: return OpcodeExtRes5c 
+		case 0xAA: return OpcodeExtRes5d 
+		case 0xAB: return OpcodeExtRes5e 
+		case 0xAC: return OpcodeExtRes5h 
+		case 0xAD: return OpcodeExtRes5l 
+		case 0xAE: return OpcodeExtRes5hl 
+		case 0xAF: return OpcodeExtRes5a 
+		case 0xB0: return OpcodeExtRes6b 
+		case 0xB1: return OpcodeExtRes6c 
+		case 0xB2: return OpcodeExtRes6d 
+		case 0xB3: return OpcodeExtRes6e 
+		case 0xB4: return OpcodeExtRes6h 
+		case 0xB5: return OpcodeExtRes6l 
+		case 0xB6: return OpcodeExtRes6hl 
+		case 0xB7: return OpcodeExtRes6a 
+		case 0xB8: return OpcodeExtRes7b 
+		case 0xB9: return OpcodeExtRes7c 
+		case 0xBA: return OpcodeExtRes7d 
+		case 0xBB: return OpcodeExtRes7e 
+		case 0xBC: return OpcodeExtRes7h 
+		case 0xBD: return OpcodeExtRes7l 
+		case 0xBE: return OpcodeExtRes7hl 
+		case 0xBF: return OpcodeExtRes7a 
+		case 0xC0: return OpcodeExtSet0b 
+		case 0xC1: return OpcodeExtSet0c 
+		case 0xC2: return OpcodeExtSet0d 
+		case 0xC3: return OpcodeExtSet0e 
+		case 0xC4: return OpcodeExtSet0h 
+		case 0xC5: return OpcodeExtSet0l 
+		case 0xC6: return OpcodeExtSet0hl 
+		case 0xC7: return OpcodeExtSet0a 
+		case 0xC8: return OpcodeExtSet1b 
+		case 0xC9: return OpcodeExtSet1c 
+		case 0xCA: return OpcodeExtSet1d 
+		case 0xCB: return OpcodeExtSet1e 
+		case 0xCC: return OpcodeExtSet1h 
+		case 0xCD: return OpcodeExtSet1l 
+		case 0xCE: return OpcodeExtSet1hl 
+		case 0xCF: return OpcodeExtSet1a 
+		case 0xD0: return OpcodeExtSet2b 
+		case 0xD1: return OpcodeExtSet2c 
+		case 0xD2: return OpcodeExtSet2d 
+		case 0xD3: return OpcodeExtSet2e 
+		case 0xD4: return OpcodeExtSet2h 
+		case 0xD5: return OpcodeExtSet2l 
+		case 0xD6: return OpcodeExtSet2hl 
+		case 0xD7: return OpcodeExtSet2a 
+		case 0xD8: return OpcodeExtSet3b 
+		case 0xD9: return OpcodeExtSet3c 
+		case 0xDA: return OpcodeExtSet3d 
+		case 0xDB: return OpcodeExtSet3e 
+		case 0xDC: return OpcodeExtSet3h 
+		case 0xDD: return OpcodeExtSet3l 
+		case 0xDE: return OpcodeExtSet3hl 
+		case 0xDF: return OpcodeExtSet3a 
+		case 0xE0: return OpcodeExtSet4b 
+		case 0xE1: return OpcodeExtSet4c 
+		case 0xE2: return OpcodeExtSet4d 
+		case 0xE3: return OpcodeExtSet4e 
+		case 0xE4: return OpcodeExtSet4h 
+		case 0xE5: return OpcodeExtSet4l 
+		case 0xE6: return OpcodeExtSet4hl 
+		case 0xE7: return OpcodeExtSet4a 
+		case 0xE8: return OpcodeExtSet5b 
+		case 0xE9: return OpcodeExtSet5c 
+		case 0xEA: return OpcodeExtSet5d 
+		case 0xEB: return OpcodeExtSet5e 
+		case 0xEC: return OpcodeExtSet5h 
+		case 0xED: return OpcodeExtSet5l 
+		case 0xEE: return OpcodeExtSet5hl 
+		case 0xEF: return OpcodeExtSet5a 
+		case 0xF0: return OpcodeExtSet6b 
+		case 0xF1: return OpcodeExtSet6c 
+		case 0xF2: return OpcodeExtSet6d 
+		case 0xF3: return OpcodeExtSet6e 
+		case 0xF4: return OpcodeExtSet6h 
+		case 0xF5: return OpcodeExtSet6l 
+		case 0xF6: return OpcodeExtSet6hl 
+		case 0xF7: return OpcodeExtSet6a 
+		case 0xF8: return OpcodeExtSet7b 
+		case 0xF9: return OpcodeExtSet7c 
+		case 0xFA: return OpcodeExtSet7d 
+		case 0xFB: return OpcodeExtSet7e 
+		case 0xFC: return OpcodeExtSet7h 
+		case 0xFD: return OpcodeExtSet7l 
+		case 0xFE: return OpcodeExtSet7hl 
+		case 0xFF: return OpcodeExtSet7a 
+	}
+	panic("Unreachable code!")
 }
 
 func doNothing() {
