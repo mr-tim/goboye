@@ -1,7 +1,6 @@
 package memory
 
 type controllerRegister struct {
-
 }
 
 func (r *controllerRegister) Read() byte {

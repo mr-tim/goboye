@@ -123,7 +123,7 @@ func decrementHLAddr(op opcode, p *processor) {
 	newValue := originalValue - 1
 	p.memory.WriteByte(p.registers.hl, newValue)
 
-	flags := FlagC & p.registers.getFlags() | FlagN
+	flags := FlagC&p.registers.getFlags() | FlagN
 	if newValue == 0 {
 		flags |= FlagZ
 	}
@@ -706,12 +706,12 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 }
 
 func isHalfCarryAdd16Bit(originalValue uint16, operand int8) bool {
-	return ((originalValue & 0x0FFF) + uint16(operand)) & 0x1000 == 0x1000
+	return ((originalValue&0x0FFF)+uint16(operand))&0x1000 == 0x1000
 }
 
 func isCarryAdd16Bit(originalValue uint16, operand int8) bool {
-	highSet := originalValue & 0x8000 == 0x8000
-	highUnsetAfter := (originalValue + uint16(operand)) & 0x8000 == 0x0000
+	highSet := originalValue&0x8000 == 0x8000
+	highUnsetAfter := (originalValue+uint16(operand))&0x8000 == 0x0000
 	return highSet && highUnsetAfter
 }
 
@@ -735,7 +735,7 @@ func adjustAForBCDAddition(op opcode, p *processor) {
 		flags |= FlagN
 	}
 
-	if p.GetFlagValue(FlagH) || (!p.GetFlagValue(FlagN) && (p.GetRegister(RegisterA) & 0x0F) > 9) {
+	if p.GetFlagValue(FlagH) || (!p.GetFlagValue(FlagN) && (p.GetRegister(RegisterA)&0x0F) > 9) {
 		correction |= 0x06
 	}
 

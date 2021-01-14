@@ -697,7 +697,7 @@ func TestLoadRegToReg(t *testing.T) {
 		for i, from := range regs {
 			if from != RegisterF {
 				opcode := baseAddr + uint8(i)
-				t.Run(fmt.Sprintf("%x02: %s <- %s", opcode, to, from), func (t *testing.T) {
+				t.Run(fmt.Sprintf("%x02: %s <- %s", opcode, to, from), func(t *testing.T) {
 					doRegToRegTest(t, opcode, to, from)
 				})
 			}
@@ -718,11 +718,11 @@ func TestLoadHLAddrToReg(t *testing.T) {
 	registers := []register{RegisterB, RegisterC, RegisterD, RegisterE, RegisterH, RegisterL, RegisterF, RegisterA}
 
 	for i, to := range registers {
-		opcode := base + uint8(i * 8)
+		opcode := base + uint8(i*8)
 		if to == RegisterF {
 			continue
 		}
-		t.Run(fmt.Sprintf("%02x: %s < $HL", opcode, to), func (t *testing.T) {
+		t.Run(fmt.Sprintf("%02x: %s < $HL", opcode, to), func(t *testing.T) {
 			doHLAddrToRegTest(t, opcode, to)
 		})
 	}
@@ -904,9 +904,9 @@ func TestDAAExhaustive(t *testing.T) {
 		nBefore bool
 		cBefore bool
 		hBefore bool
-		before uint8
-		after uint8
-		cAfter bool
+		before  uint8
+		after   uint8
+		cAfter  bool
 	}{
 		// post additions
 		{false, false, false, 0x99, 0x99, false},
@@ -927,28 +927,27 @@ func TestDAAExhaustive(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(fmt.Sprintf("n=%#v,c=%#v,h=%#v,value=0x%02X", c.nBefore, c.cBefore, c.hBefore, c.before),
-			func (t *testing.T) {
-			p := setupHandlerTest([]byte{0x27})
-			f := FlagNoFlags
-			if c.nBefore {
-				f |= FlagN
-			}
-			if c.cBefore {
-				f |= FlagC
-			}
-			if c.hBefore {
-				f |= FlagH
-			}
-			p.registers.setRegister(RegisterA, c.before)
-			p.registers.setFlags(f)
-			p.DoNextInstruction()
+			func(t *testing.T) {
+				p := setupHandlerTest([]byte{0x27})
+				f := FlagNoFlags
+				if c.nBefore {
+					f |= FlagN
+				}
+				if c.cBefore {
+					f |= FlagC
+				}
+				if c.hBefore {
+					f |= FlagH
+				}
+				p.registers.setRegister(RegisterA, c.before)
+				p.registers.setFlags(f)
+				p.DoNextInstruction()
 
-			assert.Equal(t, c.after, p.registers.getRegister(RegisterA))
-			assert.Equal(t, c.cAfter, p.registers.getFlagValue(FlagC))
-			assert.Equal(t, false, p.registers.getFlagValue(FlagH))
-			assert.Equal(t, c.nBefore, p.registers.getFlagValue(FlagN))
-			assert.Equal(t, c.after == 0x00, p.registers.getFlagValue(FlagZ))
-		})
+				assert.Equal(t, c.after, p.registers.getRegister(RegisterA))
+				assert.Equal(t, c.cAfter, p.registers.getFlagValue(FlagC))
+				assert.Equal(t, false, p.registers.getFlagValue(FlagH))
+				assert.Equal(t, c.nBefore, p.registers.getFlagValue(FlagN))
+				assert.Equal(t, c.after == 0x00, p.registers.getFlagValue(FlagZ))
+			})
 	}
 }
-

@@ -142,7 +142,7 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 	}
 
 	elapsed := time.Since(start)
-	rate := float64(stepCount)/elapsed.Seconds()
+	rate := float64(stepCount) / elapsed.Seconds()
 	fmt.Printf("%d steps in %s -> %0.3f ops/s\n", stepCount, elapsed, rate)
 }
 

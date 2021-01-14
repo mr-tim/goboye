@@ -7,8 +7,8 @@ import (
 )
 
 type Controller struct {
-	romImage        memoryMap
-	ram             memoryMap
+	romImage         memoryMap
+	ram              memoryMap
 	stack            memoryMap
 	ControllerData   controllerRegister
 	BootRomRegister  bootRomByteRegister
