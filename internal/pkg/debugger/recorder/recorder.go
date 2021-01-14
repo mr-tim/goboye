@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+const recorderEnabled = false
 const maxSnapshots = 1000
 const logToFile = false
 
@@ -24,13 +25,13 @@ func (s Snapshot) String() string {
 }
 
 type Recorder struct {
-	snapshots    []Snapshot
+	snapshots    [maxSnapshots]Snapshot
 	currentIndex int
 	logger       zerolog.Logger
 }
 
 func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controller) {
-	if maxSnapshots > 0 {
+	if recorderEnabled {
 		registers := processor.DebugRegisters()
 		addr, op, _ := cpu.Disassemble(memory, processor.GetRegisterPair(cpu.RegisterPairPC))
 		s := Snapshot{
@@ -45,8 +46,8 @@ func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controll
 	}
 }
 
-func (r *Recorder) GetSnapshots() []*Snapshot {
-	result := make([]*Snapshot, maxSnapshots)
+func (r *Recorder) GetSnapshots() [maxSnapshots]*Snapshot {
+	var result [maxSnapshots]*Snapshot
 	idx := 0
 	for i := r.currentIndex; i < maxSnapshots; i += 1 {
 		result[idx] = &r.snapshots[i]
@@ -59,10 +60,14 @@ func (r *Recorder) GetSnapshots() []*Snapshot {
 	return result
 }
 
+func (r *Recorder) IsEnabled() bool {
+	return recorderEnabled
+}
+
 func NewRecorder() *Recorder {
 	logger := createLogger(logToFile)
 	return &(Recorder{
-		snapshots:    make([]Snapshot, maxSnapshots),
+		snapshots:    [maxSnapshots]Snapshot{},
 		currentIndex: 0,
 		logger:       logger,
 	})

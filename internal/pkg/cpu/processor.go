@@ -41,9 +41,13 @@ func (p *processor) readNextInstruction() opcode {
 	return LookupOpcode(opCodeByte)
 }
 
-func (p *processor) NextInstruction() Opcode {
+func (p *processor) peekNextInstruction() opcode {
 	b := p.memory.ReadByte(p.registers.pc)
-	o := LookupOpcode(b)
+	return LookupOpcode(b)
+}
+
+func (p *processor) NextInstruction() Opcode {
+	o := p.peekNextInstruction()
 	return &o
 }
 

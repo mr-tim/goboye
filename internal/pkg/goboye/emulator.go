@@ -93,8 +93,10 @@ func (e *Emulator) Step() uint8 {
 		return 0
 	}
 	e.recorder.TakeSnapshot(e.processor, e.memory)
+	pc := e.GetPC()
 	c := e.processor.DoNextInstruction()
-	if e.processor.NextInstruction().Code() == cpu.OpcodeJrN.Code() && e.memory.ReadByte(e.GetPC()+1) == 0xFE {
+	// break on infinite loops (PC isn't advancing because of JrN -1
+	if pc == e.GetPC() {
 		// infinite loop
 		e.breakpoints[e.GetPC()] = true
 	}
@@ -112,8 +114,10 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 
 	defer func() {
 		r := recover()
-		for _, s := range e.recorder.GetSnapshots() {
-			log.Printf("%s\n", s)
+		if e.recorder.IsEnabled() {
+			for _, s := range e.recorder.GetSnapshots() {
+				log.Printf("%s\n", s)
+			}
 		}
 		log.Printf("%d steps", stepCount)
 		if r != nil {
