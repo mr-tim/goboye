@@ -21,6 +21,8 @@ type Controller struct {
 	BGP              simpleByteRegister
 	InterruptFlags   InterruptFlagsRegister
 	InterruptEnabled InterruptEnabledRegister
+	SerialOutput     string
+	serialRequested  bool
 }
 
 func NewController() Controller {
@@ -112,6 +114,15 @@ func (c *Controller) WriteByte(addr uint16, value byte) {
 		c.ram.WriteByte(addr-ROM_SIZE, value)
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		reg.Write(value)
+	} else if addr == 0xFF01 {
+		c.stack.WriteByte(addr-STACK_START, value)
+		if c.serialRequested {
+			c.SerialOutput += string(value)
+			c.WriteByte(0xFF02, 0x00)
+		}
+	} else if addr == 0xFF02 {
+		c.stack.WriteByte(addr-STACK_START, value)
+		c.serialRequested = value == 0x81
 	} else if c.isStackAddr(addr) {
 		c.stack.WriteByte(addr-STACK_START, value)
 	} else {

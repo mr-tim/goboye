@@ -172,3 +172,7 @@ func (e *Emulator) GetBreakpoints() []uint16 {
 func (e *Emulator) DebugRender() image.Image {
 	return e.display.DebugRenderMemory()
 }
+
+func (e *Emulator) SerialOutput() string {
+	return e.memory.SerialOutput
+}
