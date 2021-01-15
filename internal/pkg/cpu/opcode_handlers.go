@@ -631,7 +631,11 @@ func doReturn(op opcode, p *processor) {
 
 func doReturnEnablingInterrupts(op opcode, p *processor) {
 	p.interruptsEnabled = true
-	p.registers = p.savedRegisters
+	if p.savedRegisters != nil {
+		// TODO: check if this is correct? Fixes a NPE but may be incorrect
+		p.registers = p.savedRegisters
+		p.savedRegisters = nil
+	}
 	doReturn(op, p)
 }
 
