@@ -704,10 +704,10 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 	}
 
 	flags := FlagNoFlags
-	if v > 0 && isHalfCarryAdd16Bit(p.registers.sp, int8(v)) {
+	if result&0xF < p.registers.sp&0xF {
 		flags |= FlagH
 	}
-	if v > 0 && isCarryAdd16Bit(p.registers.sp, int8(v)) {
+	if result&0xFF < p.registers.sp&0xFF {
 		flags |= FlagC
 	}
 	p.registers.setFlags(flags)
