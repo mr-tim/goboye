@@ -380,7 +380,17 @@ func doCompareValueAgainstA(p *processor, value uint8) {
 
 func addRegPairToHL(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
-		p.registers.hl += p.registers.getRegisterPair(rp)
+		flags := p.registers.getFlags() & FlagZ
+		original := p.registers.hl
+		toAdd := p.registers.getRegisterPair(rp)
+		if isHalfCarryAdd16Bit(original, toAdd) {
+			flags |= FlagH
+		}
+		if isCarryAdd16Bit(original, toAdd) {
+			flags |= FlagC
+		}
+		p.registers.hl = original + toAdd
+		p.registers.setFlags(flags)
 	}
 }
 
@@ -705,14 +715,13 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 	p.registers.setRegisterPair(rp, result)
 }
 
-func isHalfCarryAdd16Bit(originalValue uint16, operand int8) bool {
-	return ((originalValue&0x0FFF)+uint16(operand))&0x1000 == 0x1000
+func isHalfCarryAdd16Bit(originalValue uint16, operand uint16) bool {
+	return (originalValue&0x0FFF) + (operand&0x0FFF) > 0x0FFF
 }
 
-func isCarryAdd16Bit(originalValue uint16, operand int8) bool {
-	highSet := originalValue&0x8000 == 0x8000
-	highUnsetAfter := (originalValue+uint16(operand))&0x8000 == 0x0000
-	return highSet && highUnsetAfter
+func isCarryAdd16Bit(originalValue uint16, operand uint16) bool {
+	result := uint32(originalValue) + uint32(operand)
+	return result > 0xFFFF
 }
 
 func copyHLToSP(op opcode, p *processor) {
