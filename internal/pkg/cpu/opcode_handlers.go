@@ -177,7 +177,7 @@ func doDecrementRegister(p *processor, reg register) {
 }
 
 func isHalfCarryAdd(old, plusValue uint8) bool {
-	return ((old&0x0f)+(plusValue&0x0f))&0x10 == 0x10
+	return ((old&0x0f)+(plusValue&0x0f)) > 0x0f
 }
 
 func isHalfCarrySubtract(old, subtractValue uint8) bool {
