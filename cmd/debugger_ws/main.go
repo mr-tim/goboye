@@ -19,6 +19,9 @@ import (
 
 var (
 	addr = flag.String("addr", "127.0.0.1:8080", "http service address")
+	rom = flag.String("rom", "", "ROM to run")
+	profileCpu = flag.Bool("profileCpu", false, "Profile CPU")
+	profileMem = flag.Bool("profileMem", false, "Profile memory")
 )
 
 var upgrader = websocket.Upgrader{
@@ -46,7 +49,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	go client.readMessages()
 	go client.handleMessages()
 
-	client.emulator.LoadRomImage("/Users/tim/Desktop/goboye_research/Tetris (World).gb")
+	client.emulator.LoadRomImage(*rom)
 	client.refreshState()
 }
 
@@ -248,7 +251,15 @@ func (c *Client) refreshState() {
 func main() {
 	flag.Parse()
 
-	defer profile.Start(profile.CPUProfile, profile.ProfilePath(".")).Stop()
+	if *rom == "" {
+		panic("Please specify a ROM to run")
+	}
+
+	if *profileCpu {
+		defer profile.Start(profile.CPUProfile, profile.ProfilePath(".")).Stop()
+	} else if *profileMem {
+		defer profile.Start(profile.MemProfile, profile.ProfilePath(".")).Stop()
+	}
 
 	http.HandleFunc("/ws", serveWs)
 	log.Printf("Listening on %s...", *addr)
