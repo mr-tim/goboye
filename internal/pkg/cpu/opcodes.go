@@ -326,7 +326,7 @@ var (
 	OpcodeRst28     = opcode{0xEF, "RST 28", "Call routine at address 0028h", 0, 16, callRoutineAtAddress(0x0028)}
 	OpcodeLdhAn     = opcode{0xF0, "LDH A,(n)", "Load A from address pointed to by (FF00h + 8-bit immediate)", 1, 12, loadAFromFFPlusImmediateAddr}
 	OpcodePopAf     = opcode{0xF1, "POP AF", "Pop 16-bit value from stack into AF", 0, 12, popRegisterPair(RegisterPairAF)}
-	OpcodeXxF2      = opcode{0xF2, "XX", "Operation removed in this CPU", 0, 8, unsupportedHandler}
+	OpcodeLdhAC     = opcode{0xF2, "LDH A,C", "Load A from address pointed to by (FF00h + C)", 0, 8, loadAFromFFPlusC}
 	OpcodeDi        = opcode{0xF3, "DI", "Disable interrupts", 0, 4, disableInterrupts}
 	OpcodeXxF4      = opcode{0xF4, "XX", "Operation removed in this CPU", 0, 0, unsupportedHandler}
 	OpcodePushAf    = opcode{0xF5, "PUSH AF", "Push 16-bit AF onto stack", 0, 16, pushRegisterPair(RegisterPairAF)}
@@ -829,7 +829,7 @@ func LookupOpcode(opcodeByte byte) opcode {
 	case 0xF1:
 		return OpcodePopAf
 	case 0xF2:
-		return OpcodeXxF2
+		return OpcodeLdhAC
 	case 0xF3:
 		return OpcodeDi
 	case 0xF4:

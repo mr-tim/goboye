@@ -678,6 +678,11 @@ func loadAFromFFPlusImmediateAddr(op opcode, p *processor) {
 	doLoadAFromAddr(p, address)
 }
 
+func loadAFromFFPlusC(op opcode, p *processor) {
+	address := 0xFF00 + uint16(p.registers.getRegister(RegisterC))
+	doLoadAFromAddr(p, address)
+}
+
 func loadAFromAddr(op opcode, p *processor) {
 	address := p.Read16BitImmediate()
 	doLoadAFromAddr(p, address)

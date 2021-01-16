@@ -42,7 +42,7 @@ func (r *Recorder) TakeSnapshot(processor cpu.Processor, memory *memory.Controll
 		}
 		r.snapshots[r.currentIndex] = s
 		r.currentIndex = (r.currentIndex + 1) % maxSnapshots
-		r.logger.Info().Msgf("%d %s 0x%04x: %s", s.cycles, s.registers, s.address, s.op)
+		r.logger.Info().Msgf("%d %s 0x%04x: %s", s.cycles, s.registers.String(), s.address, s.op.Disassembly())
 	}
 }
 
@@ -65,7 +65,7 @@ func (r *Recorder) IsEnabled() bool {
 }
 
 func NewRecorder() *Recorder {
-	logger := createLogger(logToFile)
+	logger := createLogger(recorderEnabled && logToFile)
 	return &(Recorder{
 		snapshots:    [maxSnapshots]Snapshot{},
 		currentIndex: 0,
