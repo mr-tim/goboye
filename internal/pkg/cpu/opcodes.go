@@ -245,11 +245,11 @@ var (
 	OpcodeSbcAhl    = opcode{0x9E, "SBC A,(HL)", "Subtract value pointed by HL and carry flag from A", 0, 8, subtractHLAddrAndCarryFromA}
 	OpcodeSbcAa     = opcode{0x9F, "SBC A,A", "Subtract A and carry flag from A", 0, 4, subtractRegAndCarryFromA(RegisterA)}
 	OpcodeAndB      = opcode{0xA0, "AND B", "Logical AND B against A", 0, 4, logicalAndRegAgainstA(RegisterB)}
-	OpcodeAndC      = opcode{0xA1, "AND C", "Logical AND C against A", 0, 4, logicalAndRegAgainstA(RegisterB)}
-	OpcodeAndD      = opcode{0xA2, "AND D", "Logical AND D against A", 0, 4, logicalAndRegAgainstA(RegisterB)}
-	OpcodeAndE      = opcode{0xA3, "AND E", "Logical AND E against A", 0, 4, logicalAndRegAgainstA(RegisterB)}
-	OpcodeAndH      = opcode{0xA4, "AND H", "Logical AND H against A", 0, 4, logicalAndRegAgainstA(RegisterB)}
-	OpcodeAndL      = opcode{0xA5, "AND L", "Logical AND L against A", 0, 4, logicalAndRegAgainstA(RegisterB)}
+	OpcodeAndC      = opcode{0xA1, "AND C", "Logical AND C against A", 0, 4, logicalAndRegAgainstA(RegisterC)}
+	OpcodeAndD      = opcode{0xA2, "AND D", "Logical AND D against A", 0, 4, logicalAndRegAgainstA(RegisterD)}
+	OpcodeAndE      = opcode{0xA3, "AND E", "Logical AND E against A", 0, 4, logicalAndRegAgainstA(RegisterE)}
+	OpcodeAndH      = opcode{0xA4, "AND H", "Logical AND H against A", 0, 4, logicalAndRegAgainstA(RegisterH)}
+	OpcodeAndL      = opcode{0xA5, "AND L", "Logical AND L against A", 0, 4, logicalAndRegAgainstA(RegisterL)}
 	OpcodeAndHl     = opcode{0xA6, "AND (HL)", "Logical AND value pointed by HL against A", 0, 8, logicalAndHLAddrAgainstA}
 	OpcodeAndA      = opcode{0xA7, "AND A", "Logical AND A against A", 0, 4, logicalAndRegAgainstA(RegisterA)}
 	OpcodeXorB      = opcode{0xA8, "XOR B", "Logical XOR B against A", 0, 4, logicalXorRegAgainstA(RegisterB)}

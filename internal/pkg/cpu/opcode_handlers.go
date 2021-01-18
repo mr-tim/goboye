@@ -2,10 +2,6 @@ package cpu
 
 import "fmt"
 
-func unimplementedHandler(op opcode, p *processor) {
-	panic(fmt.Sprintf("Unimplemented opcode: %#v\n", op))
-}
-
 func unsupportedHandler(op opcode, p *processor) {
 	panic(fmt.Sprintf("Unsupported opcode: %#v\n", op))
 }
@@ -104,34 +100,16 @@ func doDecrementRegPair(p *processor, rp RegisterPair) {
 
 func incrementHLAddr(op opcode, p *processor) {
 	originalValue := p.memory.ReadByte(p.registers.hl)
-	newValue := originalValue + 1
+	newValue, flags := add(originalValue, 1, false)
 	p.memory.WriteByte(p.registers.hl, newValue)
-
-	flags := FlagC & p.registers.getFlags()
-	if newValue == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarryAdd(originalValue, 1, false) {
-		flags |= FlagH
-	}
-
-	p.registers.setFlags(flags)
+	p.registers.setFlags(updateIncDecFlags(p, flags))
 }
 
 func decrementHLAddr(op opcode, p *processor) {
 	originalValue := p.memory.ReadByte(p.registers.hl)
-	newValue := originalValue - 1
+	newValue, flags := subtract(originalValue, 1, false)
 	p.memory.WriteByte(p.registers.hl, newValue)
-
-	flags := FlagC&p.registers.getFlags() | FlagN
-	if newValue == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarrySubtract(originalValue, 1, false) {
-		flags |= FlagH
-	}
-
-	p.registers.setFlags(flags)
+	p.registers.setFlags(updateIncDecFlags(p, flags))
 }
 
 func incrementReg(reg register) opcodeHandler {
@@ -148,32 +126,21 @@ func decrementReg(reg register) opcodeHandler {
 
 func doIncrementRegister(p *processor, reg register) {
 	oldValue := p.registers.getRegister(reg)
-	newValue := oldValue + 1
+	newValue, flags := add(oldValue, 1, false)
 	p.registers.setRegister(reg, newValue)
-	flags := FlagNoFlags
-	if newValue == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarryAdd(oldValue, 1, false) {
-		flags |= FlagH
-	}
-	p.registers.setFlags(flags)
+	p.registers.setFlags(updateIncDecFlags(p, flags))
 }
 
 func doDecrementRegister(p *processor, reg register) {
 	oldValue := p.registers.getRegister(reg)
-	newValue := oldValue - 1
+	newValue, flags := subtract(oldValue, 1, false)
 	p.registers.setRegister(reg, newValue)
-	// set the n flag to 1
-	flags := FlagN
-	if newValue == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarrySubtract(oldValue, 1, false) {
-		flags |= FlagH
-	}
-	p.registers.setFlags(flags)
+	p.registers.setFlags(updateIncDecFlags(p, flags))
 
+}
+
+func updateIncDecFlags(p *processor, flags OpResultFlag) OpResultFlag {
+	return p.registers.getFlags()&FlagC + (^FlagC & flags)
 }
 
 func isHalfCarryAdd(old, plusValue uint8, carry bool) bool {
@@ -218,21 +185,8 @@ func addHLAddrAndCarryToA(op opcode, p *processor) {
 
 func doAddValueToA(p *processor, toAdd uint8, carry bool) {
 	oldValue := p.registers.getRegister(RegisterA)
-	newValue := oldValue + toAdd
-	if carry {
-		newValue += 1
-	}
+	newValue, flags := add(oldValue, toAdd, carry)
 	p.registers.setRegister(RegisterA, newValue)
-	flags := FlagNoFlags
-	if newValue == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarryAdd(oldValue, toAdd, carry) {
-		flags |= FlagH
-	}
-	if newValue < oldValue || toAdd != 0 && newValue == oldValue {
-		flags |= FlagC
-	}
 	p.registers.setFlags(flags)
 }
 
@@ -262,21 +216,8 @@ func subtractHLAddrAndCarryFromA(op opcode, p *processor) {
 
 func doSubtractValueFromA(p *processor, toSubtract uint8, carry bool) {
 	oldValue := p.registers.getRegister(RegisterA)
-	newValue := oldValue - toSubtract
-	if carry {
-		newValue -= 1
-	}
+	newValue, flags := subtract(oldValue, toSubtract, carry)
 	p.registers.setRegister(RegisterA, newValue)
-	flags := FlagN
-	if newValue == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarrySubtract(oldValue, toSubtract, carry) {
-		flags |= FlagH
-	}
-	if newValue > oldValue || toSubtract != 0 && oldValue == newValue {
-		flags |= FlagC
-	}
 	p.registers.setFlags(flags)
 }
 
@@ -417,7 +358,7 @@ func loadAFromHLAddrDec(op opcode, p *processor) {
 }
 
 func complementOnA(op opcode, p *processor) {
-	flags := FlagN | FlagH
+	flags := p.registers.getFlags() | FlagN | FlagH
 	p.registers.setRegister(RegisterA, ^p.registers.getRegister(RegisterA))
 	p.registers.setFlags(flags)
 }
@@ -435,38 +376,16 @@ func clearCarryFlag(op opcode, p *processor) {
 func addImmediate(op opcode, p *processor) {
 	original := p.registers.getRegister(RegisterA)
 	other := p.Read8BitImmediate()
-	result := original + other
+	result, flags := add(original, other, false)
 	p.registers.setRegister(RegisterA, result)
-
-	flags := FlagNoFlags
-	if result == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarryAdd(original, other, false) {
-		flags |= FlagH
-	}
-	if result < original {
-		flags |= FlagC
-	}
 	p.registers.setFlags(flags)
 }
 
 func subtractImmediate(op opcode, p *processor) {
 	original := p.registers.getRegister(RegisterA)
 	other := p.Read8BitImmediate()
-	result := original - other
+	result, flags := subtract(original, other, false)
 	p.registers.setRegister(RegisterA, result)
-
-	flags := FlagN
-	if result == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarrySubtract(original, other, false) {
-		flags |= FlagH
-	}
-	if result > original {
-		flags |= FlagC
-	}
 	p.registers.setFlags(flags)
 }
 
