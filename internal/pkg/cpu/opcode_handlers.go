@@ -111,7 +111,7 @@ func incrementHLAddr(op opcode, p *processor) {
 	if newValue == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarryAdd(originalValue, 1) {
+	if isHalfCarryAdd(originalValue, 1, false) {
 		flags |= FlagH
 	}
 
@@ -127,7 +127,7 @@ func decrementHLAddr(op opcode, p *processor) {
 	if newValue == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarrySubtract(originalValue, 1) {
+	if isHalfCarrySubtract(originalValue, 1, false) {
 		flags |= FlagH
 	}
 
@@ -154,7 +154,7 @@ func doIncrementRegister(p *processor, reg register) {
 	if newValue == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarryAdd(oldValue, 1) {
+	if isHalfCarryAdd(oldValue, 1, false) {
 		flags |= FlagH
 	}
 	p.registers.setFlags(flags)
@@ -169,63 +169,68 @@ func doDecrementRegister(p *processor, reg register) {
 	if newValue == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarrySubtract(oldValue, 1) {
+	if isHalfCarrySubtract(oldValue, 1, false) {
 		flags |= FlagH
 	}
 	p.registers.setFlags(flags)
 
 }
 
-func isHalfCarryAdd(old, plusValue uint8) bool {
-	return ((old&0x0f)+(plusValue&0x0f)) > 0x0f
+func isHalfCarryAdd(old, plusValue uint8, carry bool) bool {
+	result := (old & 0x0f) + (plusValue & 0x0f)
+	if carry {
+		result += 1
+	}
+	return result > 0x0f
 }
 
-func isHalfCarrySubtract(old, subtractValue uint8) bool {
-	return ((old&0x0f)-(subtractValue&0x0f))&0x80 == 0x80
+func isHalfCarrySubtract(old, subtractValue uint8, carry bool) bool {
+	result := (old & 0x0f) - (subtractValue & 0x0f)
+	if carry {
+		result -= 1
+	}
+	return result > 0xF
 }
 
 func addRegToA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toAdd := p.registers.getRegister(reg)
-		doAddValueToA(p, toAdd)
+		doAddValueToA(p, toAdd, false)
 	}
 }
 
 func addHLAddrToA(op opcode, p *processor) {
 	toAdd := p.memory.ReadByte(p.registers.hl)
-	doAddValueToA(p, toAdd)
+	doAddValueToA(p, toAdd, false)
 }
 
 func addRegAndCarryToA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toAdd := p.registers.getRegister(reg)
-		if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
-			toAdd++
-		}
-		doAddValueToA(p, toAdd)
+		doAddValueToA(p, toAdd, p.registers.getFlagValue(FlagC))
 	}
 }
 
 func addHLAddrAndCarryToA(op opcode, p *processor) {
 	toAdd := p.memory.ReadByte(p.registers.hl)
-	if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
-		toAdd++
-	}
-	doAddValueToA(p, toAdd)
+	doAddValueToA(p, toAdd, p.registers.getFlagValue(FlagC))
 }
 
-func doAddValueToA(p *processor, toAdd uint8) {
+func doAddValueToA(p *processor, toAdd uint8, carry bool) {
 	oldValue := p.registers.getRegister(RegisterA)
 	newValue := oldValue + toAdd
+	if carry {
+		newValue += 1
+	}
 	p.registers.setRegister(RegisterA, newValue)
 	flags := FlagNoFlags
 	if newValue == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarryAdd(oldValue, toAdd) {
+	if isHalfCarryAdd(oldValue, toAdd, carry) {
 		flags |= FlagH
 	}
-	if newValue < oldValue {
+	if newValue < oldValue || toAdd != 0 && newValue == oldValue {
 		flags |= FlagC
 	}
 	p.registers.setFlags(flags)
@@ -234,45 +239,42 @@ func doAddValueToA(p *processor, toAdd uint8) {
 func subtractRegFromA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toSubtract := p.registers.getRegister(reg)
-		doSubtractValueFromA(p, toSubtract)
+		doSubtractValueFromA(p, toSubtract, false)
 	}
 }
 
 func subtractHLAddrFromA(op opcode, p *processor) {
 	toSubtract := p.memory.ReadByte(p.registers.hl)
-	doSubtractValueFromA(p, toSubtract)
+	doSubtractValueFromA(p, toSubtract, false)
 }
 
 func subtractRegAndCarryFromA(reg register) opcodeHandler {
 	return func(op opcode, p *processor) {
 		toSubtract := p.registers.getRegister(reg)
-		if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
-			toSubtract++
-		}
-		doSubtractValueFromA(p, toSubtract)
+		doSubtractValueFromA(p, toSubtract, p.registers.getFlagValue(FlagC))
 	}
 }
 
 func subtractHLAddrAndCarryFromA(op opcode, p *processor) {
 	toSubtract := p.memory.ReadByte(p.registers.hl)
-	if p.registers.getRegister(RegisterF)&uint8(FlagC) > 0 {
-		toSubtract++
-	}
-	doSubtractValueFromA(p, toSubtract)
+	doSubtractValueFromA(p, toSubtract, p.registers.getFlagValue(FlagC))
 }
 
-func doSubtractValueFromA(p *processor, toSubtract uint8) {
+func doSubtractValueFromA(p *processor, toSubtract uint8, carry bool) {
 	oldValue := p.registers.getRegister(RegisterA)
 	newValue := oldValue - toSubtract
+	if carry {
+		newValue -= 1
+	}
 	p.registers.setRegister(RegisterA, newValue)
 	flags := FlagN
 	if newValue == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarrySubtract(oldValue, toSubtract) {
+	if isHalfCarrySubtract(oldValue, toSubtract, carry) {
 		flags |= FlagH
 	}
-	if newValue > oldValue {
+	if newValue > oldValue || toSubtract != 0 && oldValue == newValue {
 		flags |= FlagC
 	}
 	p.registers.setFlags(flags)
@@ -368,11 +370,15 @@ func compareHLAddrAgainstA(op opcode, p *processor) {
 func doCompareValueAgainstA(p *processor, value uint8) {
 	regAValue := p.registers.getRegister(RegisterA)
 	flags := FlagN
-	if value < regAValue {
+	result := regAValue - value
+	isHalfCarry := isHalfCarrySubtract(regAValue, value, false)
+	if isHalfCarry {
 		flags |= FlagH
-	} else if value == regAValue {
+	}
+	if result == 0 {
 		flags |= FlagZ
-	} else if value > regAValue {
+	}
+	if regAValue < value {
 		flags |= FlagC
 	}
 	p.registers.setFlags(flags)
@@ -411,7 +417,9 @@ func loadAFromHLAddrDec(op opcode, p *processor) {
 }
 
 func complementOnA(op opcode, p *processor) {
+	flags := FlagN | FlagH
 	p.registers.setRegister(RegisterA, ^p.registers.getRegister(RegisterA))
+	p.registers.setFlags(flags)
 }
 
 func setCarryFlag(op opcode, p *processor) {
@@ -420,7 +428,7 @@ func setCarryFlag(op opcode, p *processor) {
 }
 
 func clearCarryFlag(op opcode, p *processor) {
-	flags := p.registers.getFlags() | ^FlagC
+	flags := p.registers.getFlags() & ^FlagC
 	p.registers.setFlags(flags)
 }
 
@@ -434,7 +442,7 @@ func addImmediate(op opcode, p *processor) {
 	if result == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarryAdd(original, other) {
+	if isHalfCarryAdd(original, other, false) {
 		flags |= FlagH
 	}
 	if result < original {
@@ -453,7 +461,7 @@ func subtractImmediate(op opcode, p *processor) {
 	if result == 0 {
 		flags |= FlagZ
 	}
-	if isHalfCarrySubtract(original, other) {
+	if isHalfCarrySubtract(original, other, false) {
 		flags |= FlagH
 	}
 	if result > original {
@@ -488,33 +496,13 @@ func logicalOrImmediate(op opcode, p *processor) {
 }
 
 func addCImmediate(op opcode, p *processor) {
-	original := p.registers.getRegister(RegisterA)
 	other := p.Read8BitImmediate()
-	if p.registers.getFlagValue(FlagC) {
-		other += 1
-	}
-	result := original + other
-	p.registers.setRegister(RegisterA, result)
-
-	flags := FlagNoFlags
-	if result == 0 {
-		flags |= FlagZ
-	}
-	if isHalfCarryAdd(original, other) {
-		flags |= FlagH
-	}
-	if result < original {
-		flags |= FlagC
-	}
-	p.registers.setFlags(flags)
+	doAddValueToA(p, other, p.registers.getFlagValue(FlagC))
 }
 
 func subCImmediate(op opcode, p *processor) {
 	other := p.Read8BitImmediate()
-	if p.registers.getFlagValue(FlagC) {
-		other++
-	}
-	doSubtractValueFromA(p, other)
+	doSubtractValueFromA(p, other, p.registers.getFlagValue(FlagC))
 }
 
 func logicalXorImmediate(op opcode, p *processor) {
@@ -725,7 +713,7 @@ func doAdd8BitSignedImmediateToSP(p *processor, rp RegisterPair) {
 }
 
 func isHalfCarryAdd16Bit(originalValue uint16, operand uint16) bool {
-	return (originalValue&0x0FFF) + (operand&0x0FFF) > 0x0FFF
+	return (originalValue&0x0FFF)+(operand&0x0FFF) > 0x0FFF
 }
 
 func isCarryAdd16Bit(originalValue uint16, operand uint16) bool {

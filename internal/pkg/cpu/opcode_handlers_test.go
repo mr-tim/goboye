@@ -951,3 +951,45 @@ func TestDAAExhaustive(t *testing.T) {
 			})
 	}
 }
+
+func TestCpnExhaustive(t *testing.T) {
+	for a := 0; a < 256; a += 1 {
+		for x := 0; x < 256; x += 1 {
+			testName := fmt.Sprintf("CP A=0x%02X, 0x%02X: %%s", uint8(a), uint8(x))
+			p := setupHandlerTest([]byte{0xFE, uint8(x)})
+			p.registers.setRegister(RegisterA, uint8(a))
+			p.DoNextInstruction()
+
+			assert.Equal(t, a == x, p.registers.getFlagValue(FlagZ), testName, "Incorrect Z flag")
+			assert.True(t, p.registers.getFlagValue(FlagN), testName, "Incorrect N flag")
+			h := (a^(a-x)^x)&0x10 != 0
+			assert.Equal(t, h, p.registers.getFlagValue(FlagH), testName, "Incorrect H flag")
+			assert.Equal(t, a < x, p.registers.getFlagValue(FlagC), testName, "Incorrect C flags")
+		}
+	}
+}
+
+func TestADCnExhaustive(t *testing.T) {
+	for a := 0; a < 256; a += 1 {
+		for x := 0; x < 256; x += 1 {
+			for c := 0; c < 2; c += 1 {
+				testName := fmt.Sprintf("ADC A=0x%02X, 0x%02X (C=%t): %%s", uint8(a), uint8(x), c == 1)
+				p := setupHandlerTest([]byte{0xCE, uint8(x)})
+				p.registers.setRegister(RegisterA, uint8(a))
+				if c == 1 {
+					p.registers.setFlags(FlagC)
+				}
+				p.DoNextInstruction()
+
+				expectedValue := uint8(a) + uint8(x) + uint8(c)
+				h := uint8(a&0x0f)+uint8(x&0x0f)+uint8(c) > 0x0f
+				c := expectedValue < uint8(a) || x != 0 && expectedValue == uint8(a)
+				assert.Equal(t, expectedValue, p.registers.getRegister(RegisterA), testName, "Incorrect result")
+				assert.Equal(t, expectedValue == 0, p.registers.getFlagValue(FlagZ), testName, "Incorrect Z flag")
+				assert.False(t, p.registers.getFlagValue(FlagN), testName, "Incorrect N flag")
+				assert.Equal(t, h, p.registers.getFlagValue(FlagH), testName, "Incorrect H flag")
+				assert.Equal(t, c, p.registers.getFlagValue(FlagC), testName, "Incorrect C flag")
+			}
+		}
+	}
+}
