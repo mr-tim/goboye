@@ -22,7 +22,7 @@ func testBitOfHLAddr(bit uint8) opcodeHandler {
 }
 
 func doTestBit(p *processor, bit, value uint8) {
-	flags := FlagNoFlags
+	flags := p.registers.getFlags() & FlagC
 	flags |= FlagH
 	mask := uint8(0x01 << bit)
 	if value&mask == 0 {
