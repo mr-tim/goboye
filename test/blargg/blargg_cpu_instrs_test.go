@@ -1,10 +1,9 @@
-// +build !blargg
-
 package blargg
 
 import (
 	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/goboye"
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 )
@@ -65,5 +64,7 @@ func doBlargTest(t *testing.T, rom string) {
 	fmt.Printf(e.SerialOutput())
 	if strings.HasSuffix(e.SerialOutput(), "Failed\n") {
 		t.Fail()
+	} else {
+		assert.True(t, true)
 	}
 }
