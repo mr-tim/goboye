@@ -88,7 +88,7 @@ var (
 	OpcodeDecB   = opcode{0x05, "DEC B", "Decrement B", 0, 4, decrementReg(RegisterB)}
 	OpcodeLdBn   = opcode{0x06, "LD B,n", "Load 8-bit immediate into B", 1, 8, load8BitToReg(RegisterB)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRlcA    = opcode{0x07, "RLC A", "Rotate A left with carry", 0, 4, rotateRegLeftWithCarry(RegisterA)}
+	OpcodeRlcA    = opcode{0x07, "RLC A", "Rotate A left with carry", 0, 4, rotateALeftWithCarry}
 	OpcodeLdNnsp  = opcode{0x08, "LD (nn),SP", "Save SP to given address", 2, 20, saveSPToAddr}
 	OpcodeAddHlbc = opcode{0x09, "ADD HL,BC", "Add 16-bit BC to HL", 0, 8, addRegPairToHL(RegisterPairBC)}
 	OpcodeLdAbc   = opcode{0x0A, "LD A,(BC)", "Load A from address pointed to by BC", 0, 8, loadAFromRegPairAddr(RegisterPairBC)}
@@ -97,7 +97,7 @@ var (
 	OpcodeDecC    = opcode{0x0D, "DEC C", "Decrement C", 0, 4, decrementReg(RegisterC)}
 	OpcodeLdCn    = opcode{0x0E, "LD C,n", "Load 8-bit immediate into C", 1, 8, load8BitToReg(RegisterC)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRrcA   = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 4, rotateRegRightWithCarry(RegisterA)}
+	OpcodeRrcA   = opcode{0x0F, "RRC A", "Rotate A right with carry", 0, 4, rotateARightWithCarry}
 	OpcodeStop   = opcode{0x10, "STOP", "Stop processor", 0, 4, stop}
 	OpcodeLdDenn = opcode{0x11, "LD DE,nn", "Load 16-bit immediate into DE", 2, 12, load16BitToRegPair(RegisterPairDE)}
 	OpcodeLdDea  = opcode{0x12, "LD (DE),A", "Save A to address pointed by DE", 0, 8, saveAToDEAddr}
@@ -106,7 +106,7 @@ var (
 	OpcodeDecD   = opcode{0x15, "DEC D", "Decrement D", 0, 4, decrementReg(RegisterD)}
 	OpcodeLdDn   = opcode{0x16, "LD D,n", "Load 8-bit immediate into D", 1, 8, load8BitToReg(RegisterD)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRlA     = opcode{0x17, "RL A", "Rotate A left", 0, 4, rotateRegLeft(RegisterA)}
+	OpcodeRlA     = opcode{0x17, "RL A", "Rotate A left", 0, 4, rotateALeft}
 	OpcodeJrN     = opcode{0x18, "JR n", "Relative jump by signed immediate", 1, 12, relativeJumpImmediate}
 	OpcodeAddHlde = opcode{0x19, "ADD HL,DE", "Add 16-bit DE to HL", 0, 8, addRegPairToHL(RegisterPairDE)}
 	OpcodeLdAde   = opcode{0x1A, "LD A,(DE)", "Load A from address pointed to by DE", 0, 8, loadAFromRegPairAddr(RegisterPairDE)}
@@ -115,7 +115,7 @@ var (
 	OpcodeDecE    = opcode{0x1D, "DEC E", "Decrement E", 0, 4, decrementReg(RegisterE)}
 	OpcodeLdEn    = opcode{0x1E, "LD E,n", "Load 8-bit immediate into E", 1, 8, load8BitToReg(RegisterE)}
 	//TODO: should this one also reset FlagZ?
-	OpcodeRrA       = opcode{0x1F, "RR A", "Rotate A right", 0, 4, rotateRegRight(RegisterA)}
+	OpcodeRrA       = opcode{0x1F, "RR A", "Rotate A right", 0, 4, rotateARight}
 	OpcodeJrNzn     = opcode{0x20, "JR NZ,n", "Relative jump by signed immediate if last result was not zero", 1, 8, relativeJumpImmediateIfFlag(FlagZ, false)}
 	OpcodeLdHlnn    = opcode{0x21, "LD HL,nn", "Load 16-bit immediate into HL", 2, 12, load16BitToRegPair(RegisterPairHL)}
 	OpcodeLdiHla    = opcode{0x22, "LDI (HL),A", "Save A to address pointed by HL, and increment HL", 0, 8, saveAToHLAddrInc}

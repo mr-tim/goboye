@@ -696,3 +696,23 @@ func stop(op opcode, p *processor) {
 func halt(op opcode, p *processor) {
 	p.isHalted = true
 }
+
+func rotateALeftWithCarry(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, doRotateLeft(p, p.registers.getRegister(RegisterA), true))
+	p.registers.setFlags(p.registers.getFlags() & ^FlagZ)
+}
+
+func rotateALeft(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, doRotateLeft(p, p.registers.getRegister(RegisterA), false))
+	p.registers.setFlags(p.registers.getFlags() & ^FlagZ)
+}
+
+func rotateARightWithCarry(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, doRotateRight(p, p.registers.getRegister(RegisterA), true))
+	p.registers.setFlags(p.registers.getFlags() & ^FlagZ)
+}
+
+func rotateARight(op opcode, p *processor) {
+	p.registers.setRegister(RegisterA, doRotateRight(p, p.registers.getRegister(RegisterA), false))
+	p.registers.setFlags(p.registers.getFlags() & ^FlagZ)
+}
