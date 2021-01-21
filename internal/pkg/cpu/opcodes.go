@@ -147,7 +147,7 @@ var (
 	OpcodeIncA      = opcode{0x3C, "INC A", "Increment A", 0, 4, incrementReg(RegisterA)}
 	OpcodeDecA      = opcode{0x3D, "DEC A", "Decrement A", 0, 4, decrementReg(RegisterA)}
 	OpcodeLdAn      = opcode{0x3E, "LD A,n", "Load 8-bit immediate into A", 1, 8, load8BitToReg(RegisterA)}
-	OpcodeCcf       = opcode{0x3F, "CCF", "Clear carry flag", 0, 4, clearCarryFlag}
+	OpcodeCcf       = opcode{0x3F, "CCF", "Complement carry flag", 0, 4, complementCarryFlag}
 	OpcodeLdBb      = opcode{0x40, "LD B,B", "Copy B to B", 0, 4, loadRegToReg(RegisterB, RegisterB)}
 	OpcodeLdBc      = opcode{0x41, "LD B,C", "Copy C to B", 0, 4, loadRegToReg(RegisterB, RegisterC)}
 	OpcodeLdBd      = opcode{0x42, "LD B,D", "Copy D to B", 0, 4, loadRegToReg(RegisterB, RegisterD)}

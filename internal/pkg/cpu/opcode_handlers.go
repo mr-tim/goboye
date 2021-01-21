@@ -364,12 +364,16 @@ func complementOnA(op opcode, p *processor) {
 }
 
 func setCarryFlag(op opcode, p *processor) {
-	flags := p.registers.getFlags() | FlagC
+	flags := p.registers.getFlags() & FlagZ
+	flags |= FlagC
 	p.registers.setFlags(flags)
 }
 
-func clearCarryFlag(op opcode, p *processor) {
-	flags := p.registers.getFlags() & ^FlagC
+func complementCarryFlag(op opcode, p *processor) {
+	flags := p.registers.getFlags() & FlagZ
+	if !p.registers.getFlagValue(FlagC) {
+		flags |= FlagC
+	}
 	p.registers.setFlags(flags)
 }
 
