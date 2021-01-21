@@ -3,8 +3,8 @@ import styled from "styled-components";
 
 const ScreenDiv = styled.div`
     background-color: #9bbc0f;
-    width: 256px;
-    height: 256px;
+    width: 320px;
+    height: 288px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 30px;
@@ -22,7 +22,7 @@ const Display: React.FC<DisplayProps> = (props) => {
       undefined : 'data:image/png;base64,' + props.debugRender;
   return (<ScreenDiv>
     {props.debugRender !== undefined &&
-      <img alt="current screen contents" src={imgSrc}/>
+      <img width="320" height="288" style={{imageRendering: "pixelated"}} alt="current screen contents" src={imgSrc}/>
     }
   </ScreenDiv>);
 }

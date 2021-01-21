@@ -195,7 +195,12 @@ func (d *Display) DebugRenderMemory() image.Image {
 		charImg := bgChars[charCode]
 		draw.Draw(p, image.Rect(tileX*8, tileY*8, (tileX+1)*8, (tileY+1)*8), charImg, image.Point{}, draw.Src)
 	}
-	return p
+
+	scx := int(d.m.SCX.Read())
+	scy := int(d.m.SCY.Read())
+	window := image.Rect(scx, scy, scx+160, scy+144)
+
+	return p.SubImage(window)
 }
 
 func (d *Display) Update(cycles uint8) {
