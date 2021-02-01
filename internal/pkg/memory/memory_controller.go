@@ -19,6 +19,8 @@ type Controller struct {
 	LY               simpleByteRegister
 	LYC              simpleByteRegister
 	BGP              simpleByteRegister
+	OBP0             simpleByteRegister
+	OBP1             simpleByteRegister
 	InterruptFlags   InterruptFlagsRegister
 	InterruptEnabled InterruptEnabledRegister
 	SerialOutput     string
@@ -59,6 +61,10 @@ func (c *Controller) getRegister(addr uint16) (ByteRegister, bool) {
 		return &c.LYC, true
 	case 0xFF47:
 		return &c.BGP, true
+	case 0xFF48:
+		return &c.OBP0, true
+	case 0xFF49:
+		return &c.OBP1, true
 	case bootRomRegisterAddr:
 		return &c.BootRomRegister, true
 	case 0xFFFF:
