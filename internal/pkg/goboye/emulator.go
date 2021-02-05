@@ -13,7 +13,6 @@ import (
 	"image"
 	"log"
 	"os"
-	"time"
 )
 
 type Emulator struct {
@@ -119,31 +118,43 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 				log.Printf("%s\n", s)
 			}
 		}
-		log.Printf("%d steps", stepCount)
+		//log.Printf("%d steps", stepCount)
 		if r != nil {
 			panic(r)
 		}
 	}()
 
-	start := time.Now()
+	//start := time.Now()
 
 	for {
 		cycleCount += int(e.Step())
 		if e.processor.IsHalted() || e.processor.IsStopped() {
 			break
 		}
-		if e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)] {
+		//if e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)] {
+		//	break
+		//}
+		pc := e.processor.GetRegisterPair(cpu.RegisterPairPC)
+
+		if e.breakpoints[pc] {
+			fmt.Printf("At %04X\n", pc)
 			break
 		}
-		if stopOnFrame && cycleCount >= display.CYCLES_PER_FRAME {
-			break
+
+		if stopOnFrame {
+			// unbelievably slow?!
+			if e.memory.LCDCFlags.IsLCDEnabled() {
+				if cycleCount >= display.CYCLES_PER_FRAME && e.memory.LYC.Read() == 0 {
+					break
+				}
+			}
 		}
 		stepCount += 1
 	}
 
-	elapsed := time.Since(start)
-	rate := float64(stepCount) / elapsed.Seconds()
-	fmt.Printf("%d steps in %s -> %0.3f ops/s\n", stepCount, elapsed, rate)
+	//elapsed := time.Since(start)
+	//rate := float64(stepCount) / elapsed.Seconds()
+	//fmt.Printf("%d steps in %s -> %0.3f ops/s\n", stepCount, elapsed, rate)
 }
 
 func (e *Emulator) AddBreakpoint(addr uint16) {

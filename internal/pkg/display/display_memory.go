@@ -111,6 +111,7 @@ import (
 
 const FRAMES_PER_SECOND = 60
 const CYCLES_PER_FRAME = utils.CPU_CYCLES_PER_SECOND / FRAMES_PER_SECOND
+const COLS = 160
 const ROWS = 144
 const VBLANK_ROWS = 10
 const TOTAL_ROWS = ROWS + VBLANK_ROWS
@@ -129,12 +130,12 @@ type Display struct {
 	cycles int
 }
 
-var colors = [4]color.RGBA{
-	{R: 0x9b, G: 0xbc, B: 0x0f, A: 0xff},
-	{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff},
-	{R: 0x30, G: 0x62, B: 0x30, A: 0xff},
-	{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff},
-}
+var Shade0 = color.RGBA{R: 0x9b, G: 0xbc, B: 0x0f, A: 0xff}
+var Shade1 = color.RGBA{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff}
+var Shade2 = color.RGBA{R: 0x30, G: 0x62, B: 0x30, A: 0xff}
+var Shade3 = color.RGBA{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff}
+
+var colors = [4]color.RGBA{Shade0, Shade1, Shade2, Shade3}
 
 func (d *Display) DebugRenderMemory() image.Image {
 	bounds := image.Rect(0, 0, 256, 256)
@@ -157,7 +158,7 @@ func (d *Display) DebugRenderMemory() image.Image {
 	p := image.NewPaletted(bounds, palette)
 	for i := 0; i < 1024; i++ {
 		tileX := i % 32
-		tileY := int(i / 32)
+		tileY := i / 32
 		charCode := d.m.ReadByte(offset + uint16(i))
 		charImg := bgChars[charCode]
 		draw.Draw(p, image.Rect(tileX*8, tileY*8, (tileX+1)*8, (tileY+1)*8), charImg, image.Point{}, draw.Src)
@@ -211,7 +212,7 @@ func (d *Display) DebugRenderMemory() image.Image {
 
 	scx := int(d.m.SCX.Read())
 	scy := int(d.m.SCY.Read())
-	window := image.Rect(scx, scy, scx+160, scy+144)
+	window := image.Rect(scx, scy, scx+COLS, scy+ROWS)
 
 	return p.SubImage(window)
 }
