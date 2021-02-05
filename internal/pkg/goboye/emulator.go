@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/debugger/recorder"
 	"github.com/mr-tim/goboye/internal/pkg/display"
@@ -134,12 +133,13 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		//if e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)] {
 		//	break
 		//}
-		pc := e.processor.GetRegisterPair(cpu.RegisterPairPC)
-
-		if e.breakpoints[pc] {
-			fmt.Printf("At %04X\n", pc)
-			break
-		}
+		
+		//pc := e.processor.GetRegisterPair(cpu.RegisterPairPC)
+		//
+		//if e.breakpoints[pc] {
+		//	fmt.Printf("At %04X\n", pc)
+		//	break
+		//}
 
 		if stopOnFrame {
 			// unbelievably slow?!

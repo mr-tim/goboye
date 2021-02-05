@@ -100,8 +100,10 @@ func (p *processor) HandleInterrupts() bool {
 		eif := p.memory.InterruptEnabled.Read() & p.memory.InterruptFlags.Read()
 		addr, flagIndex := memory.GetIsrAddress(eif)
 		p.memory.InterruptFlags.Write(utils.UnsetBit(eif, flagIndex))
-		p.serviceInterrupt(addr)
-		return true
+		if addr != 0x0000 {
+			p.serviceInterrupt(addr)
+			return true
+		}
 	}
 	return false
 }
