@@ -6,6 +6,8 @@ import (
 	"image"
 )
 
+const SCALE = 4
+
 type Ui interface {
 	Destroy()
 	UpdateScreen(i image.Image)
@@ -33,7 +35,8 @@ func (d SdlUi) UpdateScreen(i image.Image) {
 		panic(err)
 	}
 	rect := wholeScreen()
-	err = d.drawSurface.Blit(&rect, windowSurface, &rect)
+	scaledRect := wholeScreenScaled()
+	err = d.drawSurface.BlitScaled(&rect, windowSurface, &scaledRect)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +49,7 @@ func (d SdlUi) UpdateScreen(i image.Image) {
 
 func NewSdlUi() (Ui, error) {
 	window, err := sdl.CreateWindow("goboye", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		160, 144, sdl.WINDOW_SHOWN)
+		SCALE * display.COLS, SCALE * display.ROWS, sdl.WINDOW_SHOWN)
 	if err != nil {
 		return nil, err
 	}
@@ -55,9 +58,8 @@ func NewSdlUi() (Ui, error) {
 	if err != nil {
 		return nil, err
 	}
-	surface.FillRect(nil, 0)
 
-	rect := wholeScreen()
+	rect := wholeScreenScaled()
 	c := display.Shade3
 	b := uint32(c.A) << 24 | uint32(c.R) << 16 | uint32(c.G) << 8 | uint32(c.B)
 
@@ -71,7 +73,7 @@ func NewSdlUi() (Ui, error) {
 		panic(err)
 	}
 
-	drawSurface, err := sdl.CreateRGBSurface(0, display.COLS, display.ROWS, 32, 0, 0, 0, 0)
+	drawSurface, err := sdl.CreateRGBSurface(0, SCALE * display.COLS, SCALE * display.ROWS, 32, 0, 0, 0, 0)
 	if err != nil {
 		panic(err)
 	}
@@ -84,4 +86,8 @@ func NewSdlUi() (Ui, error) {
 
 func wholeScreen() sdl.Rect {
 	return sdl.Rect{W: display.COLS, H: display.ROWS}
+}
+
+func wholeScreenScaled() sdl.Rect {
+	return sdl.Rect{W: SCALE * display.COLS, H: SCALE * display.ROWS}
 }
