@@ -173,7 +173,7 @@ func (d *Display) DebugRenderMemory() image.Image {
 			rowsPerChar = 16
 		}
 		addrForChar := func(char byte) uint16 {
-			return uint16(0x8000 + rowsPerChar*2)
+			return 0x8000 + uint16(char)*uint16(rowsPerChar)*2
 		}
 
 		pal0 := decodePalette(d.m.OBP0.Read(),true)
