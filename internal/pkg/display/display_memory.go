@@ -129,9 +129,6 @@ func NewDisplay(m *memory.Controller) Display {
 type Display struct {
 	m         *memory.Controller
 	cycles    int
-	bgPalette color.Palette
-	pal0      color.Palette
-	pal1      color.Palette
 	bgChars   []image.PalettedImage
 	pal0Chars []image.PalettedImage
 	pal1Chars []image.PalettedImage
@@ -143,7 +140,7 @@ var Shade1 = color.RGBA{R: 0x8b, G: 0xac, B: 0x0f, A: 0xff}
 var Shade2 = color.RGBA{R: 0x30, G: 0x62, B: 0x30, A: 0xff}
 var Shade3 = color.RGBA{R: 0x0f, G: 0x38, B: 0x0f, A: 0xff}
 
-var colors = [4]color.RGBA{Shade0, Shade1, Shade2, Shade3}
+var colors = [5]color.Color{Shade0, Shade1, Shade2, Shade3, color.Transparent}
 
 type Oam struct {
 	X      byte
@@ -155,7 +152,9 @@ type Oam struct {
 func (d *Display) DebugRenderMemory() image.Image {
 	bounds := image.Rect(0, 0, 256, 256)
 
-	d.bgPalette = decodePalette(d.m.BGP.Read(), false)
+	palette := colors[:]
+
+	bgPalette := decodePalette(d.m.BGP.Read(), false)
 
 	// data for characters
 	bgCharArea := d.m.LCDCFlags.GetBgCharArea()
@@ -165,12 +164,12 @@ func (d *Display) DebugRenderMemory() image.Image {
 	addrForChar := func(char byte) uint16 {
 		return bgCharArea.Address(char)
 	}
-	d.bgChars = renderChars(charCount, rowsPerChar, d.bgPalette, addrForChar, d)
+	d.bgChars = renderChars(charCount, rowsPerChar, palette, bgPalette, addrForChar, d)
 
 	// position of character codes
 	bgCodeArea := d.m.LCDCFlags.GetBgCodeArea()
 	offset := bgCodeArea.StartAddress()
-	p := image.NewPaletted(bounds, d.bgPalette)
+	p := image.NewPaletted(bounds, palette)
 	for i := 0; i < 1024; i++ {
 		tileX := i % 32
 		tileY := i / 32
@@ -191,26 +190,26 @@ func (d *Display) DebugRenderMemory() image.Image {
 			return 0x8000 + uint16(char)*uint16(rowsPerChar)*2
 		}
 
-		d.pal0 = decodePalette(d.m.OBP0.Read(), true)
-		d.pal0Chars = renderChars(charCount, rowsPerChar, d.pal0, addrForChar, d)
+		pal0 := decodePalette(d.m.OBP0.Read(), true)
+		d.pal0Chars = renderChars(charCount, rowsPerChar, palette, pal0, addrForChar, d)
 
-		d.pal1 = decodePalette(d.m.OBP1.Read(), true)
-		d.pal1Chars = renderChars(charCount, rowsPerChar, d.pal1, addrForChar, d)
+		pal1 := decodePalette(d.m.OBP1.Read(), true)
+		d.pal1Chars = renderChars(charCount, rowsPerChar, palette, pal1, addrForChar, d)
 
 		d.oams = make([]Oam, 0)
 
 		for objIdx := 0; objIdx < 40; objIdx += 1 {
 			offset := uint16(0xFE00 + objIdx*4)
 			oam := Oam{
-				X: d.m.ReadByte(offset),
-				Y: d.m.ReadByte(offset + 1),
+				Y:      d.m.ReadByte(offset),
+				X:      d.m.ReadByte(offset + 1),
 				CharID: d.m.ReadByte(offset + 2),
-				Attrs: CharAttrs(d.m.ReadByte(offset + 3)),
+				Attrs:  CharAttrs(d.m.ReadByte(offset + 3)),
 			}
 			d.oams = append(d.oams, oam)
 
 			left := int(oam.X - 8)
-			top := int(oam.Y - 10)
+			top := int(oam.Y - 16)
 			right := left + 8
 			bottom := top + rowsPerChar
 
@@ -221,16 +220,12 @@ func (d *Display) DebugRenderMemory() image.Image {
 				top, bottom = bottom, top
 			}
 
-			if oam.CharID == 0x88 {
-				fmt.Printf("char 88: %#v\n", oam)
-			}
-
 			char := d.pal0Chars[oam.CharID]
 			if oam.Attrs.IsPal1() {
 				char = d.pal1Chars[oam.CharID]
 			}
 
-			draw.Draw(p, image.Rect(left, top, right, bottom), char, image.Point{}, draw.Src)
+			draw.Draw(p, image.Rect(left, top, right, bottom), char, image.Point{}, draw.Over)
 		}
 	}
 
@@ -262,21 +257,22 @@ func saveChars(chars []image.PalettedImage, prefix string) {
 	}
 }
 
-func decodePalette(palDefinition byte, isObj bool) color.Palette {
-	palette := make(color.Palette, 4)
+func decodePalette(palDefinition byte, isObj bool) []uint8 {
+	palette := make([]uint8, 4)
 	for i := 0; i < 4; i++ {
 		idx := (palDefinition >> byte(2*i)) & 0x03
 		if isObj && idx == 0 {
-			palette[i] = color.Transparent
+			palette[i] = 4
 		} else {
-			palette[i] = colors[idx]
+			palette[i] = idx
 		}
 	}
 	return palette
 }
 
-func renderChars(charCount int, rowsPerChar int, palette color.Palette, addrForChar func(byte) uint16,
-	d *Display) []image.PalettedImage {
+func renderChars(charCount int, rowsPerChar int, palette color.Palette, paletteMapping []uint8,
+	addrForChar func(byte) uint16, d *Display) []image.PalettedImage {
+
 	var chars = make([]image.PalettedImage, charCount)
 	charBounds := image.Rect(0, 0, 8, rowsPerChar)
 	for charId := 0; charId < charCount; charId++ {
@@ -286,7 +282,7 @@ func renderChars(charCount int, rowsPerChar int, palette color.Palette, addrForC
 			addr := charAddr + uint16(2*y)
 			cols := decodeRow(d.m.ReadU16(addr))
 			for x := 0; x < 8; x++ {
-				charImage.SetColorIndex(x, y, cols[x])
+				charImage.SetColorIndex(x, y, paletteMapping[cols[x]])
 			}
 		}
 		chars[charId] = charImage

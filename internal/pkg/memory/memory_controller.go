@@ -25,6 +25,7 @@ type Controller struct {
 	InterruptEnabled InterruptEnabledRegister
 	SerialOutput     string
 	serialRequested  bool
+	dmaStart         byte
 }
 
 func NewController() Controller {
@@ -102,6 +103,8 @@ func (c *Controller) ReadByte(addr uint16) byte {
 		return c.ram.ReadByte(addr - ROM_SIZE)
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		return reg.Read()
+	} else if addr == 0xFF46 {
+		return c.dmaStart
 	} else if c.isStackAddr(addr) {
 		return c.stack.ReadByte(addr - STACK_START)
 	} else {
@@ -129,6 +132,14 @@ func (c *Controller) WriteByte(addr uint16, value byte) {
 	} else if addr == 0xFF02 {
 		c.stack.WriteByte(addr-STACK_START, value)
 		c.serialRequested = value == 0x81
+	} else if addr == 0xFF46 {
+		// do a DMA transfer
+		if value >= 0x80 && value < 0xE0 {
+			c.dmaStart = value
+			for i := 0; i < 0x0100; i += 1 {
+				c.WriteByte(0xFE00+uint16(i), c.ReadByte(0x100*uint16(c.dmaStart)+uint16(i)))
+			}
+		}
 	} else if c.isStackAddr(addr) {
 		c.stack.WriteByte(addr-STACK_START, value)
 	} else {

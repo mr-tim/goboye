@@ -88,8 +88,11 @@ func main() {
 			continue
 		} else if sleepTime > 0 {
 			if frameCount == 0 {
-				log.Printf("PC: %04X", emulator.GetPC())
-				log.Printf("events: %s cpu: %s render: %s display: %s", eventTime, cpuTime, renderTime, displayTime)
+				log.Printf("events: %4d\tcpu: %4d\trender: %4d\tdisplay: %4d",
+					eventTime.Microseconds(),
+					cpuTime.Microseconds(),
+					renderTime.Microseconds(),
+					displayTime.Microseconds())
 			}
 
 			sdl.Delay(uint32(sleepTime))

@@ -133,7 +133,7 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		//if e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)] {
 		//	break
 		//}
-		
+
 		//pc := e.processor.GetRegisterPair(cpu.RegisterPairPC)
 		//
 		//if e.breakpoints[pc] {
@@ -142,7 +142,6 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		//}
 
 		if stopOnFrame {
-			// unbelievably slow?!
 			if e.memory.LCDCFlags.IsLCDEnabled() {
 				if cycleCount >= display.CYCLES_PER_FRAME && e.memory.LYC.Read() == 0 {
 					break
