@@ -1,12 +1,19 @@
+// +build blargg
+
 package blargg
 
 import (
+	"flag"
 	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/goboye"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 )
+
+// run tests with eg:
+// go test -tags=blargg ./test/blargg -args -blargg_roms=/path/to/gb-test-roms
+var blarggRomsPath = flag.String("blargg_roms", "", "Path to blargg roms")
 
 func TestBlarggCpuInstrs01(t *testing.T) {
 	doBlargTest(t, "/cpu_instrs/individual/01-special.gb")
@@ -53,11 +60,14 @@ func TestBlarggCpuInstrs11(t *testing.T) {
 }
 
 func doBlargTest(t *testing.T, rom string) {
-	blarggDir := "../../../goboye_research/gb-test-roms"
-	pathToRom := blarggDir + rom
+	if *blarggRomsPath == "" {
+		t.Fatal("Path to blargg roms not specified!")
+	}
+	pathToRom := *blarggRomsPath + rom
 
 	e := goboye.NewEmulator()
 	e.LoadRomImage(pathToRom)
+	e.SetDebug(true)
 	e.ContinueDebugging(false)
 
 	fmt.Printf("\nSerial output:\n\n")
