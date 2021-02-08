@@ -33,6 +33,7 @@ func NewController() Controller {
 		romImage: memoryMap{make([]byte, ROM_SIZE)},
 		ram:      memoryMap{make([]byte, STACK_START-ROM_SIZE)},
 		stack:    memoryMap{make([]byte, STACK_END-STACK_START+1)},
+		ControllerData: NewControllerRegister(),
 	}
 }
 

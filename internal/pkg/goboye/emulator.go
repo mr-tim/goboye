@@ -9,6 +9,7 @@ import (
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/debugger/recorder"
 	"github.com/mr-tim/goboye/internal/pkg/display"
+	"github.com/mr-tim/goboye/internal/pkg/goboye/button"
 	"github.com/mr-tim/goboye/internal/pkg/memory"
 	"image"
 	"log"
@@ -186,4 +187,8 @@ func (e *Emulator) SerialOutput() string {
 
 func (e *Emulator) SetDebug(debug bool) {
 	e.debug = debug
+}
+
+func (e *Emulator) SetButtonState(button button.Button, isDown bool) {
+	e.memory.ControllerData.SetButtonState(button, isDown)
 }

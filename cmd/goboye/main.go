@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/mr-tim/goboye/internal/pkg/display"
 	"github.com/mr-tim/goboye/internal/pkg/goboye"
+	"github.com/mr-tim/goboye/internal/pkg/goboye/button"
 	"github.com/mr-tim/goboye/internal/pkg/goboye/ui"
 	"github.com/pkg/profile"
 	"github.com/veandco/go-sdl2/sdl"
@@ -55,11 +56,28 @@ func main() {
 		// handle events
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
+			case *sdl.KeyboardEvent:
+				ke := event.(*sdl.KeyboardEvent)
+				key := buttonMapping(ke)
+				switch key {
+				case button.Quit:
+					if ke.Type == sdl.KEYUP {
+						running = false
+						sdl.Quit()
+						break
+					}
+				case button.Left, button.Right, button.Up, button.Down, button.A, button.B, button.Start, button.Select:
+					emulator.SetButtonState(key, ke.Type == sdl.KEYDOWN)
+				}
 			case *sdl.QuitEvent:
 				println("Quit")
 				running = false
 				break
 			}
+		}
+
+		if !running {
+			continue
 		}
 		eventTime := time.Since(eventStart)
 		eventStart = time.Now()
@@ -98,4 +116,28 @@ func main() {
 			sdl.Delay(uint32(sleepTime))
 		}
 	}
+}
+
+func buttonMapping(ke *sdl.KeyboardEvent) button.Button {
+	switch ke.Keysym.Sym {
+	case sdl.K_ESCAPE:
+		return button.Quit
+	case sdl.K_a:
+		return button.Left
+	case sdl.K_d:
+		return button.Right
+	case sdl.K_s:
+		return button.Down
+	case sdl.K_w:
+		return button.Up
+	case sdl.K_p:
+		return button.A
+	case sdl.K_o:
+		return button.B
+	case sdl.K_n:
+		return button.Select
+	case sdl.K_m:
+		return button.Start
+	}
+	return button.Unbound
 }
