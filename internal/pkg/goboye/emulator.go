@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/cpu"
 	"github.com/mr-tim/goboye/internal/pkg/debugger/recorder"
 	"github.com/mr-tim/goboye/internal/pkg/display"
@@ -20,6 +21,7 @@ type Emulator struct {
 	display     display.Display
 	breakpoints [0xFFFF]bool
 	recorder    *recorder.Recorder
+	debug       bool
 }
 
 func NewEmulator() *Emulator {
@@ -110,36 +112,35 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 	stepCount := 0
 	cycleCount := 0
 
-	defer func() {
-		r := recover()
-		if e.recorder.IsEnabled() {
-			for _, s := range e.recorder.GetSnapshots() {
-				log.Printf("%s\n", s)
+	if e.debug {
+		defer func() {
+			r := recover()
+			if e.recorder.IsEnabled() {
+				for _, s := range e.recorder.GetSnapshots() {
+					log.Printf("%s\n", s)
+				}
 			}
-		}
-		//log.Printf("%d steps", stepCount)
-		if r != nil {
-			panic(r)
-		}
-	}()
-
-	//start := time.Now()
+			log.Printf("%d steps", stepCount)
+			if r != nil {
+				panic(r)
+			}
+		}()
+	}
 
 	for {
 		cycleCount += int(e.Step())
 		if e.processor.IsHalted() || e.processor.IsStopped() {
 			break
 		}
-		//if e.breakpoints[e.processor.GetRegisterPair(cpu.RegisterPairPC)] {
-		//	break
-		//}
 
-		//pc := e.processor.GetRegisterPair(cpu.RegisterPairPC)
-		//
-		//if e.breakpoints[pc] {
-		//	fmt.Printf("At %04X\n", pc)
-		//	break
-		//}
+		if e.debug {
+			pc := e.processor.GetRegisterPair(cpu.RegisterPairPC)
+
+			if e.breakpoints[pc] {
+				fmt.Printf("At %04X\n", pc)
+				break
+			}
+		}
 
 		if stopOnFrame {
 			if e.memory.LCDCFlags.IsLCDEnabled() {
@@ -150,10 +151,6 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 		}
 		stepCount += 1
 	}
-
-	//elapsed := time.Since(start)
-	//rate := float64(stepCount) / elapsed.Seconds()
-	//fmt.Printf("%d steps in %s -> %0.3f ops/s\n", stepCount, elapsed, rate)
 }
 
 func (e *Emulator) AddBreakpoint(addr uint16) {
@@ -185,4 +182,8 @@ func (e *Emulator) DebugRender() image.Image {
 
 func (e *Emulator) SerialOutput() string {
 	return e.memory.SerialOutput
+}
+
+func (e *Emulator) SetDebug(debug bool) {
+	e.debug = debug
 }
