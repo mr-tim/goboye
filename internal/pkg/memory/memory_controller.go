@@ -11,6 +11,10 @@ type Controller struct {
 	ram              memoryMap
 	stack            memoryMap
 	ControllerData   controllerRegister
+	Divider          divRegister
+	TimerCounter     simpleByteRegister
+	TimerModulo      simpleByteRegister
+	TimerController  timerController
 	BootRomRegister  bootRomByteRegister
 	LCDCFlags        register.LCDCFlags
 	StatFlags        register.StatFlags
@@ -47,6 +51,14 @@ func (c *Controller) getRegister(addr uint16) (ByteRegister, bool) {
 	switch addr {
 	case 0xFF00:
 		return &c.ControllerData, true
+	case 0xFF04:
+		return &c.Divider, true
+	case 0xFF05:
+		return &c.TimerCounter, true
+	case 0xFF06:
+		return &c.TimerModulo, true
+	case 0xFF07:
+		return &c.TimerController, true
 	case 0xFF0F:
 		return &c.InterruptFlags, true
 	case 0xFF40:
