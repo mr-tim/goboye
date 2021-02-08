@@ -14,7 +14,7 @@ type Ui interface {
 }
 
 type SdlUi struct {
-	window *sdl.Window
+	window      *sdl.Window
 	drawSurface *sdl.Surface
 }
 
@@ -24,8 +24,8 @@ func (d SdlUi) Destroy() {
 }
 
 func (d SdlUi) UpdateScreen(i image.Image) {
-	for x := 0; x < display.COLS; x+=1 {
-		for y := 0; y < display.ROWS; y+=1 {
+	for x := 0; x < display.COLS; x += 1 {
+		for y := 0; y < display.ROWS; y += 1 {
 			d.drawSurface.Set(x, y, i.At(x, y))
 		}
 	}
@@ -49,7 +49,7 @@ func (d SdlUi) UpdateScreen(i image.Image) {
 
 func NewSdlUi() (Ui, error) {
 	window, err := sdl.CreateWindow("goboye", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		SCALE * display.COLS, SCALE * display.ROWS, sdl.WINDOW_SHOWN)
+		SCALE*display.COLS, SCALE*display.ROWS, sdl.WINDOW_SHOWN)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func NewSdlUi() (Ui, error) {
 
 	rect := wholeScreenScaled()
 	c := display.Shade3
-	b := uint32(c.A) << 24 | uint32(c.R) << 16 | uint32(c.G) << 8 | uint32(c.B)
+	b := uint32(c.A)<<24 | uint32(c.R)<<16 | uint32(c.G)<<8 | uint32(c.B)
 
 	err = surface.FillRect(&rect, b)
 	if err != nil {
@@ -73,7 +73,7 @@ func NewSdlUi() (Ui, error) {
 		panic(err)
 	}
 
-	drawSurface, err := sdl.CreateRGBSurface(0, SCALE * display.COLS, SCALE * display.ROWS, 32, 0, 0, 0, 0)
+	drawSurface, err := sdl.CreateRGBSurface(0, SCALE*display.COLS, SCALE*display.ROWS, 32, 0, 0, 0, 0)
 	if err != nil {
 		panic(err)
 	}
