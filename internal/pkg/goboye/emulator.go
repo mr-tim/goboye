@@ -17,12 +17,12 @@ import (
 )
 
 type Emulator struct {
-	memory            *memory.Controller
-	processor         cpu.Processor
-	display           display.Display
-	breakpoints       [0xFFFF]bool
-	recorder          *recorder.Recorder
-	debug             bool
+	memory      *memory.Controller
+	processor   cpu.Processor
+	display     display.Display
+	breakpoints [0xFFFF]bool
+	recorder    *recorder.Recorder
+	debug       bool
 }
 
 func NewEmulator() *Emulator {
