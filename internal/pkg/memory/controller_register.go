@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"fmt"
 	"github.com/mr-tim/goboye/internal/pkg/goboye/button"
 	"github.com/mr-tim/goboye/internal/pkg/utils"
 )
@@ -25,10 +24,10 @@ func (r *controllerRegister) Read() byte {
 	// output is pinned high by default
 	selection := uint8(0x00)
 	if r.selectRow1 {
-		selection |= 0x01 << 4 | r.row(row1)
+		selection |= 0x01<<4 | r.row(row1)
 	}
 	if r.selectRow2 {
-		selection |= 0x01 << 5 | r.row(row2)
+		selection |= 0x01<<5 | r.row(row2)
 	}
 	return selection
 }
@@ -49,6 +48,5 @@ func (r *controllerRegister) Write(value byte) {
 }
 
 func (r *controllerRegister) SetButtonState(button button.Button, isDown bool) {
-	fmt.Printf("Set button state: %s is down: %s => %02X\n", button, isDown, r.Read())
 	r.buttonDown[button] = isDown
 }

@@ -46,6 +46,7 @@ func main() {
 	defer d.Destroy()
 
 	running := true
+	showFrameRate := false
 	frameCount := 0
 
 	milliSecondsPerFrame := 1000 / 60
@@ -57,17 +58,16 @@ func main() {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
 			case *sdl.KeyboardEvent:
-				ke := event.(*sdl.KeyboardEvent)
-				key := buttonMapping(ke)
-				switch key {
-				case button.Quit:
-					if ke.Type == sdl.KEYUP {
-						running = false
-						sdl.Quit()
-						break
-					}
-				case button.Left, button.Right, button.Up, button.Down, button.A, button.B, button.Start, button.Select:
-					emulator.SetButtonState(key, ke.Type == sdl.KEYDOWN)
+				keyEvent := event.(*sdl.KeyboardEvent)
+				btn := buttonMapping(keyEvent)
+				switch {
+				case btn == button.Quit && keyEvent.Type == sdl.KEYUP:
+					running = false
+					sdl.Quit()
+				case btn == button.Frames && keyEvent.Type == sdl.KEYUP:
+					showFrameRate = !showFrameRate
+				case btn.IsJoypad():
+					emulator.SetButtonState(btn, keyEvent.State == sdl.PRESSED)
 				}
 			case *sdl.QuitEvent:
 				println("Quit")
@@ -105,7 +105,7 @@ func main() {
 		if sleepTime < 0 {
 			continue
 		} else if sleepTime > 0 {
-			if frameCount == 0 {
+			if showFrameRate && frameCount == 0 {
 				log.Printf("events: %4d\tcpu: %4d\trender: %4d\tdisplay: %4d",
 					eventTime.Microseconds(),
 					cpuTime.Microseconds(),
@@ -120,8 +120,12 @@ func main() {
 
 func buttonMapping(ke *sdl.KeyboardEvent) button.Button {
 	switch ke.Keysym.Sym {
+	// "meta" buttons
 	case sdl.K_ESCAPE:
 		return button.Quit
+	case sdl.K_f:
+		return button.Frames
+	// joypad
 	case sdl.K_a:
 		return button.Left
 	case sdl.K_d:
