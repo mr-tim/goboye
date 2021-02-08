@@ -93,27 +93,27 @@ func (c *Controller) LoadRomImage(filename string) error {
 	return nil
 }
 
-func (c *Controller) ReadByte(addr uint16) byte {
+func (c *Controller) ReadAddr(addr uint16) byte {
 	if c.isBootRoomAddr(addr) {
 		return bootRom[addr]
 	} else if c.isRomAddr(addr) {
-		return c.romImage.ReadByte(addr)
+		return c.romImage.ReadAddr(addr)
 	} else if c.isRamAddr(addr) {
 		// working ram (ish)
 		// todo: protect against access to forbidden areas?
-		return c.ram.ReadByte(addr - ROM_SIZE)
+		return c.ram.ReadAddr(addr - ROM_SIZE)
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		return reg.Read()
 	} else if addr == 0xFF46 {
 		return c.dmaStart
 	} else if c.isStackAddr(addr) {
-		return c.stack.ReadByte(addr - STACK_START)
+		return c.stack.ReadAddr(addr - STACK_START)
 	} else {
 		return 0x00
 	}
 }
 
-func (c *Controller) WriteByte(addr uint16, value byte) {
+func (c *Controller) WriteAddr(addr uint16, value byte) {
 	if c.isBootRoomAddr(addr) {
 		//panic("Ignoring request to write to boot rom")
 	} else if c.isRomAddr(addr) {
@@ -121,28 +121,28 @@ func (c *Controller) WriteByte(addr uint16, value byte) {
 	} else if c.isRamAddr(addr) {
 		// working ram
 		// todo: protect against access to forbidden areas?
-		c.ram.WriteByte(addr-ROM_SIZE, value)
+		c.ram.WriteAddr(addr-ROM_SIZE, value)
 	} else if reg, hasKey := c.getRegister(addr); hasKey {
 		reg.Write(value)
 	} else if addr == 0xFF01 {
-		c.stack.WriteByte(addr-STACK_START, value)
+		c.stack.WriteAddr(addr-STACK_START, value)
 		if c.serialRequested {
 			c.SerialOutput += string(value)
-			c.WriteByte(0xFF02, 0x00)
+			c.WriteAddr(0xFF02, 0x00)
 		}
 	} else if addr == 0xFF02 {
-		c.stack.WriteByte(addr-STACK_START, value)
+		c.stack.WriteAddr(addr-STACK_START, value)
 		c.serialRequested = value == 0x81
 	} else if addr == 0xFF46 {
 		// do a DMA transfer
 		if value >= 0x80 && value < 0xE0 {
 			c.dmaStart = value
 			for i := 0; i < 0x0100; i += 1 {
-				c.WriteByte(0xFE00+uint16(i), c.ReadByte(0x100*uint16(c.dmaStart)+uint16(i)))
+				c.WriteAddr(0xFE00+uint16(i), c.ReadAddr(0x100*uint16(c.dmaStart)+uint16(i)))
 			}
 		}
 	} else if c.isStackAddr(addr) {
-		c.stack.WriteByte(addr-STACK_START, value)
+		c.stack.WriteAddr(addr-STACK_START, value)
 	} else {
 		panic("Unhandled memory location!")
 	}
@@ -164,21 +164,21 @@ func (c *Controller) isBootRoomAddr(addr uint16) bool {
 	return addr < BOOT_ROM_SIZE && !c.BootRomRegister.isDisabled
 }
 
-func (c *Controller) ReadU16(addr uint16) uint16 {
-	return (uint16(c.ReadByte(addr+1)) << 8) | uint16(c.ReadByte(addr))
+func (c *Controller) ReadAddrU16(addr uint16) uint16 {
+	return (uint16(c.ReadAddr(addr+1)) << 8) | uint16(c.ReadAddr(addr))
 }
 
-func (c *Controller) WriteU16(addr, value uint16) {
+func (c *Controller) WriteAddrU16(addr, value uint16) {
 	l := uint8(0x00FF & value)
 	h := uint8((0xFF00 & value) >> 8)
-	c.WriteByte(addr, l)
-	c.WriteByte(addr+1, h)
+	c.WriteAddr(addr, l)
+	c.WriteAddr(addr+1, h)
 }
 
 func (c *Controller) ReadAll() []byte {
 	result := make([]byte, 0xFFFF)
 	for i := 0x0000; i < 0xFFFF; i += 1 {
-		result[i] = c.ReadByte(uint16(i))
+		result[i] = c.ReadAddr(uint16(i))
 	}
 	return result
 }

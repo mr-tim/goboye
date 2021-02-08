@@ -24,12 +24,12 @@ func setRegisterValue(reg register) byteSetter {
 }
 
 func getFromHLAddr(p *processor) uint8 {
-	return p.memory.ReadByte(hlAddr)
+	return p.memory.ReadAddr(hlAddr)
 }
 
 func setAtHLAddr(p *processor, value uint8) {
 	p.registers.hl = hlAddr
-	p.memory.WriteByte(hlAddr, value)
+	p.memory.WriteAddr(hlAddr, value)
 }
 
 func TestRotateLeftWithCarry(t *testing.T) {

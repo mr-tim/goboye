@@ -173,7 +173,7 @@ func (d *Display) DebugRenderMemory() image.Image {
 	for i := 0; i < 1024; i++ {
 		tileX := i % 32
 		tileY := i / 32
-		charCode := d.m.ReadByte(offset + uint16(i))
+		charCode := d.m.ReadAddr(offset + uint16(i))
 		charImg := d.bgChars[charCode]
 		draw.Draw(p, image.Rect(tileX*8, tileY*8, (tileX+1)*8, (tileY+1)*8), charImg, image.Point{}, draw.Src)
 	}
@@ -201,10 +201,10 @@ func (d *Display) DebugRenderMemory() image.Image {
 		for objIdx := 0; objIdx < 40; objIdx += 1 {
 			offset := uint16(0xFE00 + objIdx*4)
 			oam := Oam{
-				Y:      d.m.ReadByte(offset),
-				X:      d.m.ReadByte(offset + 1),
-				CharID: d.m.ReadByte(offset + 2),
-				Attrs:  CharAttrs(d.m.ReadByte(offset + 3)),
+				Y:      d.m.ReadAddr(offset),
+				X:      d.m.ReadAddr(offset + 1),
+				CharID: d.m.ReadAddr(offset + 2),
+				Attrs:  CharAttrs(d.m.ReadAddr(offset + 3)),
 			}
 			d.oams = append(d.oams, oam)
 
@@ -280,7 +280,7 @@ func renderChars(charCount int, rowsPerChar int, palette color.Palette, paletteM
 		charAddr := addrForChar(byte(charId))
 		for y := 0; y < rowsPerChar; y++ {
 			addr := charAddr + uint16(2*y)
-			cols := decodeRow(d.m.ReadU16(addr))
+			cols := decodeRow(d.m.ReadAddrU16(addr))
 			for x := 0; x < 8; x++ {
 				charImage.SetColorIndex(x, y, paletteMapping[cols[x]])
 			}

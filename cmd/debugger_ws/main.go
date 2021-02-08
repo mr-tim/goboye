@@ -181,7 +181,6 @@ func (c *Client) handleMessages() {
 			}
 		}
 	}
-	fmt.Printf("Finished handling messages\n")
 }
 
 func (c *Client) close() {

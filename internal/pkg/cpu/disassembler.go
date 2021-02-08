@@ -21,13 +21,13 @@ func (d *Disassembler) GetNextInstruction() (uint16, OpcodeAndPayload) {
 
 func Disassemble(m *memory.Controller, pos uint16) (uint16, OpcodeAndPayload, uint16) {
 	addr := pos
-	opcodeByte := m.ReadByte(pos)
+	opcodeByte := m.ReadAddr(pos)
 	pos += 1
 	o := LookupOpcode(opcodeByte)
 
 	if o.Code() == OpcodeExtOps.Code() {
 		// load the extended code
-		opcodeByte = m.ReadByte(pos)
+		opcodeByte = m.ReadAddr(pos)
 		pos += 1
 		o = LookupExtOpcode(opcodeByte)
 	}
@@ -35,10 +35,10 @@ func Disassemble(m *memory.Controller, pos uint16) (uint16, OpcodeAndPayload, ui
 	argWidth := o.PayloadLength()
 	var payload = make([]byte, argWidth)
 	if argWidth == 1 {
-		payload[0] = m.ReadByte(pos)
+		payload[0] = m.ReadAddr(pos)
 	} else if argWidth == 2 {
-		payload[0] = m.ReadByte(pos)
-		payload[1] = m.ReadByte(pos + 1)
+		payload[0] = m.ReadAddr(pos)
+		payload[1] = m.ReadAddr(pos + 1)
 	}
 
 	op := OpcodeAndPayload{

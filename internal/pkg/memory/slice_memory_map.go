@@ -31,11 +31,11 @@ func (m *memoryMap) initWithBytes(bytes []byte) {
 	m.mem = append(bytes[:], m.mem[len(bytes):]...)
 }
 
-func (m *memoryMap) ReadByte(addr uint16) byte {
+func (m *memoryMap) ReadAddr(addr uint16) byte {
 	return m.mem[addr]
 }
 
-func (m *memoryMap) WriteByte(addr uint16, value byte) {
+func (m *memoryMap) WriteAddr(addr uint16, value byte) {
 	m.mem[addr] = value
 }
 

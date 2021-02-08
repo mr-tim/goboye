@@ -42,7 +42,7 @@ func (p *processor) readNextInstruction() opcode {
 }
 
 func (p *processor) peekNextInstruction() opcode {
-	b := p.memory.ReadByte(p.registers.pc)
+	b := p.memory.ReadAddr(p.registers.pc)
 	return LookupOpcode(b)
 }
 
@@ -52,13 +52,13 @@ func (p *processor) NextInstruction() Opcode {
 }
 
 func (p *processor) Read8BitImmediate() byte {
-	value := p.memory.ReadByte(p.registers.pc)
+	value := p.memory.ReadAddr(p.registers.pc)
 	p.registers.pc++
 	return value
 }
 
 func (p *processor) Read16BitImmediate() uint16 {
-	value := p.memory.ReadU16(p.registers.pc)
+	value := p.memory.ReadAddrU16(p.registers.pc)
 	p.registers.pc += 2
 	return value
 }

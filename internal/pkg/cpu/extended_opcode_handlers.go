@@ -1,7 +1,7 @@
 package cpu
 
 func extendedOps(op opcode, p *processor) {
-	opCodeByte := p.memory.ReadByte(p.registers.pc)
+	opCodeByte := p.memory.ReadAddr(p.registers.pc)
 	p.registers.pc++
 	extendedOpcode := LookupExtOpcode(opCodeByte)
 	extendedOpcode.handler(extendedOpcode, p)
@@ -16,7 +16,7 @@ func testBitOfReg(bit uint8, reg register) opcodeHandler {
 
 func testBitOfHLAddr(bit uint8) opcodeHandler {
 	return func(op opcode, p *processor) {
-		value := p.memory.ReadByte(p.registers.hl)
+		value := p.memory.ReadAddr(p.registers.hl)
 		doTestBit(p, bit, value)
 	}
 }
@@ -41,7 +41,7 @@ func clearBitOfReg(bit uint8, reg register) opcodeHandler {
 func clearBitOfHLAddr(bit uint8) opcodeHandler {
 	mask := uint8(0xFF) - uint8(0x01<<bit)
 	return func(op opcode, p *processor) {
-		p.memory.WriteByte(p.registers.hl, p.memory.ReadByte(p.registers.hl)&mask)
+		p.memory.WriteAddr(p.registers.hl, p.memory.ReadAddr(p.registers.hl)&mask)
 	}
 }
 
@@ -55,7 +55,7 @@ func setBitOfReg(bit uint8, reg register) opcodeHandler {
 func setBitOfHLAddr(bit uint8) opcodeHandler {
 	mask := uint8(0x01 << bit)
 	return func(op opcode, p *processor) {
-		p.memory.WriteByte(p.registers.hl, p.memory.ReadByte(p.registers.hl)|mask)
+		p.memory.WriteAddr(p.registers.hl, p.memory.ReadAddr(p.registers.hl)|mask)
 	}
 }
 
@@ -66,7 +66,7 @@ func rotateRegLeftWithCarry(reg register) opcodeHandler {
 }
 
 func rotateHLAddrLeftWithCarry(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, doRotateLeft(p, p.memory.ReadByte(p.registers.hl), true))
+	p.memory.WriteAddr(p.registers.hl, doRotateLeft(p, p.memory.ReadAddr(p.registers.hl), true))
 }
 
 func doRotateLeft(p *processor, value uint8, carry bool) uint8 {
@@ -98,7 +98,7 @@ func rotateRegRightWithCarry(reg register) opcodeHandler {
 }
 
 func rotateHLAddrRightWithCarry(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, doRotateRight(p, p.memory.ReadByte(p.registers.hl), true))
+	p.memory.WriteAddr(p.registers.hl, doRotateRight(p, p.memory.ReadAddr(p.registers.hl), true))
 }
 
 func doRotateRight(p *processor, value uint8, carry bool) uint8 {
@@ -131,7 +131,7 @@ func rotateRegLeft(reg register) opcodeHandler {
 }
 
 func rotateHLAddrLeft(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, doRotateLeft(p, p.memory.ReadByte(p.registers.hl), false))
+	p.memory.WriteAddr(p.registers.hl, doRotateLeft(p, p.memory.ReadAddr(p.registers.hl), false))
 }
 
 func rotateRegRight(reg register) opcodeHandler {
@@ -141,7 +141,7 @@ func rotateRegRight(reg register) opcodeHandler {
 }
 
 func rotateHLAddrRight(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, doRotateRight(p, p.memory.ReadByte(p.registers.hl), false))
+	p.memory.WriteAddr(p.registers.hl, doRotateRight(p, p.memory.ReadAddr(p.registers.hl), false))
 }
 
 func shiftRegLeftPreservingSign(reg register) opcodeHandler {
@@ -152,8 +152,8 @@ func shiftRegLeftPreservingSign(reg register) opcodeHandler {
 }
 
 func shiftHLAddrLeftPreservingSign(op opcode, p *processor) {
-	value := p.memory.ReadByte(p.registers.hl)
-	p.memory.WriteByte(p.registers.hl, doShiftLeftPreservingSign(p, value))
+	value := p.memory.ReadAddr(p.registers.hl)
+	p.memory.WriteAddr(p.registers.hl, doShiftLeftPreservingSign(p, value))
 }
 
 func doShiftLeftPreservingSign(p *processor, value uint8) uint8 {
@@ -170,8 +170,8 @@ func shiftRegRightPreservingSign(reg register) opcodeHandler {
 }
 
 func shiftHLAddrRightPreservingSign(op opcode, p *processor) {
-	value := p.memory.ReadByte(p.registers.hl)
-	p.memory.WriteByte(p.registers.hl, doShiftRightPreservingSign(p, value))
+	value := p.memory.ReadAddr(p.registers.hl)
+	p.memory.WriteAddr(p.registers.hl, doShiftRightPreservingSign(p, value))
 }
 
 func doShiftRightPreservingSign(p *processor, value uint8) uint8 {
@@ -188,8 +188,8 @@ func shiftRegRight(reg register) opcodeHandler {
 }
 
 func shiftHLAddrRight(op opcode, p *processor) {
-	value := p.memory.ReadByte(p.registers.hl)
-	p.memory.WriteByte(p.registers.hl, doShiftRight(p, value))
+	value := p.memory.ReadAddr(p.registers.hl)
+	p.memory.WriteAddr(p.registers.hl, doShiftRight(p, value))
 }
 
 func doShiftRight(p *processor, value uint8) uint8 {
@@ -206,8 +206,8 @@ func swapRegNybbles(reg register) opcodeHandler {
 }
 
 func swapHLAddrNybbles(op opcode, p *processor) {
-	value := p.memory.ReadByte(p.registers.hl)
-	p.memory.WriteByte(p.registers.hl, doSwapNybbles(p, value))
+	value := p.memory.ReadAddr(p.registers.hl)
+	p.memory.WriteAddr(p.registers.hl, doSwapNybbles(p, value))
 }
 
 func doSwapNybbles(p *processor, value uint8) uint8 {

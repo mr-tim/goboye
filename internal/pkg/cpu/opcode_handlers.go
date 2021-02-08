@@ -32,7 +32,7 @@ func doLoad8BitToReg(p *processor, reg register) {
 
 func load8BitToHLAddr(op opcode, p *processor) {
 	value := p.Read8BitImmediate()
-	p.memory.WriteByte(p.registers.hl, value)
+	p.memory.WriteAddr(p.registers.hl, value)
 }
 
 func loadRegToReg(to, from register) opcodeHandler {
@@ -43,39 +43,39 @@ func loadRegToReg(to, from register) opcodeHandler {
 
 func loadHLAddrToReg(to register) opcodeHandler {
 	return func(op opcode, p *processor) {
-		value := p.memory.ReadByte(p.registers.hl)
+		value := p.memory.ReadAddr(p.registers.hl)
 		p.registers.setRegister(to, value)
 	}
 }
 
 func loadRegToHLAddr(from register) opcodeHandler {
 	return func(op opcode, p *processor) {
-		p.memory.WriteByte(p.registers.hl, p.registers.getRegister(from))
+		p.memory.WriteAddr(p.registers.hl, p.registers.getRegister(from))
 	}
 }
 
 func saveAToBCAddr(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.bc, p.registers.getRegister(RegisterA))
+	p.memory.WriteAddr(p.registers.bc, p.registers.getRegister(RegisterA))
 }
 
 func saveAToDEAddr(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.de, p.registers.getRegister(RegisterA))
+	p.memory.WriteAddr(p.registers.de, p.registers.getRegister(RegisterA))
 }
 
 func saveAToHLAddrInc(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(RegisterA))
+	p.memory.WriteAddr(p.registers.hl, p.registers.getRegister(RegisterA))
 	p.registers.hl++
 }
 
 func saveAToHLAddrDec(op opcode, p *processor) {
-	p.memory.WriteByte(p.registers.hl, p.registers.getRegister(RegisterA))
+	p.memory.WriteAddr(p.registers.hl, p.registers.getRegister(RegisterA))
 	p.registers.hl--
 }
 
 func saveSPToAddr(op opcode, p *processor) {
 	addr := p.Read16BitImmediate()
 	sp := p.registers.sp
-	p.memory.WriteU16(addr, sp)
+	p.memory.WriteAddrU16(addr, sp)
 }
 
 func incrementRegPair(pair RegisterPair) opcodeHandler {
@@ -99,16 +99,16 @@ func doDecrementRegPair(p *processor, rp RegisterPair) {
 }
 
 func incrementHLAddr(op opcode, p *processor) {
-	originalValue := p.memory.ReadByte(p.registers.hl)
+	originalValue := p.memory.ReadAddr(p.registers.hl)
 	newValue, flags := add(originalValue, 1, false)
-	p.memory.WriteByte(p.registers.hl, newValue)
+	p.memory.WriteAddr(p.registers.hl, newValue)
 	p.registers.setFlags(updateIncDecFlags(p, flags))
 }
 
 func decrementHLAddr(op opcode, p *processor) {
-	originalValue := p.memory.ReadByte(p.registers.hl)
+	originalValue := p.memory.ReadAddr(p.registers.hl)
 	newValue, flags := subtract(originalValue, 1, false)
-	p.memory.WriteByte(p.registers.hl, newValue)
+	p.memory.WriteAddr(p.registers.hl, newValue)
 	p.registers.setFlags(updateIncDecFlags(p, flags))
 }
 
@@ -167,7 +167,7 @@ func addRegToA(reg register) opcodeHandler {
 }
 
 func addHLAddrToA(op opcode, p *processor) {
-	toAdd := p.memory.ReadByte(p.registers.hl)
+	toAdd := p.memory.ReadAddr(p.registers.hl)
 	doAddValueToA(p, toAdd, false)
 }
 
@@ -179,7 +179,7 @@ func addRegAndCarryToA(reg register) opcodeHandler {
 }
 
 func addHLAddrAndCarryToA(op opcode, p *processor) {
-	toAdd := p.memory.ReadByte(p.registers.hl)
+	toAdd := p.memory.ReadAddr(p.registers.hl)
 	doAddValueToA(p, toAdd, p.registers.getFlagValue(FlagC))
 }
 
@@ -198,7 +198,7 @@ func subtractRegFromA(reg register) opcodeHandler {
 }
 
 func subtractHLAddrFromA(op opcode, p *processor) {
-	toSubtract := p.memory.ReadByte(p.registers.hl)
+	toSubtract := p.memory.ReadAddr(p.registers.hl)
 	doSubtractValueFromA(p, toSubtract, false)
 }
 
@@ -210,7 +210,7 @@ func subtractRegAndCarryFromA(reg register) opcodeHandler {
 }
 
 func subtractHLAddrAndCarryFromA(op opcode, p *processor) {
-	toSubtract := p.memory.ReadByte(p.registers.hl)
+	toSubtract := p.memory.ReadAddr(p.registers.hl)
 	doSubtractValueFromA(p, toSubtract, p.registers.getFlagValue(FlagC))
 }
 
@@ -229,7 +229,7 @@ func logicalAndRegAgainstA(reg register) opcodeHandler {
 }
 
 func logicalAndHLAddrAgainstA(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.hl)
+	other := p.memory.ReadAddr(p.registers.hl)
 	doLogicalAndAgainstA(p, other)
 }
 
@@ -247,7 +247,7 @@ func logicalXorRegAgainstA(reg register) opcodeHandler {
 }
 
 func logicalXorHLAddrAgainstA(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.hl)
+	other := p.memory.ReadAddr(p.registers.hl)
 	doLogicalXorAgainstA(p, other)
 }
 
@@ -264,7 +264,7 @@ func logicalOrRegAgainstA(reg register) opcodeHandler {
 }
 
 func logicalOrHLAddrAgainstA(op opcode, p *processor) {
-	other := p.memory.ReadByte(p.registers.hl)
+	other := p.memory.ReadAddr(p.registers.hl)
 	doLogicalOrAgainstA(p, other)
 }
 
@@ -304,7 +304,7 @@ func compareRegAgainstA(reg register) opcodeHandler {
 }
 
 func compareHLAddrAgainstA(op opcode, p *processor) {
-	value := p.memory.ReadByte(p.registers.hl)
+	value := p.memory.ReadAddr(p.registers.hl)
 	doCompareValueAgainstA(p, value)
 }
 
@@ -343,17 +343,17 @@ func addRegPairToHL(rp RegisterPair) opcodeHandler {
 
 func loadAFromRegPairAddr(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
-		p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.getRegisterPair(rp)))
+		p.registers.setRegister(RegisterA, p.memory.ReadAddr(p.registers.getRegisterPair(rp)))
 	}
 }
 
 func loadAFromHLAddrInc(op opcode, p *processor) {
-	p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.hl))
+	p.registers.setRegister(RegisterA, p.memory.ReadAddr(p.registers.hl))
 	p.registers.hl += 1
 }
 
 func loadAFromHLAddrDec(op opcode, p *processor) {
-	p.registers.setRegister(RegisterA, p.memory.ReadByte(p.registers.hl))
+	p.registers.setRegister(RegisterA, p.memory.ReadAddr(p.registers.hl))
 	p.registers.hl -= 1
 }
 
@@ -482,7 +482,7 @@ func jumpToHLAddr(op opcode, p *processor) {
 }
 
 func jumpTo16BitAddress(op opcode, p *processor) {
-	newAddr := p.memory.ReadU16(p.registers.pc)
+	newAddr := p.memory.ReadAddrU16(p.registers.pc)
 	p.registers.pc = newAddr
 }
 
@@ -501,13 +501,13 @@ func pushRegisterPair(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
 		value := p.registers.getRegisterPair(rp)
 		p.registers.sp -= 2
-		p.memory.WriteU16(p.registers.sp, value)
+		p.memory.WriteAddrU16(p.registers.sp, value)
 	}
 }
 
 func popRegisterPair(rp RegisterPair) opcodeHandler {
 	return func(op opcode, p *processor) {
-		value := p.memory.ReadU16(p.registers.sp)
+		value := p.memory.ReadAddrU16(p.registers.sp)
 		p.registers.sp += 2
 		p.registers.setRegisterPair(rp, value)
 	}
@@ -520,7 +520,7 @@ func call16BitAddress(op opcode, p *processor) {
 
 func doCall16BitAddress(p *processor, address uint16) {
 	p.registers.sp -= 2
-	p.memory.WriteU16(p.registers.sp, p.registers.pc)
+	p.memory.WriteAddrU16(p.registers.sp, p.registers.pc)
 	p.registers.pc = address
 }
 
@@ -535,7 +535,7 @@ func conditionalCall16BitAddress(f OpResultFlag, value bool) opcodeHandler {
 }
 
 func doReturn(op opcode, p *processor) {
-	returnTo := p.memory.ReadU16(p.registers.sp)
+	returnTo := p.memory.ReadAddrU16(p.registers.sp)
 	p.registers.sp += 2
 	p.registers.pc = returnTo
 }
@@ -581,7 +581,7 @@ func saveATo16BitAddr(op opcode, p *processor) {
 }
 
 func saveAToAddr(address uint16, p *processor) {
-	p.memory.WriteByte(address, p.registers.getRegister(RegisterA))
+	p.memory.WriteAddr(address, p.registers.getRegister(RegisterA))
 }
 
 func loadAFromFFPlusImmediateAddr(op opcode, p *processor) {
@@ -600,7 +600,7 @@ func loadAFromAddr(op opcode, p *processor) {
 }
 
 func doLoadAFromAddr(p *processor, address uint16) {
-	p.registers.setRegister(RegisterA, p.memory.ReadByte(address))
+	p.registers.setRegister(RegisterA, p.memory.ReadAddr(address))
 }
 
 func add8BitSignedImmediateToSP(op opcode, p *processor) {
