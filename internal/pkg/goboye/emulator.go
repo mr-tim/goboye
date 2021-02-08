@@ -129,7 +129,10 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 	}
 
 	for {
-		cycleCount += int(e.Step())
+		cycles := e.Step()
+		e.updateTimers(cycles)
+		cycleCount += int(cycles)
+
 		if e.processor.IsHalted() || e.processor.IsStopped() {
 			break
 		}
@@ -151,6 +154,20 @@ func (e *Emulator) ContinueDebugging(stopOnFrame bool) {
 			}
 		}
 		stepCount += 1
+	}
+}
+
+func (e *Emulator) updateTimers(cycles uint8) {
+	e.memory.Divider.Update(cycles)
+	if e.memory.TimerController.IsStarted() {
+		if e.memory.TimerController.UpdateCountdown(cycles) {
+			if e.memory.TimerCounter.Read() == 255 {
+				e.memory.TimerCounter.Write(e.memory.TimerModulo.Read())
+				e.memory.InterruptFlags.TimerOverflowInterrupt()
+			} else {
+				e.memory.TimerCounter.Write(e.memory.TimerCounter.Read() + 1)
+			}
+		}
 	}
 }
 
