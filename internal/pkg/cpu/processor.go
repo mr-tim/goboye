@@ -64,10 +64,15 @@ func (p *processor) Read16BitImmediate() uint16 {
 }
 
 func (p *processor) DoNextInstruction() uint8 {
-	o := p.readNextInstruction()
-	o.handler(o, p)
-	p.cycles += uint(o.Cycles())
-	return o.Cycles()
+	if !p.HandleInterrupts() {
+		o := p.readNextInstruction()
+		o.handler(o, p)
+		p.cycles += uint(o.Cycles())
+		return o.Cycles()
+	} else {
+		// TODO: how many cycles?
+		return 0
+	}
 }
 
 func (p *processor) DebugRegisters() Registers {
@@ -90,13 +95,17 @@ func (p *processor) Cycles() uint {
 	return p.cycles
 }
 
-func (p *processor) HandleInterrupts() {
+func (p *processor) HandleInterrupts() bool {
 	if p.interruptsEnabled {
 		eif := p.memory.InterruptEnabled.Read() & p.memory.InterruptFlags.Read()
 		addr, flagIndex := memory.GetIsrAddress(eif)
 		p.memory.InterruptFlags.Write(utils.UnsetBit(eif, flagIndex))
-		p.serviceInterrupt(addr)
+		if addr != 0x0000 {
+			p.serviceInterrupt(addr)
+			return true
+		}
 	}
+	return false
 }
 
 func (p *processor) serviceInterrupt(address memory.InterruptAddress) {

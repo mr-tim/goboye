@@ -31,8 +31,10 @@ func (f *StatFlags) Read() byte {
 }
 
 func (f *StatFlags) Write(value byte) {
-	// TODO: should this be readonly?
-	f.value = value
+	mask := uint8(0x78)
+	maskedValue := mask & value
+	currentFlags := ^mask & f.value
+	f.value = currentFlags | maskedValue
 }
 
 func (f *StatFlags) GetMode() LcdcMode {
@@ -40,7 +42,7 @@ func (f *StatFlags) GetMode() LcdcMode {
 }
 
 func (f *StatFlags) SetMode(mode LcdcMode) {
-	updated := (f.value & 0b11111100) | byte(mode)
+	updated := (f.value & 0xFC) | byte(mode)
 	f.value = updated
 }
 

@@ -18,8 +18,8 @@ import (
 )
 
 var (
-	addr = flag.String("addr", "127.0.0.1:8080", "http service address")
-	rom = flag.String("rom", "", "ROM to run")
+	addr       = flag.String("addr", "127.0.0.1:8080", "http service address")
+	rom        = flag.String("rom", "", "ROM to run")
 	profileCpu = flag.Bool("profileCpu", false, "Profile CPU")
 	profileMem = flag.Bool("profileMem", false, "Profile memory")
 )
